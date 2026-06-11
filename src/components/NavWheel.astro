@@ -20,8 +20,8 @@ const panels: NavPanel[] = [
             src={panel.thumb}
             alt={`Preview of the ${panel.name} page`}
             class="panel-thumb"
-            width="200"
-            height="280"
+            width="320"
+            height="180"
           />
           <span class="panel-name">{panel.name}</span>
         </a>
@@ -50,8 +50,8 @@ const panels: NavPanel[] = [
     const PANEL_COUNT = panelEls.length;
     const ANGLE_STEP = 360 / PANEL_COUNT; // 60°
 
-    const RADIUS_MOBILE = 180;
-    const RADIUS_DESKTOP = 380;
+    const RADIUS_MOBILE = 300;
+    const RADIUS_DESKTOP = 520;
     let radius = window.innerWidth >= 768 ? RADIUS_DESKTOP : RADIUS_MOBILE;
 
     nav.classList.add('is-wheel');
@@ -161,7 +161,7 @@ const panels: NavPanel[] = [
     gap: var(--space-4);
     align-items: center;
     width: 100%;
-    max-width: 280px;
+    max-width: 480px;
   }
 
   .wheel-panel {
@@ -193,7 +193,7 @@ const panels: NavPanel[] = [
 
   .panel-thumb {
     width: 100%;
-    aspect-ratio: 5 / 7;
+    aspect-ratio: 16 / 9;
     object-fit: cover;
     display: block;
   }
@@ -209,7 +209,7 @@ const panels: NavPanel[] = [
 
   .nav-wheel.is-wheel {
     align-items: center;
-    perspective: 800px;
+    perspective: 900px;
     perspective-origin: 50% 50%;
     overflow: hidden;
     cursor: grab;
@@ -226,51 +226,71 @@ const panels: NavPanel[] = [
     flex-direction: unset;
     gap: 0;
     max-width: unset;
-    /* matches mobile card size */
-    width: 120px;
-    height: 168px;
+    /* 16:9 mobile card size: 192×108 */
+    width: 192px;
+    height: 108px;
   }
 
   .nav-wheel.is-wheel .wheel-panel {
     position: absolute;
     inset: 0;
     backface-visibility: visible;
-    width: 120px;
-    height: 168px;
+    width: 192px;
+    height: 108px;
   }
 
   .nav-wheel.is-wheel .panel-card {
-    width: 120px;
-    height: 168px;
+    position: relative;
+    width: 192px;
+    height: 108px;
   }
 
+  /* Image fills the full 16:9 card face */
   .nav-wheel.is-wheel .panel-thumb {
-    aspect-ratio: unset;
-    flex: 1;
-    min-height: 0;
+    position: absolute;
+    inset: 0;
     width: 100%;
+    height: 100%;
+    object-fit: cover;
+    aspect-ratio: unset;
+    flex: unset;
+    min-height: unset;
+  }
+
+  /* Caption overlays the bottom of the card so the face stays exactly 16:9 */
+  .nav-wheel.is-wheel .panel-name {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: var(--space-1) var(--space-2);
+    font-size: var(--text-sm);
+    background: rgba(90, 40, 0, 0.72);
+    color: #FFFFFF;
+    flex-shrink: unset;
   }
 
   /* ─── Desktop wheel ─── */
 
   @media (min-width: 768px) {
     .nav-wheel.is-wheel {
-      perspective: 1100px;
+      perspective: 1200px;
     }
 
+    /* 16:9 desktop card size: 320×180 */
     .nav-wheel.is-wheel .wheel-track {
-      width: 200px;
-      height: 280px;
+      width: 320px;
+      height: 180px;
     }
 
     .nav-wheel.is-wheel .wheel-panel {
-      width: 200px;
-      height: 280px;
+      width: 320px;
+      height: 180px;
     }
 
     .nav-wheel.is-wheel .panel-card {
-      width: 200px;
-      height: 280px;
+      width: 320px;
+      height: 180px;
     }
   }
 </style>
