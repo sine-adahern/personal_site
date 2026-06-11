@@ -1,0 +1,276 @@
+---
+import type { NavPanel } from '../types/nav';
+
+const panels: NavPanel[] = [
+  { name: 'Home',      href: '/',         thumb: '/thumbs/thumb-home.svg'      },
+  { name: 'About Me',  href: '/about',    thumb: '/thumbs/thumb-about.svg'     },
+  { name: 'Portfolio', href: '/projects', thumb: '/thumbs/thumb-portfolio.svg' },
+  { name: 'Trips',     href: '/trips',    thumb: '/thumbs/thumb-trips.svg'     },
+  { name: 'Cyber SOC', href: '/cybersoc', thumb: '/thumbs/thumb-cybersoc.svg'  },
+  { name: 'Patch',     href: '/patch',    thumb: '/thumbs/thumb-patch.svg'     },
+];
+---
+
+<nav class="nav-wheel" aria-label="Site navigation">
+  <ul class="wheel-track">
+    {panels.map((panel) => (
+      <li class="wheel-panel">
+        <a href={panel.href} class="panel-card">
+          <img
+            src={panel.thumb}
+            alt={`Preview of the ${panel.name} page`}
+            class="panel-thumb"
+            width="200"
+            height="280"
+          />
+          <span class="panel-name">{panel.name}</span>
+        </a>
+      </li>
+    ))}
+  </ul>
+</nav>
+
+<script>
+  import { gsap } from 'gsap';
+
+  if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    initWheel();
+  }
+
+  function initWheel(): void {
+    const navEl = document.querySelector<HTMLElement>('.nav-wheel');
+    const trackEl = document.querySelector<HTMLElement>('.wheel-track');
+    const panelEls = Array.from(document.querySelectorAll<HTMLElement>('.wheel-panel'));
+
+    if (!navEl || !trackEl || panelEls.length === 0) return;
+
+    const nav = navEl;
+    const track = trackEl;
+
+    const PANEL_COUNT = panelEls.length;
+    const ANGLE_STEP = 360 / PANEL_COUNT; // 60°
+
+    const RADIUS_MOBILE = 180;
+    const RADIUS_DESKTOP = 380;
+    let radius = window.innerWidth >= 768 ? RADIUS_DESKTOP : RADIUS_MOBILE;
+
+    nav.classList.add('is-wheel');
+
+    const state = { angle: 0 };
+
+    function updateEmphasis(): void {
+      panelEls.forEach((panel, i) => {
+        const panelAngle = i * ANGLE_STEP;
+        // Normalise diff to [-180, 180] so cos gives 1 at front, -1 at back
+        const diff = ((panelAngle - state.angle) % 360 + 540) % 360 - 180;
+        const proximity = Math.cos((diff * Math.PI) / 180);
+        const opacity = 0.4 + 0.6 * ((proximity + 1) / 2);
+        const scale = 0.8 + 0.2 * Math.max(0, proximity);
+        panel.style.transform =
+          `rotateY(${panelAngle}deg) translateZ(${radius}px) scale(${scale})`;
+        panel.style.opacity = String(opacity);
+      });
+    }
+
+    function rotateTo(target: number, duration = 0.8): void {
+      gsap.to(state, {
+        angle: target,
+        duration,
+        ease: 'power2.out',
+        onUpdate() {
+          track.style.transform = `rotateY(${-state.angle}deg)`;
+          updateEmphasis();
+        },
+      });
+    }
+
+    updateEmphasis();
+
+    // ── Wheel scroll ──────────────────────────────────────────────────────────
+    let scrollAngle = 0;
+    let snapTimer: ReturnType<typeof setTimeout> | undefined;
+
+    nav.addEventListener(
+      'wheel',
+      (e: WheelEvent) => {
+        e.preventDefault();
+        scrollAngle += e.deltaX * 0.15;
+        rotateTo(scrollAngle);
+        clearTimeout(snapTimer);
+        snapTimer = setTimeout(() => {
+          const snapped = Math.round(scrollAngle / ANGLE_STEP) * ANGLE_STEP;
+          scrollAngle = snapped;
+          rotateTo(snapped, 0.4);
+        }, 500);
+      },
+      { passive: false },
+    );
+
+    // ── Touch swipe ───────────────────────────────────────────────────────────
+    let touchStartX = 0;
+    let touchStartAngle = 0;
+
+    nav.addEventListener('touchstart', (e: TouchEvent) => {
+      const touch = e.touches[0];
+      if (!touch) return;
+      touchStartX = touch.clientX;
+      touchStartAngle = scrollAngle;
+    });
+
+    nav.addEventListener(
+      'touchmove',
+      (e: TouchEvent) => {
+        e.preventDefault();
+        const touch = e.touches[0];
+        if (!touch) return;
+        scrollAngle = touchStartAngle - (touch.clientX - touchStartX) * 0.3;
+        rotateTo(scrollAngle, 0.15);
+      },
+      { passive: false },
+    );
+
+    nav.addEventListener('touchend', () => {
+      const snapped = Math.round(scrollAngle / ANGLE_STEP) * ANGLE_STEP;
+      scrollAngle = snapped;
+      rotateTo(snapped, 0.5);
+    });
+
+    // ── Resize ────────────────────────────────────────────────────────────────
+    window.addEventListener('resize', () => {
+      radius = window.innerWidth >= 768 ? RADIUS_DESKTOP : RADIUS_MOBILE;
+      updateEmphasis();
+    });
+  }
+</script>
+
+<style>
+  /* ─── Base: stacked list (no-JS / reduced motion) ─── */
+
+  .nav-wheel {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: var(--space-8) var(--space-4);
+    min-height: 100svh;
+  }
+
+  .wheel-track {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    align-items: center;
+    width: 100%;
+    max-width: 280px;
+  }
+
+  .wheel-panel {
+    width: 100%;
+  }
+
+  .panel-card {
+    display: flex;
+    flex-direction: column;
+    text-decoration: none;
+    color: var(--color-text-secondary);
+    border: 2px solid var(--color-accent-light);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    transition: border-color 0.2s, color 0.2s;
+  }
+
+  .panel-card:hover {
+    border-color: var(--color-accent-dark);
+    color: var(--color-text-primary);
+  }
+
+  .panel-card:focus-visible {
+    border-color: var(--color-accent-dark);
+    color: var(--color-text-primary);
+    outline: none;
+    box-shadow: 0 0 0 3px var(--color-accent-light);
+  }
+
+  .panel-thumb {
+    width: 100%;
+    aspect-ratio: 5 / 7;
+    object-fit: cover;
+    display: block;
+  }
+
+  .panel-name {
+    padding: var(--space-2) var(--space-3);
+    font-size: var(--text-base);
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  /* ─── 3D wheel mode (.is-wheel added by JS when motion is allowed) ─── */
+
+  .nav-wheel.is-wheel {
+    align-items: center;
+    perspective: 800px;
+    perspective-origin: 50% 50%;
+    overflow: hidden;
+    cursor: grab;
+  }
+
+  .nav-wheel.is-wheel:active {
+    cursor: grabbing;
+  }
+
+  .nav-wheel.is-wheel .wheel-track {
+    transform-style: preserve-3d;
+    position: relative;
+    /* override stacked-list flex */
+    flex-direction: unset;
+    gap: 0;
+    max-width: unset;
+    /* matches mobile card size */
+    width: 120px;
+    height: 168px;
+  }
+
+  .nav-wheel.is-wheel .wheel-panel {
+    position: absolute;
+    inset: 0;
+    backface-visibility: visible;
+    width: 120px;
+    height: 168px;
+  }
+
+  .nav-wheel.is-wheel .panel-card {
+    width: 120px;
+    height: 168px;
+  }
+
+  .nav-wheel.is-wheel .panel-thumb {
+    aspect-ratio: unset;
+    flex: 1;
+    min-height: 0;
+    width: 100%;
+  }
+
+  /* ─── Desktop wheel ─── */
+
+  @media (min-width: 768px) {
+    .nav-wheel.is-wheel {
+      perspective: 1100px;
+    }
+
+    .nav-wheel.is-wheel .wheel-track {
+      width: 200px;
+      height: 280px;
+    }
+
+    .nav-wheel.is-wheel .wheel-panel {
+      width: 200px;
+      height: 280px;
+    }
+
+    .nav-wheel.is-wheel .panel-card {
+      width: 200px;
+      height: 280px;
+    }
+  }
+</style>
