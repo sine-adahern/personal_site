@@ -133,6 +133,9 @@ const panels: NavPanel[] = [
     nav.addEventListener(
       'wheel',
       (e: WheelEvent) => {
+        // Only intercept horizontal-dominant events so vertical scroll
+        // (trackpad two-finger up/down) reaches the browser normally.
+        if (Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return;
         e.preventDefault();
         scrollAngle += e.deltaX * 0.15;
         rotateTo(scrollAngle);
