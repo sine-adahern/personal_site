@@ -124,7 +124,43 @@ const panels: NavPanel[] = [
       });
     }
 
+    // ── Ambient auto-rotation ────────────────────────────────────────────────
+    // Drifts continuously when idle; user scroll/touch input takes over
+    // immediately and the drift resumes a couple seconds after input stops.
+    const AUTOPLAY_DEG_PER_SEC = 5; // ~72s per revolution
+    const AUTOPLAY_RESUME_DELAY = 2500; // ms of inactivity before drift resumes
+
+    let autoplayTween: gsap.core.Tween | undefined;
+    let resumeTimer: ReturnType<typeof setTimeout> | undefined;
+
+    function startAutoplay(): void {
+      autoplayTween = gsap.to(state, {
+        angle: '+=360',
+        duration: 360 / AUTOPLAY_DEG_PER_SEC,
+        ease: 'none',
+        repeat: -1,
+        modifiers: { angle: gsap.utils.wrap(0, 360) },
+        onUpdate() {
+          track.style.transform = `rotateY(${-state.angle}deg)`;
+          updateEmphasis();
+        },
+      });
+    }
+
+    function stopAutoplay(): void {
+      if (!autoplayTween) return;
+      autoplayTween.kill();
+      autoplayTween = undefined;
+      scrollAngle = state.angle;
+    }
+
+    function scheduleAutoplayResume(): void {
+      clearTimeout(resumeTimer);
+      resumeTimer = setTimeout(startAutoplay, AUTOPLAY_RESUME_DELAY);
+    }
+
     updateEmphasis();
+    startAutoplay();
 
     // ── Wheel scroll ──────────────────────────────────────────────────────────
     let scrollAngle = 0;
@@ -137,6 +173,7 @@ const panels: NavPanel[] = [
         // (trackpad two-finger up/down) reaches the browser normally.
         if (Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return;
         e.preventDefault();
+        stopAutoplay();
         scrollAngle += e.deltaX * 0.15;
         rotateTo(scrollAngle);
         clearTimeout(snapTimer);
@@ -144,6 +181,7 @@ const panels: NavPanel[] = [
           const snapped = Math.round(scrollAngle / ANGLE_STEP) * ANGLE_STEP;
           scrollAngle = snapped;
           rotateTo(snapped, 0.4);
+          scheduleAutoplayResume();
         }, 500);
       },
       { passive: false },
@@ -156,6 +194,7 @@ const panels: NavPanel[] = [
     nav.addEventListener('touchstart', (e: TouchEvent) => {
       const touch = e.touches[0];
       if (!touch) return;
+      stopAutoplay();
       touchStartX = touch.clientX;
       touchStartAngle = scrollAngle;
     });
@@ -176,6 +215,7 @@ const panels: NavPanel[] = [
       const snapped = Math.round(scrollAngle / ANGLE_STEP) * ANGLE_STEP;
       scrollAngle = snapped;
       rotateTo(snapped, 0.5);
+      scheduleAutoplayResume();
     });
 
     // ── Resize ────────────────────────────────────────────────────────────────
