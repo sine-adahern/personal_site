@@ -4,13 +4,26 @@ import SiteHeader from '../components/SiteHeader.astro';
 import SiteFooter from '../components/SiteFooter.astro';
 import SideNav from '../components/SideNav.astro';
 
-// Swap in real src paths and captions when content is ready.
 // Caption is the text that types across the image on hover.
-const photos = Array.from({ length: 16 }, (_, i) => ({
-  src: `/images/about/photo-${i + 1}.jpg`,
-  alt: '',
-  caption: '',
-}));
+// alt is a short description used for screen readers / if an image fails to load.
+const photos = [
+  { src: '/images/about/photo-1.jpg',  alt: 'reading',       caption: `Reading is my first love. I'll devour any book, from fact to fiction, but my true love is mystery books.` },
+  { src: '/images/about/photo-2.jpg',  alt: 'studying',      caption: `While I complain constantly about studying, it's the one that got me 625 points in my leaving cert, and allowed me to maintain a strong 4.0 GPA in college.` },
+  { src: '/images/about/photo-3.jpg',  alt: 'piano',         caption: `I've been playing piano since I was 7, though I've never gone past grade 6.` },
+  { src: '/images/about/photo-4.jpg',  alt: 'coffee',        caption: `The one thing that gets me through every day. Working as a barista for 4 years certainly didn't help my obsession.` },
+  { src: '/images/about/photo-5.jpg',  alt: 'rings',         caption: `Would I even be who I am without my rings? The oldest one in my stack is almost 90 y/o.` },
+  { src: '/images/about/photo-6.jpg',  alt: 'food',          caption: `I love to cook and eat what can I say >-<` },
+  { src: '/images/about/photo-7.jpg',  alt: 'speaking',      caption: `From model EU councils in my youth to global conferences, I've always loved the chance to share my experiences and thoughts - what can I say, I'm a yapper at heart.` },
+  { src: '/images/about/photo-8.jpg',  alt: 'cybersecurity', caption: `My chosen career path and my second love, this is an area I knew I would dedicate my life to since I was 13.` },
+  { src: '/images/about/photo-9.jpg',  alt: 'rover',         caption: `Wow what a cool rover! If only there was a whole page dedicated to it on a site somewhere....` },
+  { src: '/images/about/photo-10.jpg', alt: 'fit check',     caption: `Okay so I want to be a fashionista, sue me. Not only do I make my own clothes, I also never shut up about it.` },
+  { src: '/images/about/photo-11.jpg', alt: 'skiing',        caption: `Definitely my favorite sport.` },
+  { src: '/images/about/photo-12.jpg', alt: 'NASA',          caption: `Did I mention the NASA astronaut training I did?` },
+  { src: '/images/about/photo-13.jpg', alt: 'nature',        caption: `After all those darn screens sometimes touching grass is sorely needed.` },
+  { src: '/images/about/photo-14.jpg', alt: 'Irish',         caption: `mo teanga feinig agus mo teanga is fear` },
+  { src: '/images/about/photo-15.jpg', alt: 'gym',           caption: `Is fear an tsláinte ná an táinte - or whatever they say` },
+  { src: '/images/about/photo-16.jpg', alt: 'cat',           caption: `My favorite animal and dream pet, this lil guy isn't mine though :(` },
+];
 ---
 
 <BaseLayout title="About Me">
