@@ -1,5 +1,5 @@
 @import './tokens.css';
-@import url('https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Press+Start+2P&display=swap');
 
 *,
 *::before,
@@ -13,4 +13,6 @@ body {
   font-family: 'Lato', sans-serif;
   color: var(--color-text-secondary);
   background-color: var(--color-background);
+  background-image: radial-gradient(ellipse at 50% 0%, #110410 0%, #000000 60%);
+  min-height: 100svh;
 }

@@ -7,7 +7,8 @@ const panels: NavPanel[] = [
   { name: 'Portfolio', href: '/projects', thumb: '/thumbs/thumb-portfolio.svg' },
   { name: 'Trips',     href: '/trips',    thumb: '/thumbs/thumb-trips.svg'     },
   { name: 'Cyber SOC', href: '/cybersoc', thumb: '/thumbs/thumb-cybersoc.svg'  },
-  { name: 'Patch',     href: '/patch',    thumb: '/thumbs/thumb-patch.svg'     },
+  { name: 'Patch',           href: '/patch',    thumb: '/thumbs/thumb-patch.svg'      },
+  { name: 'Public Speaking', href: '/speaking', thumb: '/thumbs/thumb-speaking.svg'   },
 ];
 ---
 
@@ -57,13 +58,13 @@ const panels: NavPanel[] = [
     const PANEL_COUNT = panelEls.length;
     const ANGLE_STEP  = 360 / PANEL_COUNT; // 60°
 
-    const RADIUS_MOBILE  = 300;
-    const RADIUS_DESKTOP = 520;
+    const RADIUS_MOBILE  = 450;
+    const RADIUS_DESKTOP = 780;
     let radius = window.innerWidth >= 768 ? RADIUS_DESKTOP : RADIUS_MOBILE;
 
     // Card height drives the floor offset (translateY to panel bottom edge).
-    const CARD_HEIGHT_MOBILE  = 108;
-    const CARD_HEIGHT_DESKTOP = 180;
+    const CARD_HEIGHT_MOBILE  = 162;
+    const CARD_HEIGHT_DESKTOP = 270;
     let cardHeight = window.innerWidth >= 768 ? CARD_HEIGHT_DESKTOP : CARD_HEIGHT_MOBILE;
 
     nav.classList.add('is-wheel');
@@ -262,22 +263,24 @@ const panels: NavPanel[] = [
     flex-direction: column;
     text-decoration: none;
     color: var(--color-text-secondary);
-    border: 2px solid var(--color-accent-light);
-    border-radius: var(--radius-md);
+    background-color: #000000;
+    border: 2px solid #FF69B4;
+    border-radius: 0;
     overflow: hidden;
-    transition: border-color 0.2s, color 0.2s;
+    transition: border-color 0.2s, box-shadow 0.2s, color 0.2s;
   }
 
   .panel-card:hover {
-    border-color: var(--color-accent-dark);
+    border-color: #FFB3D9;
+    box-shadow: 0 0 12px rgba(255, 105, 180, 0.5);
     color: var(--color-text-primary);
   }
 
   .panel-card:focus-visible {
-    border-color: var(--color-accent-dark);
+    border-color: #FFB3D9;
     color: var(--color-text-primary);
     outline: none;
-    box-shadow: 0 0 0 3px var(--color-accent-light);
+    box-shadow: 0 0 0 3px rgba(255, 105, 180, 0.5);
   }
 
   .panel-thumb {
@@ -298,7 +301,7 @@ const panels: NavPanel[] = [
 
   .nav-wheel.is-wheel {
     align-items: center;
-    perspective: 900px;
+    perspective: 1200px;
     perspective-origin: 50% 50%;
     overflow: hidden;
     cursor: grab;
@@ -315,41 +318,41 @@ const panels: NavPanel[] = [
     flex-direction: unset;
     gap: 0;
     max-width: unset;
-    /* 16:9 mobile card size: 192×108 */
-    width: 192px;
-    height: 108px;
+    /* 16:9 mobile card size: 288×162 */
+    width: 288px;
+    height: 162px;
   }
 
-  /* Shadow footprint — flat warm-dark ellipse on the floor.
+  /* Shadow footprint — flat pink-tinted ellipse on the floor.
      Position and opacity driven each frame by updateEmphasis(). */
   .nav-wheel.is-wheel .wheel-shadow {
     display: block;
     position: absolute;
     inset: 0;
-    width: 192px;
-    height: 108px;
+    width: 288px;
+    height: 162px;
     pointer-events: none;
     list-style: none;
     background: radial-gradient(
       ellipse 80% 60% at 50% 50%,
-      rgba(90, 40, 0, 0.85),
+      rgba(255, 105, 180, 0.45),
       transparent 100%
     );
-    border-radius: var(--radius-md);
+    border-radius: 0;
   }
 
   .nav-wheel.is-wheel .wheel-panel {
     position: absolute;
     inset: 0;
     backface-visibility: visible;
-    width: 192px;
-    height: 108px;
+    width: 288px;
+    height: 162px;
   }
 
   .nav-wheel.is-wheel .panel-card {
     position: relative;
-    width: 192px;
-    height: 108px;
+    width: 288px;
+    height: 162px;
   }
 
   /* Image fills the full 16:9 card face */
@@ -372,8 +375,8 @@ const panels: NavPanel[] = [
     right: 0;
     padding: var(--space-1) var(--space-2);
     font-size: var(--text-sm);
-    background: rgba(90, 40, 0, 0.72);
-    color: #FFFFFF;
+    background: rgba(0, 0, 0, 0.85);
+    color: #FF69B4;
     flex-shrink: unset;
   }
 
@@ -381,28 +384,28 @@ const panels: NavPanel[] = [
 
   @media (min-width: 768px) {
     .nav-wheel.is-wheel {
-      perspective: 1200px;
+      perspective: 1800px;
     }
 
-    /* 16:9 desktop card size: 320×180 */
+    /* 16:9 desktop card size: 480×270 */
     .nav-wheel.is-wheel .wheel-track {
-      width: 320px;
-      height: 180px;
+      width: 480px;
+      height: 270px;
     }
 
     .nav-wheel.is-wheel .wheel-shadow {
-      width: 320px;
-      height: 180px;
+      width: 480px;
+      height: 270px;
     }
 
     .nav-wheel.is-wheel .wheel-panel {
-      width: 320px;
-      height: 180px;
+      width: 480px;
+      height: 270px;
     }
 
     .nav-wheel.is-wheel .panel-card {
-      width: 320px;
-      height: 180px;
+      width: 480px;
+      height: 270px;
     }
   }
 </style>

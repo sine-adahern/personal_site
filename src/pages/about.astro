@@ -2,12 +2,224 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import SiteHeader from '../components/SiteHeader.astro';
 import SiteFooter from '../components/SiteFooter.astro';
+import SideNav from '../components/SideNav.astro';
+
+// Swap in real src paths and captions when content is ready.
+// Caption is the text that types across the image on hover.
+const photos = Array.from({ length: 16 }, (_, i) => ({
+  src: `/images/about/photo-${i + 1}.jpg`,
+  alt: '',
+  caption: '',
+}));
 ---
 
 <BaseLayout title="About Me">
   <SiteHeader />
+  <SideNav />
   <main>
-    <h1>About Me</h1>
+
+    <!-- ── Hero banner image ─────────────────────────────────────────── -->
+    <section class="hero">
+      <img
+        src="/images/about/hero.jpg"
+        alt=""
+        class="hero-img"
+        width="1920"
+        height="600"
+      />
+    </section>
+
+    <!-- ── Pink bio strip ────────────────────────────────────────────── -->
+    <section class="bio-strip" aria-label="About me">
+      <div class="bio-inner">
+        <p class="bio-text">
+          Bio text goes here — replace this with your full biography.
+        </p>
+      </div>
+    </section>
+
+    <!-- ── 3 × 4 photo grid ──────────────────────────────────────────── -->
+    <!-- Add real src and caption per photo when content is ready.       -->
+    <ul class="photo-grid" aria-label="Photo gallery">
+      {photos.map(photo => (
+        <li class="photo-item">
+          <div class="photo-card" data-caption={photo.caption}>
+            <img
+              src={photo.src}
+              alt={photo.alt}
+              class="photo-img"
+              loading="lazy"
+              width="300"
+              height="400"
+            />
+            <div class="photo-overlay" aria-hidden="true">
+              <span class="photo-caption"></span>
+            </div>
+          </div>
+        </li>
+      ))}
+    </ul>
+
   </main>
   <SiteFooter />
 </BaseLayout>
+
+<script>
+  import { gsap } from 'gsap';
+  import { TextPlugin } from 'gsap/TextPlugin';
+
+  gsap.registerPlugin(TextPlugin);
+
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  document.querySelectorAll<HTMLElement>('.photo-card').forEach(card => {
+    const overlay  = card.querySelector<HTMLElement>('.photo-overlay');
+    const captionEl = card.querySelector<HTMLElement>('.photo-caption');
+    const text = card.dataset.caption ?? '';
+
+    if (!overlay || !captionEl) return;
+
+    let tween: gsap.core.Tween | undefined;
+
+    card.addEventListener('mouseenter', () => {
+      tween?.kill();
+      if (prefersReducedMotion) {
+        gsap.set(overlay, { opacity: 1 });
+        if (text) captionEl.textContent = text;
+        return;
+      }
+      gsap.to(overlay, { opacity: 1, duration: 0.2 });
+      if (text) {
+        tween = gsap.to(captionEl, {
+          text,
+          duration: Math.max(0.5, text.length * 0.04),
+          ease: 'none',
+          delay: 0.15,
+        });
+      }
+    });
+
+    card.addEventListener('mouseleave', () => {
+      tween?.kill();
+      captionEl.textContent = '';
+      gsap.to(overlay, { opacity: 0, duration: 0.3 });
+    });
+  });
+</script>
+
+<style>
+  main {
+    min-height: 100svh;
+  }
+
+  /* ── Hero banner ───────────────────────────────────────────────────── */
+
+  .hero {
+    width: 100%;
+    height: 55vh;
+    overflow: hidden;
+    background-color: #111111;
+  }
+
+  .hero-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  /* ── Bio strip ─────────────────────────────────────────────────────── */
+
+  .bio-strip {
+    width: 100%;
+    min-height: 33vh;
+    background-color: #FF69B4;
+    display: flex;
+    align-items: center;
+  }
+
+  .bio-inner {
+    padding: var(--space-8) var(--space-6);
+    max-width: 72ch;
+  }
+
+  .bio-text {
+    font-size: var(--text-base);
+    line-height: 1.8;
+    color: #000000;
+    font-weight: 400;
+  }
+
+  @media (min-width: 768px) {
+    .bio-inner {
+      padding: var(--space-12) var(--space-10);
+    }
+
+    .bio-text {
+      font-size: var(--text-lg);
+    }
+  }
+
+  /* ── Photo grid ────────────────────────────────────────────────────── */
+
+  .photo-grid {
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-3);
+    padding: var(--space-16) var(--space-6) var(--space-8);
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .photo-item {
+    aspect-ratio: 3 / 4;
+    overflow: hidden;
+  }
+
+  .photo-card {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+    background-color: #111111;
+    border: 2px solid #FF69B4;
+  }
+
+  .photo-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .photo-overlay {
+    position: absolute;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.88);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-4);
+    opacity: 0;
+  }
+
+  .photo-caption {
+    color: #FF69B4;
+    font-size: var(--text-sm);
+    font-weight: 700;
+    text-align: center;
+    line-height: 1.6;
+  }
+
+  @media (min-width: 768px) {
+    .photo-grid {
+      gap: var(--space-4);
+      padding: var(--space-16) var(--space-8) var(--space-10);
+    }
+
+    .photo-caption {
+      font-size: var(--text-base);
+    }
+  }
+</style>
