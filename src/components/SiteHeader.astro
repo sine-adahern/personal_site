@@ -4,13 +4,26 @@
 ---
 
 <header class="site-header">
-  <p class="site-title">Sinéad Ahern</p>
+  <a href="/" class="site-title-link">
+    <p class="site-title">Sinéad Ahern</p>
+  </a>
 </header>
 
 <style>
   .site-header {
     padding: var(--space-4) var(--space-6);
     background-color: var(--color-background);
+  }
+
+  .site-title-link {
+    text-decoration: none;
+    display: inline-block;
+  }
+
+  .site-title-link:focus-visible {
+    outline: 2px solid #FF69B4;
+    outline-offset: 4px;
+    border-radius: var(--radius-sm);
   }
 
   .site-title {
