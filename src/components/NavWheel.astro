@@ -3,7 +3,7 @@ import type { NavPanel } from '../types/nav';
 
 const panels: NavPanel[] = [
   { name: 'Home',      href: '/',         thumb: '/thumbs/thumb-home.svg'      },
-  { name: 'About Me',  href: '/about',    thumb: '/thumbs/thumb-about.svg'     },
+  { name: 'About Me',  href: '/about',    thumb: '/thumbs/thumb-about-dark.jpg',  thumbLight: '/thumbs/thumb-about-light.jpg' },
   { name: 'Portfolio', href: '/projects', thumb: '/thumbs/thumb-portfolio.svg' },
   { name: 'Trips',     href: '/trips',    thumb: '/thumbs/thumb-trips.svg'     },
   { name: 'Cyber SOC', href: '/cybersoc', thumb: '/thumbs/thumb-cybersoc.svg'  },
@@ -26,10 +26,19 @@ const panels: NavPanel[] = [
           <img
             src={panel.thumb}
             alt={`Preview of the ${panel.name} page`}
-            class="panel-thumb"
+            class={panel.thumbLight ? 'panel-thumb thumb-dark' : 'panel-thumb'}
             width="320"
             height="180"
           />
+          {panel.thumbLight && (
+            <img
+              src={panel.thumbLight}
+              alt={`Preview of the ${panel.name} page`}
+              class="panel-thumb thumb-light"
+              width="320"
+              height="180"
+            />
+          )}
           <span class="panel-name">{panel.name}</span>
         </a>
       </li>

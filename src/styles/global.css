@@ -16,3 +16,8 @@ body {
   background-image: var(--color-bg-gradient);
   min-height: 100svh;
 }
+
+/* Theme-aware thumbnail switching */
+.thumb-light { display: none; }
+[data-theme="light"] .thumb-light { display: block; }
+[data-theme="light"] .thumb-dark  { display: none; }

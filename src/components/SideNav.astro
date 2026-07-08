@@ -1,7 +1,7 @@
 ---
 const navItems = [
   { name: 'Home',      href: '/',         thumb: '/thumbs/thumb-home.svg'      },
-  { name: 'About Me',  href: '/about',    thumb: '/thumbs/thumb-about.svg'     },
+  { name: 'About Me',  href: '/about',    thumb: '/thumbs/thumb-about-dark.jpg',  thumbLight: '/thumbs/thumb-about-light.jpg' },
   { name: 'Portfolio', href: '/projects', thumb: '/thumbs/thumb-portfolio.svg' },
   { name: 'Trips',     href: '/trips',    thumb: '/thumbs/thumb-trips.svg'     },
   { name: 'Cyber SOC', href: '/cybersoc', thumb: '/thumbs/thumb-cybersoc.svg'  },
@@ -36,11 +36,21 @@ const navItems = [
           <img
             src={item.thumb}
             alt={`Preview of the ${item.name} page`}
-            class="sidenav-thumb"
+            class={item.thumbLight ? 'sidenav-thumb thumb-dark' : 'sidenav-thumb'}
             width="240"
             height="135"
             loading="lazy"
           />
+          {item.thumbLight && (
+            <img
+              src={item.thumbLight}
+              alt={`Preview of the ${item.name} page`}
+              class="sidenav-thumb thumb-light"
+              width="240"
+              height="135"
+              loading="lazy"
+            />
+          )}
           <span class="sidenav-name">{item.name}</span>
         </a>
       </li>
