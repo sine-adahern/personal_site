@@ -31,15 +31,21 @@ const photos = [
   <SideNav />
   <main>
 
-    <!-- ── Hero banner image ─────────────────────────────────────────── -->
-    <section class="hero">
-      <img
-        src="/images/about/hero.jpg"
-        alt=""
-        class="hero-img"
-        width="1920"
-        height="600"
-      />
+    <!-- ── Scrolling circle banner ──────────────────────────────────── -->
+    <!-- aria-hidden: same images appear accessibly in the grid below -->
+    <section class="banner-scroll" aria-hidden="true">
+      <ul class="banner-track">
+        {photos.map(photo => (
+          <li class="banner-item">
+            <img src={photo.src} alt="" class="banner-img" width="160" height="160" />
+          </li>
+        ))}
+        {photos.map(photo => (
+          <li class="banner-item">
+            <img src={photo.src} alt="" class="banner-img" width="160" height="160" loading="lazy" />
+          </li>
+        ))}
+      </ul>
     </section>
 
     <!-- ── Pink bio strip ────────────────────────────────────────────── -->
@@ -85,6 +91,17 @@ const photos = [
 
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+  // Banner scroll
+  const bannerTrack = document.querySelector<HTMLElement>('.banner-track');
+  if (bannerTrack && !prefersReducedMotion) {
+    gsap.to(bannerTrack, {
+      xPercent: -50,
+      duration: 30,
+      ease: 'none',
+      repeat: -1,
+    });
+  }
+
   document.querySelectorAll<HTMLElement>('.photo-card').forEach(card => {
     const overlay  = card.querySelector<HTMLElement>('.photo-overlay');
     const captionEl = card.querySelector<HTMLElement>('.photo-caption');
@@ -125,20 +142,42 @@ const photos = [
     min-height: 100svh;
   }
 
-  /* ── Hero banner ───────────────────────────────────────────────────── */
+  /* ── Scrolling circle banner ───────────────────────────────────────── */
 
-  .hero {
+  .banner-scroll {
     width: 100%;
-    height: 55vh;
     overflow: hidden;
-    background-color: #111111;
+    padding: var(--space-8) 0;
   }
 
-  .hero-img {
+  .banner-track {
+    display: flex;
+    gap: var(--space-6);
+    list-style: none;
+    width: max-content;
+    will-change: transform;
+  }
+
+  .banner-item {
+    flex-shrink: 0;
+    width: 140px;
+    height: 140px;
+  }
+
+  .banner-img {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    border-radius: 50%;
+    border: 2px solid #FF69B4;
     display: block;
+  }
+
+  @media (min-width: 768px) {
+    .banner-item {
+      width: 180px;
+      height: 180px;
+    }
   }
 
   /* ── Bio strip ─────────────────────────────────────────────────────── */
