@@ -8,6 +8,11 @@
   --color-accent-dark:     #E0429A;
   --color-brand:           #FF69B4;
 
+  /* Theme-aware surface colours (dark is default) */
+  --color-surface:         #000000;
+  --color-surface-alt:     #111111;
+  --color-bg-gradient:     radial-gradient(ellipse at 50% 0%, #110410 0%, #000000 60%);
+
   /* Spacing (base unit: 4px) */
   --space-1:   4px;
   --space-2:   8px;
@@ -32,4 +37,11 @@
   /* Border radius */
   --radius-sm: 4px;
   --radius-md: 8px;
+}
+
+[data-theme="light"] {
+  --color-background:   #ffffff;
+  --color-surface:      #ffffff;
+  --color-surface-alt:  #f4f4f4;
+  --color-bg-gradient:  radial-gradient(ellipse at 50% 0%, #ffe8f4 0%, #ffffff 60%);
 }

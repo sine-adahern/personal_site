@@ -1,0 +1,91 @@
+---
+---
+
+<button
+  class="theme-toggle"
+  id="theme-toggle"
+  aria-label="Switch to light mode"
+  title="Switch to light mode"
+>
+  <!-- Moon — visible in dark mode (default) -->
+  <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+  </svg>
+  <!-- Sun — visible in light mode -->
+  <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <circle cx="12" cy="12" r="5"/>
+    <line x1="12" y1="1" x2="12" y2="3"/>
+    <line x1="12" y1="21" x2="12" y2="23"/>
+    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+    <line x1="1" y1="12" x2="3" y2="12"/>
+    <line x1="21" y1="12" x2="23" y2="12"/>
+    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+  </svg>
+</button>
+
+<script>
+  const btn = document.getElementById('theme-toggle') as HTMLButtonElement | null;
+  if (btn) {
+    const html = document.documentElement;
+
+    function syncButton(): void {
+      const isLight = html.getAttribute('data-theme') === 'light';
+      btn!.classList.toggle('is-light', isLight);
+      btn!.setAttribute('aria-label', isLight ? 'Switch to dark mode' : 'Switch to light mode');
+      btn!.setAttribute('title',      isLight ? 'Switch to dark mode' : 'Switch to light mode');
+    }
+
+    btn.addEventListener('click', () => {
+      const isLight = html.getAttribute('data-theme') === 'light';
+      if (isLight) {
+        html.removeAttribute('data-theme');
+        localStorage.setItem('theme', 'dark');
+      } else {
+        html.setAttribute('data-theme', 'light');
+        localStorage.setItem('theme', 'light');
+      }
+      syncButton();
+    });
+
+    syncButton();
+  }
+</script>
+
+<style>
+  .theme-toggle {
+    position: fixed;
+    bottom: var(--space-6);
+    right: var(--space-6);
+    z-index: 300;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background-color: var(--color-surface);
+    border: 2px solid #FF69B4;
+    color: #FF69B4;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s, box-shadow 0.2s;
+    padding: 0;
+  }
+
+  .theme-toggle:hover {
+    box-shadow: 0 0 12px rgba(255, 105, 180, 0.5);
+  }
+
+  .theme-toggle:focus-visible {
+    outline: 2px solid #FF69B4;
+    outline-offset: 3px;
+  }
+
+  /* Icon visibility */
+  .icon-sun  { display: none; }
+  .icon-moon { display: block; }
+
+  .theme-toggle.is-light .icon-sun  { display: block; }
+  .theme-toggle.is-light .icon-moon { display: none; }
+</style>
