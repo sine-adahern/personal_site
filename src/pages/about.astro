@@ -52,10 +52,16 @@ const photos = [
     <section class="bio-strip" aria-label="About me">
       <div class="bio-inner">
         <p class="bio-text">
-          I'm a Cybersecurity and IT Management student at Munster Technological University, and I currently chair MTU's Cybersecurity Society. My interest in security is hands-on: I've shadowed Johnson & Johnson's cybersecurity team watching how threat detection actually works inside a large organisation, and I'm building toward a career in security engineering. 
- I work in Python, C++, JavaScript, and Rust, and I like the kind of problem-solving that rewards patience, a habit I picked up competing in the European Girls' Mathematical Olympiad (top 10 in Ireland) and the national Programming Olympiad finals. I'm happiest when I'm building something real:  I co-founded Lynra at Dublin's Patch accelerator, training an object-detection model and putting it on a rover that delivers micro-injections to diseased ash trees. Earlier, a four-person team and I won SciFest's Technology Category and the EirGrid Award for a carbon-capture filter using carbon-capture tech, CAD, and 3D printing to cut CO₂ from car exhausts.More recently I built SÓShielta at Hack Europe with a four-person team.
-Outside the strictly technical stuff, I've trained as an astronaut at NASA's Space Camp (and somehow came home with the Right Stuff Award).I read a lot -  mystery novels especially - and I make my own clothes. Both scratch the same itch as everything else: at heart I'm a problem-solver, the kind who's just as happy untangling a network connectivity issue as a locked-room murder; figuring out how the pieces fit together to make something that works.
- I'm always up for interesting projects and conversations — get in touch.
+          I'm a Cybersecurity and IT Management student at Munster Technological University, and I currently chair <a href="/cybersoc">MTU's Cybersecurity Society</a>. My interest in security is hands-on: I've shadowed Johnson &amp; Johnson's cybersecurity team watching how threat detection actually works inside a large organisation, and I'm building toward a career in security engineering.
+        </p>
+        <p class="bio-text">
+          I work in Python, C++, JavaScript, and Rust, and I like the kind of problem-solving that rewards patience, a habit I picked up competing in the European Girls' Mathematical Olympiad (top 10 in Ireland) and the national Programming Olympiad finals. I'm happiest when I'm building something real: I co-founded <a href="/patch">Lynra</a> at Dublin's Patch accelerator, training an object-detection model and putting it on a rover that delivers micro-injections to diseased ash trees. Earlier, a four-person team and I won SciFest's Technology Category and the EirGrid Award for a carbon-capture filter that used CAD and 3D printing to cut CO₂ from car exhausts. More recently I built SÓShielta at Hack Europe with a four-person team.
+        </p>
+        <p class="bio-text">
+          Outside the strictly technical stuff, I've trained as an astronaut at <a href="/trips">NASA's Space Camp</a> (and somehow came home with the Right Stuff Award). I read a lot — mystery novels especially — and I make my own clothes. Both scratch the same itch as everything else: at heart I'm a problem-solver, the kind who's just as happy untangling a network connectivity issue as a locked-room murder; figuring out how the pieces fit together to make something that works.
+        </p>
+        <p class="bio-text">
+          I'm always up for interesting projects and conversations — get in touch.
         </p>
       </div>
     </section>
@@ -203,6 +209,25 @@ Outside the strictly technical stuff, I've trained as an astronaut at NASA's Spa
     line-height: 1.8;
     color: #000000;
     font-weight: 400;
+    margin: 0 0 1.1em 0;
+  }
+
+  .bio-text:last-child {
+    margin-bottom: 0;
+  }
+
+  .bio-text a {
+    color: #000000;
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    text-decoration-thickness: 1px;
+    transition: color 0.15s ease;
+  }
+
+  .bio-text a:hover,
+  .bio-text a:focus-visible {
+    color: #ffffff;
   }
 
   @media (min-width: 768px) {
