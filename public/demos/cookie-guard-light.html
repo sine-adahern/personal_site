@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Cookie Guard Reporter — interactive demo</title>
+<style>
+  :root{
+    --page-bg:#ffffff;
+    --card:#ffffff;
+    --card-border:#e4e7ee;
+    --heading:#0f1b34;
+    --label:#1e2a44;
+    --text:#334155;
+    --muted:#64748b;
+    --muted-2:#94a3b8;
+    --blue:#FF69B4;
+    --blue-hover:#e85aa5;
+    --input-border:#cbd5e1;
+    --panel-bg:#ffffff;
+    --pill-low-bg:#e3f6ea; --pill-low-text:#1a7f3c; --pill-low-border:#b6e6c6;
+    --pill-med-bg:#fdf0d9; --pill-med-text:#8a5a06; --pill-med-border:#f2d8a3;
+    --pill-high-bg:#fde4e4; --pill-high-text:#a4232b; --pill-high-border:#f2b8ba;
+    --row-hover:#fbe6f2;
+    --row-active:#fcdcef;
+    --row-active-border:#FF69B4;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--page-bg);
+    font-family:"Segoe UI",-apple-system,BlinkMacSystemFont,Roboto,Helvetica,Arial,sans-serif;
+    color:var(--text);
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  .app{max-width:1180px;margin:0 auto;padding:20px 16px 40px;}
+  h1.app-title{
+    font-size:26px;font-weight:700;color:var(--heading);
+    margin:6px 4px 18px;letter-spacing:-.01em;
+  }
+  .card{
+    background:var(--card);
+    border:1px solid var(--card-border);
+    border-radius:12px;
+    padding:20px 22px;
+    margin-bottom:16px;
+    box-shadow:0 1px 3px rgba(15,27,52,.08);
+  }
+  .card h2{
+    font-size:20px;font-weight:700;color:var(--heading);
+    margin:0 0 14px;letter-spacing:-.01em;
+  }
+  .field-label{font-size:14px;font-weight:700;color:var(--label);display:block;margin-bottom:7px;}
+  select,input[type=text]{
+    width:100%;font-size:15px;color:var(--text);
+    padding:9px 12px;border:1px solid var(--input-border);
+    border-radius:8px;background:#fff;font-family:inherit;
+  }
+  select{appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'><path d='M4 6l4 4 4-4' stroke='%23334155' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>");background-repeat:no-repeat;background-position:right 12px center;padding-right:36px;cursor:pointer;}
+  select:focus,input[type=text]:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(255,105,180,.20);}
+  .helper{font-size:14px;color:var(--muted);margin:10px 0 0;}
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:6px;
+    background:var(--blue);color:#fff;border:none;border-radius:8px;
+    font-size:14px;font-weight:600;font-family:inherit;
+    padding:9px 16px;cursor:pointer;transition:background .12s;
+    white-space:nowrap;
+  }
+  .btn:hover{background:var(--blue-hover);}
+  .btn:active{transform:translateY(1px);}
+  .btn.ghost{background:#fff;color:var(--blue);border:1px solid var(--blue);}
+  .btn.ghost:hover{background:#fdeaf4;}
+  .site-domain{font-size:15px;color:var(--text);margin:0 0 12px;}
+
+  .summary-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+  .stat{background:var(--panel-bg);border:1px solid var(--card-border);border-radius:10px;padding:14px 16px;}
+  .stat .stat-label{font-size:14px;color:var(--muted);margin:0 0 6px;}
+  .stat .stat-value{font-size:26px;font-weight:700;color:var(--heading);line-height:1;}
+
+  .inline-row{display:flex;gap:10px;align-items:stretch;}
+  .inline-row input{flex:1;}
+  .allowlist-note{font-size:14px;color:var(--muted);margin:12px 0 0;}
+  .chip{display:inline-flex;align-items:center;gap:6px;background:#fde4f2;border:1px solid #f6c2e0;color:#a12a72;font-size:13px;padding:4px 8px 4px 10px;border-radius:20px;margin:6px 6px 0 0;}
+  .chip button{border:none;background:none;color:#c25a95;cursor:pointer;font-size:15px;line-height:1;padding:0;}
+  .chip button:hover{color:#a4232b;}
+
+  .scroll-panel{border:1px solid var(--card-border);border-radius:8px;background:#fff;max-height:230px;overflow-y:auto;}
+  .scroll-panel::-webkit-scrollbar{width:12px;}
+  .scroll-panel::-webkit-scrollbar-thumb{background:#c4ccd8;border-radius:8px;border:3px solid #fff;}
+  .cookie-row{padding:12px 16px;border-bottom:1px solid #eef1f6;cursor:pointer;transition:background .1s;}
+  .cookie-row:last-child{border-bottom:none;}
+  .cookie-row:hover{background:var(--row-hover);}
+  .cookie-row.active{background:var(--row-active);box-shadow:inset 3px 0 0 var(--row-active-border);}
+  .cookie-name{font-size:14px;font-weight:700;color:var(--heading);margin:0 0 3px;}
+  .cookie-meta{font-size:13.5px;color:var(--muted);margin:0;}
+  .cookie-meta .sep{color:var(--muted-2);}
+
+  .pill{display:inline-block;font-size:12px;font-weight:600;padding:1px 10px;border-radius:20px;vertical-align:1px;}
+  .pill.low{background:var(--pill-low-bg);color:var(--pill-low-text);border:1px solid var(--pill-low-border);}
+  .pill.medium{background:var(--pill-med-bg);color:var(--pill-med-text);border:1px solid var(--pill-med-border);}
+  .pill.high{background:var(--pill-high-bg);color:var(--pill-high-text);border:1px solid var(--pill-high-border);}
+
+  .panel-hint{font-size:14px;color:var(--muted);margin:14px 2px 0;}
+
+  .detail-box{border:1px solid var(--card-border);border-radius:8px;background:var(--panel-bg);padding:16px 18px;max-height:340px;overflow-y:auto;}
+  .detail-box.empty{color:var(--muted);font-size:15px;}
+  .detail-name{font-size:19px;font-weight:700;color:#b02a72;margin:0 0 12px;}
+  .detail-section-title{font-size:15px;font-weight:700;color:var(--heading);margin:14px 0 4px;}
+  .detail-section-title:first-of-type{margin-top:0;}
+  .detail-box p{margin:0 0 6px;font-size:14px;color:var(--text);}
+  .detail-box .kv{margin:2px 0;font-size:14px;}
+  .detail-box .kv b{color:var(--heading);}
+  .mono{font-family:"Cascadia Code",Consolas,"SF Mono",Menlo,monospace;font-size:12.5px;background:#fff;border:1px solid var(--card-border);border-radius:6px;padding:8px 10px;color:#334155;word-break:break-all;display:block;margin:4px 0 6px;}
+
+  .event{padding:12px 16px;border-bottom:1px solid #eef1f6;}
+  .event:last-child{border-bottom:none;}
+  .event-title{font-size:14px;font-weight:700;color:var(--heading);margin:0 0 3px;}
+  .event-line{font-size:13.5px;color:var(--muted);margin:0;white-space:nowrap;}
+  .event-line.url{overflow-x:auto;}
+
+  .footer-bar{display:flex;justify-content:space-between;align-items:center;gap:10px;}
+  .footer-bar .spacer{flex:1;}
+
+  .overlay{position:fixed;inset:0;background:rgba(15,27,52,.45);display:none;align-items:center;justify-content:center;padding:20px;z-index:50;}
+  .overlay.open{display:flex;}
+  .modal{background:#fff;border-radius:12px;max-width:520px;width:100%;padding:24px 26px;box-shadow:0 20px 50px rgba(15,27,52,.25);}
+  .modal h2{margin-top:0;}
+  .opt-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid #eef1f6;}
+  .opt-row:last-of-type{border-bottom:none;}
+  .opt-row .opt-label{font-size:14.5px;color:var(--text);}
+  .opt-row .opt-sub{font-size:13px;color:var(--muted);margin-top:2px;}
+  .switch{position:relative;width:44px;height:24px;flex:none;}
+  .switch input{opacity:0;width:0;height:0;}
+  .switch .track{position:absolute;inset:0;background:#cbd5e1;border-radius:20px;transition:.15s;cursor:pointer;}
+  .switch .track::before{content:"";position:absolute;width:18px;height:18px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.15s;}
+  .switch input:checked + .track{background:var(--blue);}
+  .switch input:checked + .track::before{transform:translateX(20px);}
+  .modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:18px;}
+
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:#0f1b34;color:#fff;font-size:14px;padding:10px 18px;border-radius:8px;opacity:0;pointer-events:none;transition:.2s;z-index:60;}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+  @media (max-width:620px){
+    .summary-grid{grid-template-columns:1fr;}
+    .footer-bar{flex-wrap:wrap;}
+    h1.app-title{font-size:22px;}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <h1 class="app-title">Cookie Guard Reporter</h1>
+
+  <section class="card">
+    <label class="field-label" for="mode">Blocking Mode</label>
+    <select id="mode">
+      <option value="all">Block all cookies</option>
+      <option value="third">Block third-party cookies</option>
+      <option value="monitor">Monitor only (no blocking)</option>
+      <option value="off">Allow all cookies</option>
+    </select>
+    <p class="helper" id="mode-desc">Blocks all Cookie and Set-Cookie headers unless allowlisted.</p>
+  </section>
+
+  <section class="card">
+    <h2>Site</h2>
+    <p class="site-domain" id="site-domain">www.youtube.com</p>
+    <button class="btn" id="allow-site-btn">Add site to allowlist</button>
+  </section>
+
+  <section class="card">
+    <h2>Summary</h2>
+    <div class="summary-grid">
+      <div class="stat"><p class="stat-label">Current cookies</p><div class="stat-value" id="stat-cookies">19</div></div>
+      <div class="stat"><p class="stat-label">Cookie changes</p><div class="stat-value" id="stat-changes">22</div></div>
+      <div class="stat"><p class="stat-label">Blocked attempts</p><div class="stat-value" id="stat-blocked">84</div></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Add allowlist domain</h2>
+    <div class="inline-row">
+      <input type="text" id="allow-input" placeholder="example.com" />
+      <button class="btn" id="allow-add-btn">Add</button>
+    </div>
+    <p class="allowlist-note" id="allowlist-note">Allowlist: (empty)</p>
+    <div id="allowlist-chips"></div>
+  </section>
+
+  <section class="card">
+    <h2>Cookies</h2>
+    <div class="scroll-panel" id="cookie-list"></div>
+    <p class="panel-hint">Click any cookie row to view a plain-language explanation and exact captured value.</p>
+  </section>
+
+  <section class="card">
+    <h2>Cookie Details</h2>
+    <div class="detail-box empty" id="detail-box">Select a cookie above to see details.</div>
+  </section>
+
+  <section class="card">
+    <h2>Recent Events</h2>
+    <div class="scroll-panel" id="event-list"></div>
+  </section>
+
+  <section class="card footer-bar">
+    <button class="btn" id="refresh-btn">Refresh</button>
+    <div class="spacer"></div>
+    <button class="btn" id="clear-btn">Clear log</button>
+    <div class="spacer"></div>
+    <button class="btn" id="options-btn">Options</button>
+  </section>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="opt-title">
+    <h2 id="opt-title">Options</h2>
+    <div class="opt-row">
+      <div><div class="opt-label">Show desktop notifications</div><div class="opt-sub">Notify me when high-risk cookies are set.</div></div>
+      <label class="switch"><input type="checkbox" checked><span class="track"></span></label>
+    </div>
+    <div class="opt-row">
+      <div><div class="opt-label">Deep value decoding</div><div class="opt-sub">Chain up to 4 decode steps (URL → base64 → JSON).</div></div>
+      <label class="switch"><input type="checkbox" checked><span class="track"></span></label>
+    </div>
+    <div class="opt-row">
+      <div><div class="opt-label">Log blocked requests</div><div class="opt-sub">Record blocked cookie traffic in Recent Events.</div></div>
+      <label class="switch"><input type="checkbox" checked><span class="track"></span></label>
+    </div>
+    <div class="opt-row">
+      <div><div class="opt-label">Analyse cookies locally only</div><div class="opt-sub">Never send any cookie value off this device.</div></div>
+      <label class="switch"><input type="checkbox" checked disabled><span class="track"></span></label>
+    </div>
+    <div class="modal-actions">
+      <button class="btn ghost" id="opt-close">Close</button>
+      <button class="btn" id="opt-save">Save options</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SITE = "www.youtube.com";
+const COOKIES = [
+  {name:"LOGIN_INFO", category:"functional", risk:"low", party:"first", domain:"youtube.com", purpose:"Maintains login or secure session state", encoding:"b64bin", lifespan:"6 months", raw:"AFmmF2swRQIgK9x1...QpL2b3n8", contains:["Readable binary fragments: v3","Binary metadata likely encoded as Protocol Buffers"]},
+  {name:"HSID", category:"functional", risk:"low", party:"first", domain:"youtube.com", purpose:"Security cookie used to authenticate the user", encoding:"opaque", lifespan:"2 years", raw:"AbC12dEf3GhIjKlM", contains:["Opaque authentication token"]},
+  {name:"SSID", category:"functional", risk:"low", party:"first", domain:"youtube.com", purpose:"Security cookie used to authenticate the user", encoding:"opaque", lifespan:"2 years", raw:"Ap9QrStUvWxYz01", contains:["Opaque authentication token"]},
+  {name:"APISID", category:"functional", risk:"low", party:"first", domain:"youtube.com", purpose:"Keeps the site working (login, settings, or session state)", encoding:"opaque", lifespan:"2 years", raw:"kLmNoPqRsTuVwXyZ/AbCdEf", contains:["Opaque identifier token"]},
+  {name:"SAPISID", category:"advertising", risk:"medium", party:"first", domain:"youtube.com", purpose:"Used for targeting and personalisation across Google services", encoding:"opaque", lifespan:"2 years", raw:"3xQ8_kZ2pL/AbC9dEfGhIjK", contains:["Cross-service identifier","Used to link activity across Google properties"]},
+  {name:"__Secure-1PAPISID", category:"functional", risk:"low", party:"first", domain:"youtube.com", purpose:"Keeps the site working (login, settings, or session state)", encoding:"opaque", lifespan:"2 years", raw:"3xQ8_kZ2pL/AbC9dEfGhIjK", contains:["Opaque identifier token"]},
+  {name:"__Secure-3PAPISID", category:"functional", risk:"low", party:"first", domain:"youtube.com", purpose:"Keeps the site working (login, settings, or session state)", encoding:"b64bin", lifespan:"12 months", raw:"CAESEwgDEgk4NjczNDcwNDEaAmVuIAE", contains:["Readable binary fragments: s1","Binary metadata likely encoded as Protocol Buffers"]},
+  {name:"__Secure-1PSID", category:"functional", risk:"low", party:"first", domain:"youtube.com", purpose:"Maintains login or secure session state", encoding:"b64bin", lifespan:"2 years", raw:"g.a000tQh9x2...bXplT4Zq", contains:["Readable binary fragments: g","Binary session payload"]},
+  {name:"__Secure-3PSID", category:"advertising", risk:"medium", party:"first", domain:"youtube.com", purpose:"Authentication plus ad personalisation signals", encoding:"b64bin", lifespan:"2 years", raw:"g.a000tQh9x2...9KpLmZ", contains:["Session payload","Ad personalisation flags"]},
+  {name:"PREF", category:"functional", risk:"low", party:"first", domain:"youtube.com", purpose:"Stores interface preferences (volume, autoplay, region)", encoding:"kv", lifespan:"2 years", raw:"tz=Europe.London&f6=40000000&volume=75", contains:["Timezone: Europe/London","Volume: 75","Feature flags"]},
+  {name:"VISITOR_INFO1_LIVE", category:"performance", risk:"low", party:"first", domain:"youtube.com", purpose:"Estimates bandwidth and tunes video playback quality", encoding:"opaque", lifespan:"6 months", raw:"hK3mQp9dRtY", contains:["Opaque session token"]},
+  {name:"YSC", category:"analytics", risk:"medium", party:"first", domain:"youtube.com", purpose:"Tracks session views to compile video statistics", encoding:"opaque", lifespan:"session", raw:"D8f2QnZ1pQ0", contains:["Session view counter token"]},
+  {name:"SOCS", category:"functional", risk:"low", party:"first", domain:"youtube.com", purpose:"Stores your cookie-consent and policy choices", encoding:"b64bin", lifespan:"13 months", raw:"CAISEwgDEgk2Njg0MDcwNDEaAmVuIAEaBgiA", contains:["Consent state","Language / region metadata","Binary Protocol Buffers payload"]},
+  {name:"CONSENT", category:"functional", risk:"low", party:"first", domain:"youtube.com", purpose:"Stores consent and policy status metadata", encoding:"structured", lifespan:"2 years", raw:"YES+cb.20260101-08-p0.en+FX+410", contains:["Consent flag: YES","Version / region tokens"]},
+  {name:"GPS", category:"performance", risk:"low", party:"first", domain:"youtube.com", purpose:"Enables location features for mobile playback", encoding:"structured", lifespan:"30 minutes", raw:"1", contains:["Location-enabled flag"]},
+  {name:"_ga", category:"analytics", risk:"medium", party:"first", domain:"youtube.com", purpose:"Google Analytics — distinguishes unique visitors", encoding:"gaid", lifespan:"2 years", raw:"GA1.1.1099438123.1718030400", contains:["Google Analytics client ID","First-visit timestamp"]},
+  {name:"_gid", category:"analytics", risk:"medium", party:"first", domain:"youtube.com", purpose:"Google Analytics — 24-hour visitor identifier", encoding:"gaid", lifespan:"24 hours", raw:"GA1.1.884213097.1718030400", contains:["Short-lived visitor ID","Timestamp"]},
+  {name:"NID", category:"advertising", risk:"high", party:"third", domain:"google.com", purpose:"Stores Google ad preferences and targeting profile", encoding:"opaque", lifespan:"6 months", raw:"511=Xq7...9pLmZ2kQ", contains:["Advertising profile ID","Cross-site targeting signals"]},
+  {name:"DV", category:"advertising", risk:"medium", party:"first", domain:"google.com", purpose:"Used for ad personalisation signals during a session", encoding:"opaque", lifespan:"10 minutes", raw:"kQ2pLmZ9x...AbC", contains:["Session ad signal token"]}
+];
+const ENCODING_DESC = {b64bin:"base64-binary (possible Protocol Buffers payload)",opaque:"an opaque token with no decodable structure",kv:"URL-encoded key/value pairs",structured:"a structured identifier",gaid:"a Google Analytics client-ID format"};
+const RECOMMENDATION = {functional:"Safe to keep for normal site functionality",performance:"Safe to keep; it helps performance",analytics:"Optional. Clearing it limits usage tracking",advertising:"Consider blocking to reduce cross-site ad tracking",social:"Optional; used for social embeds and sharing",unknown:"Review manually — purpose could not be determined"};
+const $ = s => document.querySelector(s);
+const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
+const esc = s => String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function buildAnalysis(c){const party=c.party==="first"?"first-party":"third-party";const val=ENCODING_DESC[c.encoding]||"an encoded value";const rec=RECOMMENDATION[c.category]||"Review manually";const simple=`This appears to be a ${party} cookie. It is classified as ${cap(c.category)} with ${c.risk} privacy risk. Likely purpose: ${c.purpose}. The value looks ${val}. It may include: ${c.contains.join(", ")}. Recommendation: ${rec}.`;const access=c.party==="first"?"First-party only access (same site)":"Third-party access (cross-site)";return{simple,rec,access,val};}
+const state={allowlist:[],siteAllowed:false,blocked:84,events:[]};
+const MODE_DESC={all:"Blocks all Cookie and Set-Cookie headers unless allowlisted.",third:"Blocks cross-site Cookie and Set-Cookie headers only.",monitor:"Logs cookie activity without blocking anything.",off:"Allows all cookies. Reporting only."};
+$("#mode").addEventListener("change",e=>{$("#mode-desc").textContent=MODE_DESC[e.target.value];toast("Blocking mode updated");});
+$("#allow-site-btn").addEventListener("click",()=>{state.siteAllowed=!state.siteAllowed;const btn=$("#allow-site-btn");const bare=SITE.replace(/^www\./,"");if(state.siteAllowed){btn.textContent="Remove site from allowlist";btn.classList.add("ghost");if(!state.allowlist.includes(bare))state.allowlist.push(bare);toast(SITE+" added to allowlist");}else{btn.textContent="Add site to allowlist";btn.classList.remove("ghost");state.allowlist=state.allowlist.filter(d=>d!==bare);toast(SITE+" removed from allowlist");}renderAllowlist();});
+function addDomain(){const input=$("#allow-input");const val=input.value.trim().toLowerCase().replace(/^https?:\/\//,"").replace(/\/.*$/,"");if(!val){toast("Enter a domain first");return;}if(state.allowlist.includes(val)){toast(val+" is already allowlisted");input.value="";return;}state.allowlist.push(val);input.value="";renderAllowlist();toast(val+" added to allowlist");}
+$("#allow-add-btn").addEventListener("click",addDomain);
+$("#allow-input").addEventListener("keydown",e=>{if(e.key==="Enter")addDomain();});
+function renderAllowlist(){const note=$("#allowlist-note");const chips=$("#allowlist-chips");if(state.allowlist.length===0){note.textContent="Allowlist: (empty)";chips.innerHTML="";return;}note.textContent="Allowlist:";chips.innerHTML=state.allowlist.map(d=>`<span class="chip">${esc(d)}<button data-d="${esc(d)}" aria-label="Remove ${esc(d)}">&times;</button></span>`).join("");chips.querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{const d=b.dataset.d;state.allowlist=state.allowlist.filter(x=>x!==d);if(d===SITE.replace(/^www\./,"")){state.siteAllowed=false;$("#allow-site-btn").textContent="Add site to allowlist";$("#allow-site-btn").classList.remove("ghost");}renderAllowlist();}));}
+function renderCookies(){const list=$("#cookie-list");list.innerHTML=COOKIES.map((c,i)=>`<div class="cookie-row" data-i="${i}" role="button" tabindex="0"><p class="cookie-name">${esc(c.name)}</p><p class="cookie-meta">Category: ${esc(c.category)} <span class="sep">|</span> Risk: <span class="pill ${c.risk}">${c.risk}</span></p><p class="cookie-meta">Domain: ${esc(c.domain)} <span class="sep">|</span> ${c.party==="first"?"First-party":"Third-party"}</p><p class="cookie-meta">Purpose: ${esc(c.purpose)}</p></div>`).join("");list.querySelectorAll(".cookie-row").forEach(row=>{const sel=()=>selectCookie(parseInt(row.dataset.i,10),row);row.addEventListener("click",sel);row.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();sel();}});});$("#stat-cookies").textContent=COOKIES.length;}
+function selectCookie(i,row){document.querySelectorAll(".cookie-row.active").forEach(r=>r.classList.remove("active"));if(row)row.classList.add("active");const c=COOKIES[i];const a=buildAnalysis(c);const box=$("#detail-box");box.classList.remove("empty");box.innerHTML=`<p class="detail-name">${esc(c.name)}</p><p class="detail-section-title">Simple explanation:</p><p>${esc(a.simple)}</p><p class="detail-section-title">Classification:</p><p class="kv">Category: <b>${esc(c.category)}</b></p><p class="kv">Privacy risk: <span class="pill ${c.risk}">${c.risk}</span></p><p class="kv">${esc(a.access)}</p><p class="kv">Lifespan: ${esc(c.lifespan)}</p><p class="kv">Likely purpose: ${esc(c.purpose)}</p><p class="kv">Recommendation: ${esc(a.rec)}</p><p class="detail-section-title">What data it may contain:</p><p>${c.contains.map(esc).join("<br>")}</p><p class="detail-section-title">Decoded preview:</p><p style="font-size:13px;color:#64748b;margin-bottom:4px;">Value looks ${esc(a.val)}.</p><p class="detail-section-title">Exact captured value:</p><span class="mono">${esc(c.raw)}</span>`;box.scrollTop=0;}
+const EVENT_URLS=["https://www.youtube.com/generate_204","https://www.youtube.com/youtubei/v1/account/account_menu?prettyPrint=false","https://www.youtube.com/api/stats/qoe","https://www.google.com/pagead/1p-user-list","https://www.youtube.com/youtubei/v1/log_event?alt=json","https://play.google.com/log?format=json","https://www.youtube.com/ptracking","https://googleads.g.doubleclick.net/pagead/id"];
+function nowIso(){return new Date().toISOString();}
+function makeEvent(){return{title:"Blocked cookie traffic",time:nowIso(),rule:1101,resource:"unknown",url:EVENT_URLS[Math.floor(Math.random()*EVENT_URLS.length)]};}
+function seedEvents(){state.events=[];for(let i=0;i<6;i++){const e=makeEvent();e.time=new Date(Date.now()-i*380).toISOString();state.events.push(e);}renderEvents();}
+function renderEvents(){const list=$("#event-list");if(state.events.length===0){list.innerHTML=`<div class="event"><p class="event-line">No events logged.</p></div>`;return;}list.innerHTML=state.events.map(e=>`<div class="event"><p class="event-title">${esc(e.title)}</p><p class="event-line">Time: ${esc(e.time)}</p><p class="event-line">Rule: ${e.rule} | Resource: ${esc(e.resource)}</p><p class="event-line url">URL: ${esc(e.url)}</p></div>`).join("");}
+let liveTimer=null;
+function startLive(){stopLive();liveTimer=setInterval(()=>{if($("#mode").value==="off")return;state.events.unshift(makeEvent());if(state.events.length>40)state.events.pop();state.blocked+=Math.floor(Math.random()*2)+1;$("#stat-blocked").textContent=state.blocked;renderEvents();},4500);}
+function stopLive(){if(liveTimer)clearInterval(liveTimer);}
+$("#refresh-btn").addEventListener("click",()=>{const box=$("#detail-box");box.classList.add("empty");box.textContent="Select a cookie above to see details.";document.querySelectorAll(".cookie-row.active").forEach(r=>r.classList.remove("active"));renderCookies();seedEvents();toast("Rescanned this page");});
+$("#clear-btn").addEventListener("click",()=>{state.events=[];renderEvents();toast("Event log cleared");});
+$("#options-btn").addEventListener("click",()=>$("#overlay").classList.add("open"));
+$("#opt-close").addEventListener("click",()=>$("#overlay").classList.remove("open"));
+$("#opt-save").addEventListener("click",()=>{$("#overlay").classList.remove("open");toast("Options saved");});
+$("#overlay").addEventListener("click",e=>{if(e.target===$("#overlay"))$("#overlay").classList.remove("open");});
+let toastTimer=null;
+function toast(msg){const t=$("#toast");t.textContent=msg;t.classList.add("show");clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove("show"),1800);}
+$("#site-domain").textContent=SITE;
+renderCookies();
+renderAllowlist();
+seedEvents();
+startLive();
+</script>
+</body>
+</html>

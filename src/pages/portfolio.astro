@@ -10,9 +10,54 @@ import SideNav from '../components/SideNav.astro';
   <SideNav />
   <main class="portfolio-main">
     <h1 class="portfolio-title">Portfolio</h1>
+
+    <section class="project-section">
+
+      <h2 class="project-heading">Cookie cutter</h2>
+
+      <div class="project-row">
+
+        <div class="project-box">
+          <p>Cookies, stored by websites in your browser, and their contents are often deliberately scrambled so you can't tell what's being tracked. I built a browser extension that unscrambles and explains a site's cookies in plain language, and runs the entire analysis on your own device, so no cookie value is ever sent anywhere. This not only helps breakdown exactly what data is being shared and with whom, it also gives you the option to filter them to protect your data.</p>
+        </div>
+
+        <div class="demo-wrapper">
+          <iframe
+            class="demo-frame"
+            src="/demos/cookie-guard-light.html"
+            title="Cookie Guard Reporter — interactive demo"
+            loading="lazy"
+            sandbox="allow-scripts allow-same-origin"
+          ></iframe>
+        </div>
+
+      </div>
+
+      <div class="project-box project-box--right">
+        <p class="how-title">How does it do this?</p>
+        <ul class="how-list">
+          <li><strong>Fully offline</strong> — every cookie value is decoded and analysed locally in the browser; nothing is ever transmitted to an external service.</li>
+          <li><strong>Multi-layer decoder</strong> — recognises and peels back up to four layers of encoding (URL, Base64, hexadecimal, JWT, and JSON, plus detection of binary Protocol Buffers data), since real tracking cookies are frequently wrapped several times over.</li>
+          <li><strong>Content classifier</strong> — reads the decoded data for tell-tale signals like identifiers, analytics tags, and timestamps to sort each cookie into a category (functional, analytics, advertising) and assign a privacy-risk rating.</li>
+          <li><strong>Known-tracker knowledge base</strong> — instantly recognises common trackers such as Google Analytics (_ga) and Meta (_fbp) and explains what they do.</li>
+          <li><strong>Plain-language output</strong> — turns the whole analysis into a readable summary anyone can understand, while staying fast and private by capping values at 4,096 characters and limiting decoding to four passes.</li>
+        </ul>
+      </div>
+
+    </section>
   </main>
   <SiteFooter />
 </BaseLayout>
+
+<script>
+  window.addEventListener('load', () => {
+    const box = document.querySelector<HTMLElement>('.project-row > .project-box');
+    const frame = document.querySelector<HTMLElement>('.demo-frame');
+    if (box && frame) {
+      frame.style.height = `${box.getBoundingClientRect().height * 2}px`;
+    }
+  });
+</script>
 
 <style>
   /* Dark mode (default — no data-theme attribute) */
@@ -39,11 +84,14 @@ import SideNav from '../components/SideNav.astro';
     z-index: 100;
   }
 
+  /* ── Layout ────────────────────────────────────────────────────────── */
+
   .portfolio-main {
     min-height: 100svh;
     display: flex;
     flex-direction: column;
     align-items: center;
+    padding-bottom: var(--space-16);
   }
 
   .portfolio-title {
@@ -57,9 +105,120 @@ import SideNav from '../components/SideNav.astro';
     paint-order: stroke fill;
   }
 
+  /* ── Project section ───────────────────────────────────────────────── */
+
+  .project-section {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-8);
+    margin-top: 20vh;
+  }
+
+  .project-heading {
+    font-family: 'Press Start 2P', cursive;
+    font-size: calc(var(--text-2xl) * 1.5);
+    font-weight: 400;
+    color: #f699cd;
+    text-align: center;
+  }
+
+  /* ── Text boxes ────────────────────────────────────────────────────── */
+
+  .project-box {
+    background-color: #FF69B4;
+    padding: var(--space-6);
+    max-width: 600px;
+    line-height: 1.8;
+    font-size: var(--text-base);
+    color: #ffffff;
+  }
+
+  /* Light mode: black text, lighter box colour */
+  :global([data-theme="light"]) .project-box {
+    color: #000000;
+    background-color: #f699cd;
+  }
+
+  /* ── Description + demo row ────────────────────────────────────────── */
+
+  .project-row {
+    display: flex;
+    gap: var(--space-8);
+    padding: 0 var(--space-6);
+    align-items: flex-start;
+    width: 100%;
+  }
+
+  .project-row > .project-box {
+    flex: 1;
+    max-width: 600px;
+    margin: 0;
+  }
+
+  .demo-wrapper {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+  }
+
+  .demo-frame {
+    display: block;
+    width: 100%;
+    max-width: 600px;
+    height: 300px; /* set to 2× text box height by script below */
+    min-height: 300px;
+    border: none;
+  }
+
+  .project-box--left {
+    align-self: flex-start;
+    margin-left: var(--space-6);
+  }
+
+  .project-box--right {
+    align-self: flex-end;
+    margin-right: var(--space-6);
+  }
+
+  /* ── "How does it do this?" box internals ──────────────────────────── */
+
+  .how-title {
+    font-weight: 700;
+    margin-bottom: var(--space-4);
+  }
+
+  .how-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    padding: 0;
+  }
+
+  .how-list li {
+    padding-left: var(--space-4);
+    border-left: 3px solid currentColor;
+  }
+
+  /* ── Desktop ───────────────────────────────────────────────────────── */
+
   @media (min-width: 768px) {
     .portfolio-title {
       font-size: calc(var(--text-3xl) * 1.5);
+    }
+
+    .project-heading {
+      font-size: calc(var(--text-3xl) * 1.5);
+    }
+
+    .project-box--left {
+      margin-left: var(--space-10);
+    }
+
+    .project-box--right {
+      margin-right: var(--space-10);
     }
   }
 </style>
