@@ -17,7 +17,7 @@ body {
   min-height: 100svh;
 }
 
-/* Theme-aware thumbnail switching */
-.thumb-light { display: none; }
-[data-theme="light"] .thumb-light { display: block; }
-[data-theme="light"] .thumb-dark  { display: none; }
+/* Theme-aware thumbnail switching — !important beats scoped component display: block */
+.thumb-light                       { display: none  !important; }
+[data-theme="light"] .thumb-light  { display: block !important; }
+[data-theme="light"] .thumb-dark   { display: none  !important; }

@@ -1,0 +1,65 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import SiteHeader from '../components/SiteHeader.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+import SideNav from '../components/SideNav.astro';
+---
+
+<BaseLayout title="Portfolio">
+  <SiteHeader />
+  <SideNav />
+  <main class="portfolio-main">
+    <h1 class="portfolio-title">Portfolio</h1>
+  </main>
+  <SiteFooter />
+</BaseLayout>
+
+<style>
+  /* Dark mode (default — no data-theme attribute) */
+  :global(body) {
+    background-image: url('/images/portfolio/bg-dark.svg');
+    background-repeat: repeat;
+    background-size: calc(100% / 6) auto;
+    background-color: #000000;
+  }
+
+  /* Light mode */
+  :global([data-theme="light"] body) {
+    background-image: url('/images/portfolio/bg.svg');
+    background-size: calc(100% / 6) auto;
+    background-color: #ffffff;
+  }
+
+  /* Float the header over the grid — no white bar, no space taken in flow */
+  :global(.site-header) {
+    position: fixed;
+    top: 0;
+    left: 0;
+    background-color: transparent !important;
+    z-index: 100;
+  }
+
+  .portfolio-main {
+    min-height: 100svh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .portfolio-title {
+    font-family: 'Press Start 2P', cursive;
+    font-size: calc(var(--text-2xl) * 1.5);
+    font-weight: 400;
+    color: #ffe4c4;
+    text-align: center;
+    margin-top: var(--space-16);
+    -webkit-text-stroke: 2px #000000;
+    paint-order: stroke fill;
+  }
+
+  @media (min-width: 768px) {
+    .portfolio-title {
+      font-size: calc(var(--text-3xl) * 1.5);
+    }
+  }
+</style>
