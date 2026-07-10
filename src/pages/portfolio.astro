@@ -1,4 +1,3 @@
-
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import SiteHeader from '../components/SiteHeader.astro';
@@ -66,12 +65,35 @@ import SideNav from '../components/SideNav.astro';
 
       <h2 class="project-heading">SSH Brute-Force Intrusion Detection System</h2>
 
-      <div class="ssh-images">
-        <img class="ssh-img ssh-img--dark" src="/images/portfolio/attack_defense_dark.png" alt="Diagram: SSH brute-force attack and how detector.py defends against it" />
-        <img class="ssh-img ssh-img--light" src="/images/portfolio/attack_defense_light.png" alt="Diagram: SSH brute-force attack and how detector.py defends against it" />
+      <div class="ssh-row">
 
-        <img class="ssh-img ssh-img--dark" src="/images/portfolio/terminal-dark.png" alt="Terminal output from detector.py flagging repeated brute-force attempts" />
-        <img class="ssh-img ssh-img--light" src="/images/portfolio/terminal-light.png" alt="Terminal output from detector.py flagging repeated brute-force attempts" />
+        <div class="ssh-images">
+          <img class="ssh-img ssh-img--dark" src="/images/portfolio/attack_defense_dark.png" alt="Diagram: SSH brute-force attack and how detector.py defends against it" />
+          <img class="ssh-img ssh-img--light" src="/images/portfolio/attack_defense_light.png" alt="Diagram: SSH brute-force attack and how detector.py defends against it" />
+
+          <img class="ssh-img ssh-img--dark" src="/images/portfolio/terminal-dark.png" alt="Terminal output from detector.py flagging repeated brute-force attempts" />
+          <img class="ssh-img ssh-img--light" src="/images/portfolio/terminal-light.png" alt="Terminal output from detector.py flagging repeated brute-force attempts" />
+        </div>
+
+        <div class="ssh-text">
+
+          <div class="project-box">
+            <p>Servers are constantly hit by automated attacks that guess passwords thousands of times until one works. I built a Python tool that watches a server's login records as they're written and catches these brute-force attacks in real time, then produces professional-grade alerts that drop straight into a security team's monitoring pipeline.</p>
+          </div>
+
+          <div class="project-box">
+            <p class="how-title">How does it do this?</p>
+            <ul class="how-list">
+              <li><strong>Reads logs live</strong> — tails the server's authentication log as it's written, so detection happens in the moment rather than after the fact.</li>
+              <li><strong>Sliding-window detection</strong> — for every source address it keeps a rolling 60-second history of failed logins (the same pattern used to spot bursts of fraud), and only raises an alarm when an address crosses five failures inside that window — so a mistyped password never triggers a false alert.</li>
+              <li><strong>Structured JSON alerts</strong> — each detection is written out with the severity, the attacker's address, and the targeted account, in a machine-readable format ready for automated tooling.</li>
+              <li><strong>MITRE ATT&amp;CK tagging</strong> — every alert is labelled T1110.001 (Password Guessing) using the industry-standard threat catalogue security teams rely on, so the output needs no translation.</li>
+              <li><strong>Validated on a real system</strong> — tested against a live OpenSSH server on an Ubuntu 24.04 virtual machine, with simulated attacks and real logs captured from the system journal.</li>
+            </ul>
+          </div>
+
+        </div>
+
       </div>
 
     </section>
@@ -281,15 +303,23 @@ import SideNav from '../components/SideNav.astro';
     border-left: 3px solid currentColor;
   }
 
-  /* ── SSH project: left-aligned images (attack/defense above terminal) ── */
+  /* ── SSH project: images (left) beside two stacked text boxes (right) ── */
+
+  .ssh-row {
+    display: flex;
+    gap: var(--space-8);
+    padding: 0 var(--space-6);
+    align-items: flex-start;
+    width: 100%;
+  }
 
   .ssh-images {
-    width: 100%;
+    flex: 1;
+    min-width: 0;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
     gap: var(--space-6);
-    padding: 0 var(--space-6);
   }
 
   .ssh-img {
@@ -310,6 +340,20 @@ import SideNav from '../components/SideNav.astro';
 
   :global([data-theme="light"]) .ssh-img--light {
     display: block;
+  }
+
+  /* Right-hand column: the two pink text boxes, stacked one below the other. */
+  .ssh-text {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-8);
+  }
+
+  .ssh-text .project-box {
+    max-width: 600px;
+    margin: 0;
   }
 
   /* ── Desktop ───────────────────────────────────────────────────────── */
