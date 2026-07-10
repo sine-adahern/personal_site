@@ -102,36 +102,32 @@ import SideNav from '../components/SideNav.astro';
 
       <h2 class="project-heading">Lynra</h2>
 
-      <div class="lynra-row">
+      <div class="lynra-media">
+        <img
+          class="lynra-img"
+          src="/images/portfolio/lynra.png"
+          alt="Photo collage of the Lynra team and their tree-injecting rover at Dogpatch Labs"
+          width="1800"
+          height="570"
+          loading="lazy"
+        />
+      </div>
 
-        <div class="lynra-text">
+      <div class="lynra-text">
 
-          <div class="project-box">
-            <p>Ash dieback is a fungal disease killing ash trees across Ireland and Europe, and treating them by hand at scale isn't practical. As part of a four-person team at the Patch Summer Accelerator, I helped build Lynra: an autonomous rover that identifies ash trees and delivers a lifesaving biostimulant directly into them through a micro-injection, making large-scale treatment possible. We designed, prototyped, and 3D-printed the rover ourselves and presented it live at Demo Day to an audience of 300+ investors, founders, and industry leaders.</p>
-          </div>
-
-          <div class="project-box">
-            <p class="how-title">How does it do this?</p>
-            <ul class="how-list">
-              <li><strong>AI tree detection</strong> — a custom object-detection and recognition model in Roboflow identifies the base of ash trees (the injection site) from the rover's camera feed in real time.</li>
-              <li><strong>Onboard processing</strong> — the model runs on a Raspberry Pi mounted on the rover, letting it detect and make decisions based on the frames it analyses, which then instruct an Arduino that directly controls the rover's movements.</li>
-              <li><strong>Automated micro-injection</strong> — once a target is identified, the rover positions itself and delivers a precise micro-dose of biostimulant into the tree using a needle, without damaging the trunk.</li>
-              <li><strong>Custom-built hardware</strong> — the chassis and delivery system were designed in Fusion 360, prototyped, and 3D-printed in-house by the team.</li>
-              <li><strong>Navigation</strong> — the rover is entirely autonomous, using the video feed to control its movements.</li>
-            </ul>
-          </div>
-
+        <div class="project-box">
+          <p>Ash dieback is a fungal disease killing ash trees across Ireland and Europe, and treating them by hand at scale isn't practical. As part of a four-person team at the Patch Summer Accelerator, I helped build Lynra: an autonomous rover that identifies ash trees and delivers a lifesaving biostimulant directly into them through a micro-injection, making large-scale treatment possible. We designed, prototyped, and 3D-printed the rover ourselves and presented it live at Demo Day to an audience of 300+ investors, founders, and industry leaders.</p>
         </div>
 
-        <div class="lynra-media">
-          <img
-            class="lynra-img"
-            src="/images/portfolio/lynra.png"
-            alt="Photo collage of the Lynra team and their tree-injecting rover at Dogpatch Labs"
-            width="1800"
-            height="570"
-            loading="lazy"
-          />
+        <div class="project-box">
+          <p class="how-title">How does it do this?</p>
+          <ul class="how-list">
+            <li><strong>AI tree detection</strong> — a custom object-detection and recognition model in Roboflow identifies the base of ash trees (the injection site) from the rover's camera feed in real time.</li>
+            <li><strong>Onboard processing</strong> — the model runs on a Raspberry Pi mounted on the rover, letting it detect and make decisions based on the frames it analyses, which then instruct an Arduino that directly controls the rover's movements.</li>
+            <li><strong>Automated micro-injection</strong> — once a target is identified, the rover positions itself and delivers a precise micro-dose of biostimulant into the tree using a needle, without damaging the trunk.</li>
+            <li><strong>Custom-built hardware</strong> — the chassis and delivery system were designed in Fusion 360, prototyped, and 3D-printed in-house by the team.</li>
+            <li><strong>Navigation</strong> — the rover is entirely autonomous, using the video feed to control its movements.</li>
+          </ul>
         </div>
 
       </div>
@@ -401,44 +397,35 @@ import SideNav from '../components/SideNav.astro';
     margin: 0;
   }
 
-  /* ── Lynra: text (left) beside collage image (right) ───────────────── */
+  /* ── Lynra: heading, then centred collage, then stacked text boxes ─── */
 
-  .lynra-row {
-    display: flex;
-    gap: var(--space-8);
-    padding: 0 var(--space-6);
-    align-items: flex-start;
-    width: 100%;
-  }
-
-  /* Left column: the two pink text boxes, stacked. */
-  .lynra-text {
-    flex: 1;
-    min-width: 0;
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-8);
-  }
-
-  .lynra-text .project-box {
-    max-width: 600px;
-    margin: 0;
-  }
-
-  /* Right column: the wide collage, vertically centred beside the text. */
   .lynra-media {
-    flex: 1;
-    min-width: 0;
+    width: 100%;
     display: flex;
     justify-content: center;
-    align-items: center;
+    padding: 0 var(--space-6);
   }
 
   .lynra-img {
     display: block;
     width: 100%;
-    max-width: 700px;
+    max-width: 1000px;
     height: auto;
+  }
+
+  /* Text boxes stacked one below the other, aligned to the left. */
+  .lynra-text {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-8);
+    padding: 0 var(--space-6);
+  }
+
+  .lynra-text .project-box {
+    max-width: 600px;
+    margin: 0;
   }
 
   /* ── Desktop ───────────────────────────────────────────────────────── */
