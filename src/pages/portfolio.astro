@@ -17,8 +17,16 @@ import SideNav from '../components/SideNav.astro';
 
       <div class="project-row">
 
-        <div class="project-box">
-          <p>Cookies, stored by websites in your browser, and their contents are often deliberately scrambled so you can't tell what's being tracked. I built a browser extension that unscrambles and explains a site's cookies in plain language, and runs the entire analysis on your own device, so no cookie value is ever sent anywhere. This not only helps breakdown exactly what data is being shared and with whom, it also gives you the option to filter them to protect your data.</p>
+        <div class="desc-col">
+          <div class="project-box">
+            <p>Cookies, stored by websites in your browser, and their contents are often deliberately scrambled so you can't tell what's being tracked. I built a browser extension that unscrambles and explains a site's cookies in plain language, and runs the entire analysis on your own device, so no cookie value is ever sent anywhere. This not only helps breakdown exactly what data is being shared and with whom, it also gives you the option to filter them to protect your data.</p>
+          </div>
+
+          <div class="project-box project-box--indent">
+            <p>The demo lets you set how cookies are blocked, add trusted sites to an allowlist, and see quick stats on active, changed, and blocked cookies. The main list shows every cookie on the page with its category, a colour-coded risk rating, and its purpose — click one to see a plain-language explanation and its raw value. Below that, a live log tracks blocked cookie traffic, with buttons to refresh, clear the log, or open options.</p>
+          </div>
+
+          <img class="demo-arrow" src="/images/portfolio/pink-arrow.png" alt="" aria-hidden="true" />
         </div>
 
         <div class="demo-wrapper">
@@ -51,7 +59,7 @@ import SideNav from '../components/SideNav.astro';
 
 <script>
   window.addEventListener('load', () => {
-    const box = document.querySelector<HTMLElement>('.project-row > .project-box');
+    const box = document.querySelector<HTMLElement>('.desc-col > .project-box');
     const frame = document.querySelector<HTMLElement>('.demo-frame');
     if (box && frame) {
       frame.style.height = `${box.getBoundingClientRect().height * 2}px`;
@@ -150,8 +158,15 @@ import SideNav from '../components/SideNav.astro';
     width: 100%;
   }
 
-  .project-row > .project-box {
+  /* Left column holds the description; also the positioning context for the
+     floated demo-explanation box below it. */
+  .desc-col {
     flex: 1;
+    max-width: 600px;
+    position: relative;
+  }
+
+  .desc-col > .project-box {
     max-width: 600px;
     margin: 0;
   }
@@ -180,6 +195,32 @@ import SideNav from '../components/SideNav.astro';
   .project-box--right {
     align-self: flex-end;
     margin-right: var(--space-6);
+  }
+
+  /* Floats into the empty pocket directly below the description, so it never
+     adds height to the column or pushes the "How does it do this?" box down.
+     Narrower + out of flow ⇒ a taller, more square/portrait rectangle.
+     left = 48px on top of the row's 24px edge padding ⇒ 72px from the edge,
+     the same alignment it had before. */
+  .project-box--indent {
+    position: absolute;
+    top: calc(100% + 200px);
+    left: calc(var(--space-6) * 2);
+    width: 320px;
+    max-width: 100%;
+    margin: 0;
+  }
+
+  /* Decorative arrow floated into the empty gap between the box above and the
+     demo. Absolutely positioned ⇒ it occupies no layout space and moves nothing.
+     Biased toward the right of the gap (nearer the demo it points at). */
+  .demo-arrow {
+    position: absolute;
+    top: calc(100% + 90px);
+    left: 384px;
+    width: 230px;
+    height: auto;
+    pointer-events: none;
   }
 
   /* ── "How does it do this?" box internals ──────────────────────────── */
