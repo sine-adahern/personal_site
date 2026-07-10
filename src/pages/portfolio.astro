@@ -97,6 +97,23 @@ import SideNav from '../components/SideNav.astro';
       </div>
 
     </section>
+
+    <section class="project-section">
+
+      <h2 class="project-heading">Lynra</h2>
+
+      <div class="lynra-media">
+        <img
+          class="lynra-img"
+          src="/images/portfolio/lynra.png"
+          alt="Photo collage of the Lynra team and their tree-injecting rover at Dogpatch Labs"
+          width="1800"
+          height="570"
+          loading="lazy"
+        />
+      </div>
+
+    </section>
   </main>
   <SiteFooter />
 </BaseLayout>
@@ -359,6 +376,22 @@ import SideNav from '../components/SideNav.astro';
   .ssh-text .project-box {
     max-width: 600px;
     margin: 0;
+  }
+
+  /* ── Lynra: centred collage image ──────────────────────────────────── */
+
+  .lynra-media {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    padding: 0 var(--space-6);
+  }
+
+  .lynra-img {
+    display: block;
+    width: 100%;
+    max-width: 1000px;
+    height: auto;
   }
 
   /* ── Desktop ───────────────────────────────────────────────────────── */
