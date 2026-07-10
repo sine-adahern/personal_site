@@ -1,4 +1,5 @@
 ---
+---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import SiteHeader from '../components/SiteHeader.astro';
 import SiteFooter from '../components/SiteFooter.astro';
@@ -57,6 +58,20 @@ import SideNav from '../components/SideNav.astro';
           <li><strong>Known-tracker knowledge base</strong> — instantly recognises common trackers such as Google Analytics (_ga) and Meta (_fbp) and explains what they do.</li>
           <li><strong>Plain-language output</strong> — turns the whole analysis into a readable summary anyone can understand, while staying fast and private by capping values at 4,096 characters and limiting decoding to four passes.</li>
         </ul>
+      </div>
+
+    </section>
+
+    <section class="project-section">
+
+      <h2 class="project-heading">SSH Brute-Force Intrusion Detection System</h2>
+
+      <div class="ssh-images">
+        <img class="ssh-img ssh-img--dark" src="/images/portfolio/attack_defense_dark.png" alt="Diagram: SSH brute-force attack and how detector.py defends against it" />
+        <img class="ssh-img ssh-img--light" src="/images/portfolio/attack_defense_light.png" alt="Diagram: SSH brute-force attack and how detector.py defends against it" />
+
+        <img class="ssh-img ssh-img--dark" src="/images/portfolio/terminal-dark.png" alt="Terminal output from detector.py flagging repeated brute-force attempts" />
+        <img class="ssh-img ssh-img--light" src="/images/portfolio/terminal-light.png" alt="Terminal output from detector.py flagging repeated brute-force attempts" />
       </div>
 
     </section>
@@ -137,6 +152,8 @@ import SideNav from '../components/SideNav.astro';
     font-weight: 400;
     color: #f699cd;
     text-align: center;
+    -webkit-text-stroke: 2px #000000;
+    paint-order: stroke fill;
   }
 
   /* ── Text boxes ────────────────────────────────────────────────────── */
@@ -262,6 +279,37 @@ import SideNav from '../components/SideNav.astro';
   .how-list li {
     padding-left: var(--space-4);
     border-left: 3px solid currentColor;
+  }
+
+  /* ── SSH project: left-aligned images (attack/defense above terminal) ── */
+
+  .ssh-images {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-6);
+    padding: 0 var(--space-6);
+  }
+
+  .ssh-img {
+    display: block;
+    width: 100%;
+    max-width: 640px;
+    height: auto;
+  }
+
+  /* Show the image matching the active theme — dark is the default. */
+  .ssh-img--light {
+    display: none;
+  }
+
+  :global([data-theme="light"]) .ssh-img--dark {
+    display: none;
+  }
+
+  :global([data-theme="light"]) .ssh-img--light {
+    display: block;
   }
 
   /* ── Desktop ───────────────────────────────────────────────────────── */
