@@ -31,9 +31,16 @@ import SideNav from '../components/SideNav.astro';
 
         <div class="demo-wrapper">
           <iframe
-            class="demo-frame"
+            class="demo-frame demo-frame--dark"
+            src="/demos/cookie-guard-dark.html"
+            title="Cookie Guard Reporter — interactive demo (dark)"
+            loading="lazy"
+            sandbox="allow-scripts allow-same-origin"
+          ></iframe>
+          <iframe
+            class="demo-frame demo-frame--light"
             src="/demos/cookie-guard-light.html"
-            title="Cookie Guard Reporter — interactive demo"
+            title="Cookie Guard Reporter — interactive demo (light)"
             loading="lazy"
             sandbox="allow-scripts allow-same-origin"
           ></iframe>
@@ -60,9 +67,10 @@ import SideNav from '../components/SideNav.astro';
 <script>
   window.addEventListener('load', () => {
     const box = document.querySelector<HTMLElement>('.desc-col > .project-box');
-    const frame = document.querySelector<HTMLElement>('.demo-frame');
-    if (box && frame) {
-      frame.style.height = `${box.getBoundingClientRect().height * 2}px`;
+    const frames = document.querySelectorAll<HTMLElement>('.demo-frame');
+    if (box && frames.length) {
+      const h = `${box.getBoundingClientRect().height * 2}px`;
+      frames.forEach((frame) => { frame.style.height = h; });
     }
   });
 </script>
@@ -185,6 +193,19 @@ import SideNav from '../components/SideNav.astro';
     height: 300px; /* set to 2× text box height by script below */
     min-height: 300px;
     border: none;
+  }
+
+  /* Show the demo that matches the active theme — dark is the default. */
+  .demo-frame--light {
+    display: none;
+  }
+
+  :global([data-theme="light"]) .demo-frame--dark {
+    display: none;
+  }
+
+  :global([data-theme="light"]) .demo-frame--light {
+    display: block;
   }
 
   .project-box--left {
