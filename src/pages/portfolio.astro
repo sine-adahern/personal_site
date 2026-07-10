@@ -68,8 +68,8 @@ import SideNav from '../components/SideNav.astro';
       <div class="ssh-row">
 
         <div class="ssh-images">
-          <img class="ssh-img ssh-img--dark" src="/images/portfolio/attack_defense_dark.png" alt="Diagram: SSH brute-force attack and how detector.py defends against it" />
-          <img class="ssh-img ssh-img--light" src="/images/portfolio/attack_defense_light.png" alt="Diagram: SSH brute-force attack and how detector.py defends against it" />
+          <img class="ssh-img ssh-img--attack ssh-img--dark" src="/images/portfolio/attack_defense_dark.png" alt="Diagram: SSH brute-force attack and how detector.py defends against it" />
+          <img class="ssh-img ssh-img--attack ssh-img--light" src="/images/portfolio/attack_defense_light.png" alt="Diagram: SSH brute-force attack and how detector.py defends against it" />
 
           <img class="ssh-img ssh-img--dark" src="/images/portfolio/terminal-dark.png" alt="Terminal output from detector.py flagging repeated brute-force attempts" />
           <img class="ssh-img ssh-img--light" src="/images/portfolio/terminal-light.png" alt="Terminal output from detector.py flagging repeated brute-force attempts" />
@@ -319,7 +319,7 @@ import SideNav from '../components/SideNav.astro';
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: var(--space-6);
+    gap: calc(var(--space-6) * 2.5);
   }
 
   .ssh-img {
@@ -327,6 +327,11 @@ import SideNav from '../components/SideNav.astro';
     width: 100%;
     max-width: 640px;
     height: auto;
+  }
+
+  /* Nudge the first (attack/defense) diagram lower — ~2.5× the image gap. */
+  .ssh-img--attack {
+    margin-top: calc(var(--space-6) * 2.5);
   }
 
   /* Show the image matching the active theme — dark is the default. */
