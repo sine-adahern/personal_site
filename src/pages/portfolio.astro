@@ -200,10 +200,72 @@ import SideNav from '../components/SideNav.astro';
         </div>
       </div>
     </section>
+
+    <section class="project-section">
+      <h2 class="project-heading">Moving Clean</h2>
+      <p class="project-subheading">Carbon-Capture Exhaust Filter</p>
+
+      <div class="mc-row">
+        <div class="mc-text">
+          <div class="project-box">
+            <p>An award-winning device developed through Teen Turn that won the SciFest Technology Category and the EirGrid Award, with national press coverage in the Irish Independent, CorkBeo, and IrishCentral.</p>
+          </div>
+
+          <div class="project-box">
+            <p class="how-title">What it does</p>
+            <p>Cars burning fossil fuels are one of the largest drivers of climate change. Moving Clean is a filter designed to fit onto a car's exhaust and strip carbon dioxide out of its emissions before it reaches the air, splitting it into carbon that's safely stored and oxygen that's released back out — with the goal of making everyday driving far less damaging to the environment.</p>
+          </div>
+
+          <div class="project-box">
+            <p class="how-title">How does it do this?</p>
+            <ul class="how-list">
+              <li><strong>Direct Air Capture</strong> — adapts an existing technology that uses chemical reactions to pull CO₂ out of exhaust gas, rather than letting it escape into the atmosphere.</li>
+              <li><strong>Heat-driven separation</strong> — heat forces the CO₂ molecule to split into carbon and oxygen; the oxygen is released and the carbon is captured.</li>
+              <li><strong>Safe onboard storage</strong> — the separated carbon is held in a cylinder mounted under the car, safe near the engine because carbon combusts only at 300–450°C.</li>
+              <li><strong>Reusable output</strong> — the captured carbon isn't just waste: it can be repurposed as a feedstock for industrial materials or to support plant growth, closing the loop.</li>
+              <li><strong>Designed and built</strong> — developed as a working concept with 3D printing and CAD as part of a four-person team.</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Sticky live CAD viewer: drag to orbit, scroll to zoom, auto-rotates when idle. -->
+        <div class="mc-viewer">
+          <div class="mc-stage">
+            <model-viewer
+              src="/models/moving-clean.glb"
+              alt="Interactive 3D model of the Moving Clean carbon-capture exhaust filter — drag to rotate it."
+              camera-controls
+              touch-action="pan-y"
+              auto-rotate
+              auto-rotate-delay="1200"
+              rotation-per-second="18deg"
+              camera-orbit="35deg 72deg auto"
+              interaction-prompt="none"
+              shadow-intensity="0.6"
+              exposure="1"
+              loading="lazy"
+              reveal="auto"
+            >
+              <div class="mc-poster" slot="poster">Loading model…</div>
+              <div class="mc-hint" slot="progress-bar"></div>
+            </model-viewer>
+          </div>
+          <p class="mc-caption">Drag to swivel · scroll to zoom</p>
+        </div>
+      </div>
+    </section>
   </main>
 
   <SiteFooter />
 </BaseLayout>
+
+<!-- <model-viewer> web component: gives the CAD model orbit / zoom / auto-rotate.
+     Loaded from a CDN as a module, the same way the fonts come from Google. -->
+<script
+  is:inline
+  type="module"
+  src="https://unpkg.com/@google/model-viewer@4.3.1/dist/model-viewer.min.js"
+></script>
 
 <script>
   window.addEventListener('load', () => {
@@ -774,6 +836,115 @@ import SideNav from '../components/SideNav.astro';
     }
 
     .so-img {
+      max-width: 100%;
+    }
+  }
+
+  /* ── Moving Clean: text beside a live, orbitable CAD model ─────────── */
+  .mc-row {
+    display: flex;
+    gap: var(--space-8);
+    padding: 0 var(--space-6);
+    align-items: flex-start;
+    width: 100%;
+  }
+
+  .mc-text {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-8);
+  }
+
+  .mc-text .project-box {
+    max-width: 600px;
+    margin: 0;
+  }
+
+  /* Pins in place so the model stays on screen while the text scrolls past —
+     same trick as the Lynra zoom column. */
+  .mc-viewer {
+    flex: 1;
+    min-width: 0;
+    position: sticky;
+    top: 12vh;
+    align-self: flex-start;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-3);
+  }
+
+  /* Neutral grey CAD grid — deliberately reads as a modelling viewport, not as
+     part of the site's pink/cream palette. */
+  .mc-stage {
+    width: 100%;
+    max-width: 600px;
+    height: 70vh;
+    border: 1px solid #6b6f73;
+    background-color: #2b2d2f;
+    background-image:
+      repeating-linear-gradient(0deg,   #3a3d40 0 1px, transparent 1px 40px),
+      repeating-linear-gradient(90deg,  #3a3d40 0 1px, transparent 1px 40px);
+  }
+
+  :global([data-theme="light"]) .mc-stage {
+    border-color: #b8bcc0;
+    background-color: #f2f3f4;
+    background-image:
+      repeating-linear-gradient(0deg,   #dcdee0 0 1px, transparent 1px 40px),
+      repeating-linear-gradient(90deg,  #dcdee0 0 1px, transparent 1px 40px);
+  }
+
+  .mc-stage model-viewer {
+    display: block;
+    width: 100%;
+    height: 100%;
+    background-color: transparent;
+    --poster-color: transparent;
+    --progress-bar-color: #b8bcc0;
+  }
+
+  .mc-poster {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    font-family: 'Press Start 2P', cursive;
+    font-size: var(--text-sm);
+    color: #b8bcc0;
+  }
+
+  :global([data-theme="light"]) .mc-poster {
+    color: #6b6f73;
+  }
+
+  .mc-caption {
+    font-size: var(--text-sm);
+    color: #b8bcc0;
+    text-align: center;
+  }
+
+  :global([data-theme="light"]) .mc-caption {
+    color: #6b6f73;
+  }
+
+  /* Stack on narrow screens: model first, then the text below it. */
+  @media (max-width: 900px) {
+    .mc-row {
+      flex-direction: column-reverse;
+    }
+
+    .mc-viewer {
+      position: static;
+      width: 100%;
+    }
+
+    .mc-stage {
+      height: 50vh;
       max-width: 100%;
     }
   }
