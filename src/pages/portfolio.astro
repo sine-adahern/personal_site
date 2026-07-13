@@ -92,6 +92,9 @@ import SideNav from '../components/SideNav.astro';
       <h2 class="project-heading">Lynra</h2>
 
       <div class="lynra-media">
+        <img class="leaf leaf--1" src="/images/portfolio/leaf.png" alt="" aria-hidden="true" />
+        <img class="leaf leaf--2" src="/images/portfolio/leaf.png" alt="" aria-hidden="true" />
+        <img class="leaf leaf--3" src="/images/portfolio/leaf.png" alt="" aria-hidden="true" />
         <img
           class="lynra-img"
           src="/images/portfolio/lynra.png"
@@ -631,6 +634,46 @@ import SideNav from '../components/SideNav.astro';
     display: flex;
     justify-content: center;
     padding: 0 var(--space-6);
+    position: relative;   /* positioning context for the scattered leaves */
+  }
+
+  /* Three leaves scattered around the collage. Offsets are deliberately
+     uneven so they read as thrown-down decoration rather than a pattern. */
+  .leaf {
+    position: absolute;
+    width: 58px;
+    height: auto;
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  /* Above the collage, about a quarter of the way across the page. */
+  .leaf--1 {
+    left: 25%;
+    top: -40px;
+    transform: rotate(-14deg);
+  }
+
+  /* Below the collage, out at the left edge of the page. */
+  .leaf--2 {
+    left: var(--space-4);
+    bottom: -46px;
+    width: 66px;
+    transform: rotate(22deg);
+  }
+
+  /* Above the collage on the right — higher than leaf 1, so they don't line up. */
+  .leaf--3 {
+    right: 14%;
+    top: -74px;
+    width: 48px;
+    transform: rotate(9deg);
+  }
+
+  @media (max-width: 900px) {
+    .leaf--1 { width: 40px; top: -26px; }
+    .leaf--2 { width: 46px; bottom: -30px; }
+    .leaf--3 { width: 34px; top: -44px; }
   }
 
   .lynra-img {
