@@ -138,6 +138,60 @@ import SideNav from '../components/SideNav.astro';
         </div>
       </div>
     </section>
+
+    <section class="project-section">
+      <h2 class="project-heading">SÓShieldta</h2>
+      <p class="project-subheading">Social Engineering Simulation Platform</p>
+
+      <!-- Row 1: "What it does" (left) beside the landing-page screenshot (right). -->
+      <div class="so-row">
+        <div class="so-text">
+          <div class="project-box">
+            <p class="how-title">What it does</p>
+            <p>Most people only get static security training, so their first real social-engineering attack is often a live one that breaches their company. SÓShieldta lets organisations safely run realistic simulated attacks against their own staff to test and improve how well they spot and react to them, with a dashboard that tracks results and flags who needs more training. As the only cybersecurity student on our four-person team, I was able to bring a technical insight to the most current attack surfaces we should be protecting, and the current attack vectors to protect against. The entire project was built in 30 hours at HackEurope 2026.</p>
+          </div>
+        </div>
+
+        <div class="so-media">
+          <img
+            class="so-img"
+            src="/images/portfolio/soshieldta-landing.png"
+            alt="The SÓShieldta landing page: the tagline 'Security starts with people' above a feature grid covering AI-powered attacks, employee risk scoring, multi-channel vectors, and automated remediation."
+            width="1905"
+            height="1077"
+            loading="lazy"
+          />
+        </div>
+      </div>
+
+      <!-- Row 2: dashboard screenshot (left) beside "How does it do this?" (right). -->
+      <div class="so-row so-row--flip">
+        <div class="so-media">
+          <img
+            class="so-img"
+            src="/images/portfolio/soshieldta-dashboard.png"
+            alt="The SÓShieldta security dashboard: risk score, campaigns run, failure rate and reporting rate, a per-channel breakdown for email, SMS, WhatsApp and voice, campaign analytics charts, and a recent test activity feed."
+            width="1907"
+            height="1079"
+            loading="lazy"
+          />
+        </div>
+
+        <div class="so-text">
+          <div class="project-box">
+            <p class="how-title">How does it do this?</p>
+            <ul class="how-list">
+              <li><strong>Context-driven attacks</strong> — organisations upload details like org charts and their tech stack, which the platform uses to generate lures tailored to each employee's role, so simulations feel convincing rather than obviously fake.</li>
+              <li><strong>Multi-channel simulation</strong> — attacks arrive across the surfaces real attackers use: phishing email, smishing (SMS), and vishing (AI voice calls).</li>
+              <li><strong>Realistic AI content</strong> — because mainstream models refuse to write phishing, lures and call scripts are generated through an open model, producing unique campaigns that don't pattern-match as spam.</li>
+              <li><strong>AI voice calls</strong> — vishing uses ElevenLabs for a convincing synthetic voice, with Twilio as a fallback for calls and texts.</li>
+              <li><strong>Closed-loop training</strong> — employees who fail get an instant targeted lesson and are prompted to write back to their employer on what they learned, replacing tick-box quizzes with real reflection.</li>
+              <li><strong>Built for scale</strong> — a Supabase backend and tiered Stripe billing make it work as a real multi-organisation product.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
   </main>
 
   <SiteFooter />
@@ -631,6 +685,84 @@ import SideNav from '../components/SideNav.astro';
     }
   }
 
+  /* ── SÓShieldta: alternating text / screenshot rows ────────────────── */
+
+  /* Same face as .project-heading, smaller, sits directly under it. */
+  .project-subheading {
+    font-family: 'Press Start 2P', cursive;
+    font-size: var(--text-base);
+    font-weight: 400;
+    color: #ffe4c4;
+    text-align: center;
+    line-height: 1.6;
+    margin-top: calc(var(--space-4) * -1);
+    -webkit-text-stroke: 2px #000000;
+    paint-order: stroke fill;
+  }
+
+  .so-row {
+    display: flex;
+    gap: var(--space-8);
+    padding: 0 var(--space-6);
+    align-items: center;
+    width: 100%;
+  }
+
+  /* Second row mirrors the first: screenshot left, text right. */
+  .so-row--flip {
+    flex-direction: row;
+  }
+
+  .so-text {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    justify-content: center;
+  }
+
+  .so-text .project-box {
+    max-width: 600px;
+    margin: 0;
+  }
+
+  .so-media {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    justify-content: center;
+  }
+
+  .so-img {
+    display: block;
+    width: 100%;
+    max-width: 640px;
+    height: auto;
+    border: 3px solid #f699cd;
+  }
+
+  /* Dark mode: the screenshots are of a light UI, so take the glare off them
+     and frame them in cream, the same accent used by the Lynra reticle. */
+  :global(html:not([data-theme="light"])) .so-img {
+    border-color: #ffe4c4;
+    filter: brightness(0.82) contrast(1.05);
+  }
+
+  /* Stack on narrow screens: text first, then its screenshot below it. */
+  @media (max-width: 900px) {
+    .so-row,
+    .so-row--flip {
+      flex-direction: column;
+    }
+
+    .so-row--flip {
+      flex-direction: column-reverse;
+    }
+
+    .so-img {
+      max-width: 100%;
+    }
+  }
+
   /* ── Desktop ───────────────────────────────────────────────────────── */
   @media (min-width: 768px) {
     .portfolio-title {
@@ -639,6 +771,11 @@ import SideNav from '../components/SideNav.astro';
 
     .project-heading {
       font-size: calc(var(--text-3xl) * 1.5);
+    }
+
+    .project-subheading {
+      font-size: var(--text-xl);
+      margin-top: calc(var(--space-2) * -1);
     }
 
     .project-box--left {
