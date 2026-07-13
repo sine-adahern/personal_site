@@ -166,13 +166,21 @@ import SideNav from '../components/SideNav.astro';
 
       <!-- Row 2: dashboard screenshot (left) beside "How does it do this?" (right). -->
       <div class="so-row so-row--flip">
-        <div class="so-media">
+        <div class="so-media so-media--stack">
           <img
             class="so-img"
             src="/images/portfolio/soshieldta-dashboard.png"
             alt="The SÓShieldta security dashboard: risk score, campaigns run, failure rate and reporting rate, a per-channel breakdown for email, SMS, WhatsApp and voice, campaign analytics charts, and a recent test activity feed."
             width="1907"
             height="1079"
+            loading="lazy"
+          />
+          <img
+            class="so-img"
+            src="/images/portfolio/soshieldta-campaign.png"
+            alt="A SÓShieldta campaign's test results: a per-employee timeline showing the phishing email being generated and sent, the employee's reply, and the AI evaluation flagging that they fell for it and shared confidential information."
+            width="1905"
+            height="1076"
             loading="lazy"
           />
         </div>
@@ -730,6 +738,13 @@ import SideNav from '../components/SideNav.astro';
     min-width: 0;
     display: flex;
     justify-content: center;
+  }
+
+  /* Two screenshots stacked one below the other in a single column. */
+  .so-media--stack {
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-8);
   }
 
   .so-img {
