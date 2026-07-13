@@ -202,8 +202,16 @@ import SideNav from '../components/SideNav.astro';
     </section>
 
     <section class="project-section">
-      <h2 class="project-heading">Moving Clean</h2>
-      <p class="project-subheading">Carbon-Capture Exhaust Filter</p>
+      <div class="mc-banner">
+        <img
+          class="mc-car"
+          src="/images/portfolio/moving-clean-logo.png"
+          alt=""
+          aria-hidden="true"
+        />
+        <h2 class="project-heading">Moving Clean</h2>
+        <p class="project-subheading">Carbon-Capture Exhaust Filter</p>
+      </div>
 
       <div class="mc-row">
         <div class="mc-text">
@@ -213,7 +221,7 @@ import SideNav from '../components/SideNav.astro';
 
           <div class="project-box">
             <p class="how-title">What it does</p>
-            <p>Cars burning fossil fuels are one of the largest drivers of climate change. Moving Clean is a filter designed to fit onto a car's exhaust and strip carbon dioxide out of its emissions before it reaches the air, splitting it into carbon that's safely stored and oxygen that's released back out, with the goal of making everyday driving far less damaging to the environment. My role on this team focused on the chemistry behind this conversion, and the design and 3D printing of the model, while the other team members helped with consumer interst and turning this chemistry into an award winning project.</p>
+            <p>Cars burning fossil fuels are one of the largest drivers of climate change. Moving Clean is a filter designed to fit onto a car's exhaust and strip carbon dioxide out of its emissions before it reaches the air, splitting it into carbon that's safely stored and oxygen that's released back out — with the goal of making everyday driving far less damaging to the environment.</p>
           </div>
 
           <div class="project-box">
@@ -837,6 +845,68 @@ import SideNav from '../components/SideNav.astro';
 
     .so-img {
       max-width: 100%;
+    }
+  }
+
+  /* ── Moving Clean: heading with the logo driving across behind it ───── */
+  .mc-banner {
+    position: relative;
+    width: 100%;
+    overflow: hidden;          /* clips the car off-screen, no page scrollbar */
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-8);
+    padding: var(--space-10) 0;
+  }
+
+  /* Heading + subheading sit above the car. */
+  .mc-banner .project-heading,
+  .mc-banner .project-subheading {
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Starts off the right edge, drives left, loops forever. Opacity dips as it
+     passes the middle of the band — i.e. behind the title — so "Moving Clean"
+     stays readable through it. */
+  .mc-car {
+    position: absolute;
+    top: 50%;
+    left: 100%;
+    z-index: 0;
+    width: 380px;
+    height: auto;
+    pointer-events: none;
+    transform: translate(0, -50%);
+    animation: mc-drive 16s linear infinite;
+  }
+
+  /* The logo is black artwork, so it needs flipping to read on the black page. */
+  :global(html:not([data-theme="light"])) .mc-car {
+    filter: invert(1);
+  }
+
+  @keyframes mc-drive {
+    0%   { transform: translate(0, -50%);                       opacity: 0.55; }
+    36%  {                                                      opacity: 0.55; }
+    50%  {                                                      opacity: 0.12; }
+    64%  {                                                      opacity: 0.55; }
+    100% { transform: translate(calc(-100vw - 100%), -50%);     opacity: 0.55; }
+  }
+
+  /* Park it, faded, for anyone who'd rather not have things moving. */
+  @media (prefers-reduced-motion: reduce) {
+    .mc-car {
+      animation: none;
+      left: auto;
+      right: var(--space-10);
+      opacity: 0.2;
+    }
+  }
+
+  @media (max-width: 900px) {
+    .mc-car {
+      width: 240px;
     }
   }
 
