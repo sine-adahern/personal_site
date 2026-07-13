@@ -8,15 +8,14 @@ import SideNav from '../components/SideNav.astro';
 <BaseLayout title="Portfolio">
   <SiteHeader />
   <SideNav />
+
   <main class="portfolio-main">
     <h1 class="portfolio-title">Portfolio</h1>
 
     <section class="project-section">
-
       <h2 class="project-heading">Cookie cutter</h2>
 
       <div class="project-row">
-
         <div class="desc-col">
           <div class="project-box">
             <p>Cookies, stored by websites in your browser, and their contents are often deliberately scrambled so you can't tell what's being tracked. I built a browser extension that unscrambles and explains a site's cookies in plain language, and runs the entire analysis on your own device, so no cookie value is ever sent anywhere. This not only helps breakdown exactly what data is being shared and with whom, it also gives you the option to filter them to protect your data.</p>
@@ -45,7 +44,6 @@ import SideNav from '../components/SideNav.astro';
             sandbox="allow-scripts allow-same-origin"
           ></iframe>
         </div>
-
       </div>
 
       <div class="project-box project-box--right">
@@ -58,25 +56,20 @@ import SideNav from '../components/SideNav.astro';
           <li><strong>Plain-language output</strong> — turns the whole analysis into a readable summary anyone can understand, while staying fast and private by capping values at 4,096 characters and limiting decoding to four passes.</li>
         </ul>
       </div>
-
     </section>
 
     <section class="project-section">
-
       <h2 class="project-heading">SSH Brute-Force Intrusion Detection System</h2>
 
       <div class="ssh-row">
-
         <div class="ssh-images">
           <img class="ssh-img ssh-img--attack ssh-img--dark" src="/images/portfolio/attack_defense_dark.png" alt="Diagram: SSH brute-force attack and how detector.py defends against it" />
           <img class="ssh-img ssh-img--attack ssh-img--light" src="/images/portfolio/attack_defense_light.png" alt="Diagram: SSH brute-force attack and how detector.py defends against it" />
-
           <img class="ssh-img ssh-img--dark" src="/images/portfolio/terminal-dark.png" alt="Terminal output from detector.py flagging repeated brute-force attempts" />
           <img class="ssh-img ssh-img--light" src="/images/portfolio/terminal-light.png" alt="Terminal output from detector.py flagging repeated brute-force attempts" />
         </div>
 
         <div class="ssh-text">
-
           <div class="project-box">
             <p>Servers are constantly hit by automated attacks that guess passwords thousands of times until one works. I built a Python tool that watches a server's login records as they're written and catches these brute-force attacks in real time, then produces professional-grade alerts that drop straight into a security team's monitoring pipeline.</p>
           </div>
@@ -91,15 +84,11 @@ import SideNav from '../components/SideNav.astro';
               <li><strong>Validated on a real system</strong> — tested against a live OpenSSH server on an Ubuntu 24.04 virtual machine, with simulated attacks and real logs captured from the system journal.</li>
             </ul>
           </div>
-
         </div>
-
       </div>
-
     </section>
 
     <section class="project-section">
-
       <h2 class="project-heading">Lynra</h2>
 
       <div class="lynra-media">
@@ -113,27 +102,44 @@ import SideNav from '../components/SideNav.astro';
         />
       </div>
 
-      <div class="lynra-text">
+      <div class="lynra-row">
+        <div class="lynra-text">
+          <div class="project-box">
+            <p>Ash dieback is a fungal disease killing ash trees across Ireland and Europe, and treating them by hand at scale isn't practical. As part of a four-person team at the Patch Summer Accelerator, I helped build Lynra: an autonomous rover that identifies ash trees and delivers a lifesaving biostimulant directly into them through a micro-injection, making large-scale treatment possible. We designed, prototyped, and 3D-printed the rover ourselves and presented it live at Demo Day to an audience of 300+ investors, founders, and industry leaders.</p>
+          </div>
 
-        <div class="project-box">
-          <p>Ash dieback is a fungal disease killing ash trees across Ireland and Europe, and treating them by hand at scale isn't practical. As part of a four-person team at the Patch Summer Accelerator, I helped build Lynra: an autonomous rover that identifies ash trees and delivers a lifesaving biostimulant directly into them through a micro-injection, making large-scale treatment possible. We designed, prototyped, and 3D-printed the rover ourselves and presented it live at Demo Day to an audience of 300+ investors, founders, and industry leaders.</p>
+          <div class="project-box">
+            <p class="how-title">How does it do this?</p>
+            <ul class="how-list" id="lynra-how">
+              <li><strong>AI tree detection</strong> — a custom object-detection and recognition model in Roboflow identifies the base of ash trees (the injection site) from the rover's camera feed in real time.</li>
+              <li><strong>Onboard processing</strong> — the model runs on a Raspberry Pi mounted on the rover, letting it detect and make decisions based on the frames it analyses, which then instruct an Arduino that directly controls the rover's movements.</li>
+              <li><strong>Automated micro-injection</strong> — once a target is identified, the rover positions itself and delivers a precise micro-dose of biostimulant into the tree using a needle, without damaging the trunk.</li>
+              <li><strong>Custom-built hardware</strong> — the chassis and delivery system were designed in Fusion 360, prototyped, and 3D-printed in-house by the team.</li>
+              <li><strong>Navigation</strong> — the rover is entirely autonomous, using the video feed to control its movements.</li>
+            </ul>
+          </div>
         </div>
 
-        <div class="project-box">
-          <p class="how-title">How does it do this?</p>
-          <ul class="how-list">
-            <li><strong>AI tree detection</strong> — a custom object-detection and recognition model in Roboflow identifies the base of ash trees (the injection site) from the rover's camera feed in real time.</li>
-            <li><strong>Onboard processing</strong> — the model runs on a Raspberry Pi mounted on the rover, letting it detect and make decisions based on the frames it analyses, which then instruct an Arduino that directly controls the rover's movements.</li>
-            <li><strong>Automated micro-injection</strong> — once a target is identified, the rover positions itself and delivers a precise micro-dose of biostimulant into the tree using a needle, without damaging the trunk.</li>
-            <li><strong>Custom-built hardware</strong> — the chassis and delivery system were designed in Fusion 360, prototyped, and 3D-printed in-house by the team.</li>
-            <li><strong>Navigation</strong> — the rover is entirely autonomous, using the video feed to control its movements.</li>
-          </ul>
+        <div class="lynra-zoom">
+          <div class="zoom-stage" id="lynra-stage">
+            <img
+              class="zoom-img"
+              id="lynra-img"
+              src="/images/portfolio/lynra-rover.jpg"
+              alt="The Lynra rover: a two-tier plywood chassis carrying a battery, control electronics, a Raspberry Pi, pneumatics and a 3D-printed syringe assembly, on four treaded wheels."
+              width="1400"
+              height="1614"
+              loading="lazy"
+            />
+            <span class="zoom-reticle" id="lynra-reticle" aria-hidden="true">
+              <b class="c1"></b><b class="c2"></b><b class="c3"></b><b class="c4"></b>
+            </span>
+          </div>
         </div>
-
       </div>
-
     </section>
   </main>
+
   <SiteFooter />
 </BaseLayout>
 
@@ -146,6 +152,102 @@ import SideNav from '../components/SideNav.astro';
       frames.forEach((frame) => { frame.style.height = h; });
     }
   });
+</script>
+
+<script>
+  // Lynra: scroll-driven zoom. Each <li> in the "How does it do this?" list
+  // focuses a different part of the rover in the sticky image beside it.
+  const stage = document.getElementById('lynra-stage');
+  const zoomImg = document.getElementById('lynra-img') as HTMLImageElement | null;
+  const reticle = document.getElementById('lynra-reticle');
+  const list = document.getElementById('lynra-how');
+
+  if (stage && zoomImg && reticle && list) {
+    const items = Array.from(list.querySelectorAll('li'));
+
+    // fx/fy = focal point (fraction of the image), z = zoom, box = lock-on rect.
+    // Index 0 is the resting wide shot; 1–5 map to the five list items in order.
+    const KF = [
+      { fx: 0.480, fy: 0.51, z: 1.00, box: [0.04, 0.09, 0.84, 0.84] },
+      { fx: 0.436, fy: 0.50, z: 2.10, box: [0.24, 0.40, 0.36, 0.22] }, // AI tree detection
+      { fx: 0.762, fy: 0.45, z: 2.45, box: [0.64, 0.34, 0.24, 0.22] }, // Onboard processing
+      { fx: 0.680, fy: 0.19, z: 2.35, box: [0.54, 0.09, 0.28, 0.19] }, // Automated micro-injection
+      { fx: 0.471, fy: 0.20, z: 1.90, box: [0.18, 0.07, 0.58, 0.24] }, // Custom-built hardware
+      { fx: 0.480, fy: 0.51, z: 1.12, box: [0.04, 0.09, 0.84, 0.84] }, // Navigation
+    ];
+
+    const IW = 1400;
+    const IH = 1614;
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const EASE = 'transform 0.7s cubic-bezier(.22,.61,.36,1)';
+
+    let current = 0;
+    let shown = -1;
+
+    const clamp = (v: number, a: number, b: number) => Math.max(a, Math.min(b, v));
+
+    function apply(index: number) {
+      const w = stage!.clientWidth;
+      const h = stage!.clientHeight;
+      if (!w || !h) return;
+
+      const kf = KF[clamp(index, 0, KF.length - 1)];
+      const fit = Math.min(w / IW, h / IH);
+      const scale = fit * kf.z;
+      const left = w / 2 - kf.fx * IW * scale;
+      const top = h / 2 - kf.fy * IH * scale;
+
+      zoomImg!.style.transition = reduce ? 'none' : EASE;
+      zoomImg!.style.transform = `translate(${left}px, ${top}px) scale(${scale})`;
+
+      const [bx, by, bw, bh] = kf.box;
+      reticle!.style.transition = reduce ? 'none' : 'all 0.7s cubic-bezier(.22,.61,.36,1)';
+      reticle!.style.left = `${left + bx * IW * scale}px`;
+      reticle!.style.top = `${top + by * IH * scale}px`;
+      reticle!.style.width = `${bw * IW * scale}px`;
+      reticle!.style.height = `${bh * IH * scale}px`;
+      reticle!.style.opacity = index === 0 ? '0' : '0.9';
+    }
+
+    // Active item = whichever list item sits nearest the middle of the viewport.
+    function update() {
+      const mid = window.innerHeight * 0.5;
+      let best = -1;
+      let dist = Infinity;
+
+      items.forEach((li, i) => {
+        const r = li.getBoundingClientRect();
+        if (r.bottom < 0 || r.top > window.innerHeight) return;
+        const d = Math.abs(r.top + r.height / 2 - mid);
+        if (d < dist) { dist = d; best = i; }
+      });
+
+      current = best === -1 ? 0 : best + 1;
+      items.forEach((li, i) => li.classList.toggle('is-active', i === best));
+
+      if (current !== shown) {
+        shown = current;
+        apply(current);
+      }
+    }
+
+    let ticking = false;
+    const onScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => { update(); ticking = false; });
+    };
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', () => apply(current));
+
+    if (zoomImg.complete) {
+      apply(0);
+      update();
+    } else {
+      zoomImg.addEventListener('load', () => { apply(0); update(); });
+    }
+  }
 </script>
 
 <style>
@@ -174,7 +276,6 @@ import SideNav from '../components/SideNav.astro';
   }
 
   /* ── Layout ────────────────────────────────────────────────────────── */
-
   .portfolio-main {
     min-height: 100svh;
     display: flex;
@@ -195,7 +296,6 @@ import SideNav from '../components/SideNav.astro';
   }
 
   /* ── Project section ───────────────────────────────────────────────── */
-
   .project-section {
     width: 100%;
     display: flex;
@@ -215,7 +315,6 @@ import SideNav from '../components/SideNav.astro';
   }
 
   /* ── Text boxes ────────────────────────────────────────────────────── */
-
   .project-box {
     background-color: #FF69B4;
     padding: var(--space-6);
@@ -232,7 +331,6 @@ import SideNav from '../components/SideNav.astro';
   }
 
   /* ── Description + demo row ────────────────────────────────────────── */
-
   .project-row {
     display: flex;
     gap: var(--space-8);
@@ -320,7 +418,6 @@ import SideNav from '../components/SideNav.astro';
   }
 
   /* ── "How does it do this?" box internals ──────────────────────────── */
-
   .how-title {
     font-weight: 700;
     margin-bottom: var(--space-4);
@@ -340,7 +437,6 @@ import SideNav from '../components/SideNav.astro';
   }
 
   /* ── SSH project: images (left) beside two stacked text boxes (right) ── */
-
   .ssh-row {
     display: flex;
     gap: var(--space-8);
@@ -397,8 +493,7 @@ import SideNav from '../components/SideNav.astro';
     margin: 0;
   }
 
-  /* ── Lynra: heading, then centred collage, then stacked text boxes ─── */
-
+  /* ── Lynra: heading, then centred collage, then text + sticky zoom ─── */
   .lynra-media {
     width: 100%;
     display: flex;
@@ -413,14 +508,23 @@ import SideNav from '../components/SideNav.astro';
     height: auto;
   }
 
+  /* Text boxes (left) beside the sticky zooming rover (right). */
+  .lynra-row {
+    display: flex;
+    gap: var(--space-8);
+    padding: 0 var(--space-6);
+    align-items: flex-start;
+    width: 100%;
+  }
+
   /* Text boxes stacked one below the other, aligned to the left. */
   .lynra-text {
-    width: 100%;
+    flex: 1;
+    min-width: 0;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
     gap: var(--space-8);
-    padding: 0 var(--space-6);
   }
 
   .lynra-text .project-box {
@@ -428,8 +532,106 @@ import SideNav from '../components/SideNav.astro';
     margin: 0;
   }
 
-  /* ── Desktop ───────────────────────────────────────────────────────── */
+  /* Right column: pins in place while the list scrolls past it. */
+  .lynra-zoom {
+    flex: 1;
+    min-width: 0;
+    position: sticky;
+    top: 12vh;
+    align-self: flex-start;
+    display: flex;
+    justify-content: center;
+  }
 
+  .zoom-stage {
+    position: relative;
+    width: 100%;
+    max-width: 600px;
+    height: 74vh;
+    overflow: hidden;
+    background-color: rgba(0, 0, 0, 0.35);
+  }
+
+  :global([data-theme="light"]) .zoom-stage {
+    background-color: rgba(0, 0, 0, 0.06);
+  }
+
+  .zoom-img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    transform-origin: 0 0;
+    max-width: none;
+    will-change: transform;
+  }
+
+  /* Pixel targeting bracket that locks onto the active part. */
+  .zoom-reticle {
+    position: absolute;
+    pointer-events: none;
+    opacity: 0;
+  }
+
+  .zoom-reticle b {
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    border: 4px solid #ffe4c4;
+  }
+
+  .zoom-reticle .c1 { left: -4px;  top: -4px;    border-right: 0; border-bottom: 0; }
+  .zoom-reticle .c2 { right: -4px; top: -4px;    border-left: 0;  border-bottom: 0; }
+  .zoom-reticle .c3 { left: -4px;  bottom: -4px; border-right: 0; border-top: 0; }
+  .zoom-reticle .c4 { right: -4px; bottom: -4px; border-left: 0;  border-top: 0; }
+
+  /* Dim inactive list items so the active one reads as "current". */
+  .lynra-row .how-list li {
+    opacity: 0.45;
+    transition: opacity 0.35s ease, border-left-color 0.35s ease;
+  }
+
+  .lynra-row .how-list li.is-active {
+    opacity: 1;
+    border-left-color: #ffe4c4;
+  }
+
+  /* Extra spacing gives each item enough scroll distance to drive the zoom. */
+  .lynra-row .how-list {
+    gap: var(--space-10);
+  }
+
+  /* Stack on narrow screens: image above the text, no sticky, no dimming. */
+  @media (max-width: 900px) {
+    .lynra-row {
+      flex-direction: column-reverse;
+    }
+
+    .lynra-zoom {
+      position: static;
+      width: 100%;
+    }
+
+    .zoom-stage {
+      height: 52vh;
+      max-width: 100%;
+    }
+
+    .lynra-row .how-list {
+      gap: var(--space-4);
+    }
+
+    .lynra-row .how-list li {
+      opacity: 1;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .lynra-row .how-list li {
+      transition: none;
+    }
+  }
+
+  /* ── Desktop ───────────────────────────────────────────────────────── */
   @media (min-width: 768px) {
     .portfolio-title {
       font-size: calc(var(--text-3xl) * 1.5);
