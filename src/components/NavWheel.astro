@@ -376,7 +376,8 @@ const panels: NavPanel[] = [
     min-height: unset;
   }
 
-  /* Caption overlays the bottom of the card so the face stays exactly 16:9 */
+  /* Caption overlays the bottom of the card so the face stays exactly 16:9.
+     Colours come from tokens so the caption follows the active theme. */
   .nav-wheel.is-wheel .panel-name {
     position: absolute;
     bottom: 0;
@@ -384,8 +385,8 @@ const panels: NavPanel[] = [
     right: 0;
     padding: var(--space-1) var(--space-2);
     font-size: var(--text-sm);
-    background: rgba(0, 0, 0, 0.85);
-    color: #FF69B4;
+    background: var(--color-caption-bg);
+    color: var(--color-caption-text);
     flex-shrink: unset;
   }
 
