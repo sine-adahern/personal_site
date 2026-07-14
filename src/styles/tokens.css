@@ -13,6 +13,10 @@
   --color-surface-alt:     #111111;
   --color-bg-gradient:     radial-gradient(ellipse at 50% 0%, #110410 0%, #000000 60%);
 
+  /* Thumbnail caption bar (nav wheel) */
+  --color-caption-bg:      rgba(0, 0, 0, 0.85);
+  --color-caption-text:    #FF69B4;
+
   /* Spacing (base unit: 4px) */
   --space-1:   4px;
   --space-2:   8px;
@@ -44,4 +48,7 @@
   --color-surface:      #ffffff;
   --color-surface-alt:  #f4f4f4;
   --color-bg-gradient:  radial-gradient(ellipse at 50% 0%, #ffe8f4 0%, #ffffff 60%);
+
+  --color-caption-bg:   rgba(255, 255, 255, 0.9);
+  --color-caption-text: #C22E7E;
 }
