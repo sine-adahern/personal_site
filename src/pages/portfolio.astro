@@ -13,16 +13,21 @@ import SideNav from '../components/SideNav.astro';
     <h1 class="portfolio-title">Portfolio</h1>
 
     <section class="project-section">
-      <h2 class="project-heading">Cookie cutter</h2>
+      <h2 class="project-heading">
+        Cookie cutter<img class="cookie cookie--head" src="/images/portfolio/cookie.png" alt="" aria-hidden="true" />
+      </h2>
 
       <div class="project-row">
         <div class="desc-col">
           <div class="project-box">
             <p>Cookies, stored by websites in your browser, and their contents are often deliberately scrambled so you can't tell what's being tracked. I built a browser extension that unscrambles and explains a site's cookies in plain language, and runs the entire analysis on your own device, so no cookie value is ever sent anywhere. This not only helps breakdown exactly what data is being shared and with whom, it also gives you the option to filter them to protect your data.</p>
+            <img class="cookie cookie--below-desc" src="/images/portfolio/cookie.png" alt="" aria-hidden="true" />
           </div>
 
           <div class="project-box project-box--indent">
             <p>The demo lets you set how cookies are blocked, add trusted sites to an allowlist, and see quick stats on active, changed, and blocked cookies. The main list shows every cookie on the page with its category, a colour-coded risk rating, and its purpose — click one to see a plain-language explanation and its raw value. Below that, a live log tracks blocked cookie traffic, with buttons to refresh, clear the log, or open options.</p>
+            <img class="cookie cookie--between" src="/images/portfolio/cookie.png" alt="" aria-hidden="true" />
+            <img class="cookie cookie--below-demo" src="/images/portfolio/cookie.png" alt="" aria-hidden="true" />
           </div>
 
           <img class="demo-arrow" src="/images/portfolio/pink-arrow.png" alt="" aria-hidden="true" />
@@ -463,6 +468,72 @@ import SideNav from '../components/SideNav.astro';
   :global([data-theme="light"]) .project-box {
     color: #000000;
     background-color: #f699cd;
+  }
+
+  /* ── Cookie cutter: scattered cookie emojis ────────────────────────── */
+
+  /* Anchor for the cookie tucked under the description box. */
+  .desc-col > .project-box:first-child {
+    position: relative;
+  }
+
+  .cookie {
+    width: 52px;
+    height: auto;
+    pointer-events: none;
+    user-select: none;
+  }
+
+  /* 1. Sits inline to the right of the heading, so the pair stays centred. */
+  .cookie--head {
+    display: inline-block;
+    vertical-align: middle;
+    margin-left: var(--space-4);
+    transform: rotate(-10deg) translateY(-4px);
+  }
+
+  /* The remaining three are absolute ⇒ they take up no layout space and can't
+     push the carefully-tuned demo/arrow offsets around. */
+  .cookie--below-desc,
+  .cookie--between,
+  .cookie--below-demo {
+    position: absolute;
+    z-index: 2;
+  }
+
+  /* 2. Below the first (description) box, near its left edge. */
+  .cookie--below-desc {
+    bottom: -46px;
+    left: var(--space-8);
+    width: 58px;
+    transform: rotate(14deg);
+  }
+
+  /* 3. Off the right of the demo box — the gap it shares with the
+     "How does it do this?" box sitting below-right of it. */
+  .cookie--between {
+    top: 46%;
+    right: -72px;
+    width: 46px;
+    transform: rotate(-22deg);
+  }
+
+  /* 4. Below the demo box. */
+  .cookie--below-demo {
+    bottom: -52px;
+    left: 28%;
+    width: 54px;
+    transform: rotate(6deg);
+  }
+
+  @media (max-width: 900px) {
+    .cookie {
+      width: 36px;
+    }
+
+    .cookie--below-desc { width: 40px; bottom: -32px; }
+    .cookie--between    { width: 32px; right: -44px; }
+    .cookie--below-demo { width: 38px; bottom: -34px; }
   }
 
   /* ── Description + demo row ────────────────────────────────────────── */
