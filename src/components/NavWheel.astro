@@ -1,3 +1,4 @@
+
 ---
 import type { NavPanel } from '../types/nav';
 
@@ -122,7 +123,7 @@ const panels: NavPanel[] = [
       });
     }
 
-    function rotateTo(target: number, duration = 0.8): void {
+    function rotateTo(target: number, duration = 0.8, onComplete?: () => void): void {
       gsap.to(state, {
         angle: target,
         duration,
@@ -131,6 +132,7 @@ const panels: NavPanel[] = [
           track.style.transform = `rotateY(${-state.angle}deg)`;
           updateEmphasis();
         },
+        onComplete,
       });
     }
 
@@ -233,6 +235,127 @@ const panels: NavPanel[] = [
       radius     = window.innerWidth >= 768 ? RADIUS_DESKTOP  : RADIUS_MOBILE;
       cardHeight = window.innerWidth >= 768 ? CARD_HEIGHT_DESKTOP : CARD_HEIGHT_MOBILE;
       updateEmphasis();
+    });
+
+    // ── Click → expand to full screen → navigate ──────────────────────────────
+    // The clicked card grows from its on-screen box to fill the viewport, then
+    // we navigate. The expanded image is handed to the next page via
+    // sessionStorage (see the is:inline script in BaseLayout), which paints it
+    // full-bleed before first paint and dissolves it away — so the document
+    // swap happens underneath a still image and never reads as a cut.
+    const EXPAND_DURATION = 0.6;
+    const CLONE_CLASS = 'wheel-clone';
+
+    let isNavigating = false;
+
+    panelEls.forEach((panel, i) => {
+      const card = panel.querySelector<HTMLAnchorElement>('.panel-card');
+      if (!card) return;
+
+      card.addEventListener('click', (e: MouseEvent) => {
+        // Let the browser handle new-tab / new-window / middle clicks.
+        if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+        e.preventDefault();
+        if (isNavigating) return;
+        launch(i, card.href, card);
+      });
+    });
+
+    /** The theme swap is display:none, so ask the browser which img is showing. */
+    function visibleThumb(panel: HTMLElement): HTMLImageElement | null {
+      const imgs = Array.from(panel.querySelectorAll<HTMLImageElement>('.panel-thumb'));
+      return imgs.find((img) => getComputedStyle(img).display !== 'none') ?? imgs[0] ?? null;
+    }
+
+    function launch(index: number, href: string, card: HTMLElement): void {
+      const panel = panelEls[index];
+      if (!panel) {
+        window.location.href = href;
+        return;
+      }
+
+      isNavigating = true;
+      stopAutoplay();
+      clearTimeout(resumeTimer);
+      clearTimeout(snapTimer);
+
+      // Bring the clicked panel to the front BEFORE measuring it. Only at the
+      // front is the card flat and facing the camera, so getBoundingClientRect()
+      // returns the box the user actually sees. On a side card the rect is the
+      // bounding box of a rotated quad — wider than the visible face — and the
+      // clone would snap to the wrong size on frame one.
+      const delta   = (((index * ANGLE_STEP - state.angle) % 360) + 540) % 360 - 180;
+      const target  = state.angle + delta;
+      const isFront = Math.abs(delta) < 0.5;
+      scrollAngle = target;
+
+      rotateTo(target, isFront ? 0 : 0.4, () => expand(panel, card, href));
+    }
+
+    function expand(panel: HTMLElement, card: HTMLElement, href: string): void {
+      const img  = visibleThumb(panel);
+      const src  = img?.currentSrc || img?.src || '';
+      const rect = card.getBoundingClientRect();
+
+      const clone = document.createElement('div');
+      clone.className = CLONE_CLASS;
+      clone.style.cssText = [
+        'position: fixed',
+        `left: ${rect.left}px`,
+        `top: ${rect.top}px`,
+        `width: ${rect.width}px`,
+        `height: ${rect.height}px`,
+        `background-image: url("${src}")`,
+        'background-size: cover',
+        'background-position: center',
+        'border: 2px solid #FF69B4',
+        'z-index: 9998',
+        'pointer-events: none',
+      ].join(';');
+      document.body.appendChild(clone);
+
+      // Hide the real card so it doesn't ghost underneath the growing clone.
+      panel.style.visibility = 'hidden';
+
+      try {
+        sessionStorage.setItem('pt:cover', JSON.stringify({ src, t: Date.now() }));
+      } catch {
+        // Private mode / storage disabled — the expand still runs, the next
+        // page just appears without the dissolve.
+      }
+
+      gsap.to([nav, '.site-header', '.site-footer', '.theme-toggle'], {
+        opacity: 0,
+        duration: 0.35,
+        ease: 'power2.out',
+      });
+
+      gsap.to(clone, {
+        left: 0,
+        top: 0,
+        width: window.innerWidth,
+        height: window.innerHeight,
+        borderWidth: 0,
+        duration: EXPAND_DURATION,
+        ease: 'power2.inOut',
+        onComplete() {
+          window.location.href = href;
+        },
+      });
+    }
+
+    // Back/forward from bfcache restores this page mid-transition: clone still
+    // in the DOM, chrome still faded out, panel still hidden. Undo all of it.
+    window.addEventListener('pageshow', (e) => {
+      if (!(e as PageTransitionEvent).persisted) return;
+
+      document.querySelectorAll(`.${CLONE_CLASS}`).forEach((el) => el.remove());
+      gsap.set([nav, '.site-header', '.site-footer', '.theme-toggle'], { opacity: 1 });
+      panelEls.forEach((panel) => { panel.style.visibility = ''; });
+
+      isNavigating = false;
+      updateEmphasis();
+      startAutoplay();
     });
   }
 </script>
