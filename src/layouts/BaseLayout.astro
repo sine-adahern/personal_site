@@ -21,6 +21,61 @@ const { title } = Astro.props;
         document.documentElement.setAttribute('data-theme', 'light');
       }
     </script>
+
+    <!--
+      Landing half of the nav-wheel page transition (launch half lives in
+      NavWheel.astro). If we arrived from a thumbnail that expanded to fill the
+      screen, repaint that same image full-bleed *before this page's first
+      paint*, then dissolve it. Without this the browser would cut straight from
+      the expanded image to the new document.
+
+      Appended to <html> rather than <body> deliberately: at this point in the
+      parse <body> does not exist yet, and waiting for it would mean waiting for
+      the paint we are trying to cover.
+    -->
+    <script is:inline>
+      (function () {
+        var raw = sessionStorage.getItem('pt:cover');
+        if (!raw) return;
+        sessionStorage.removeItem('pt:cover'); // one-shot: never fires on reload
+
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+        var data;
+        try { data = JSON.parse(raw); } catch (err) { return; }
+        if (!data || !data.src) return;
+        if (Date.now() - data.t > 5000) return; // stale — user took a detour
+
+        var cover = document.createElement('div');
+        cover.id = 'pt-cover';
+        cover.style.cssText =
+          'position:fixed;inset:0;z-index:9999;pointer-events:none;' +
+          'background-image:url("' + encodeURI(data.src) + '");' +
+          'background-size:cover;background-position:center;' +
+          'opacity:1;transition:opacity .45s ease-out;';
+        document.documentElement.appendChild(cover);
+
+        var done = false;
+        function dissolve() {
+          if (done) return;
+          done = true;
+          cover.style.opacity = '0';
+          setTimeout(function () { cover.remove(); }, 500);
+        }
+
+        // Hold the cover until the new page has actually painted underneath it.
+        if (document.readyState === 'complete') {
+          requestAnimationFrame(dissolve);
+        } else {
+          window.addEventListener('load', function () {
+            requestAnimationFrame(function () { setTimeout(dissolve, 60); });
+          });
+        }
+
+        // Never trap the user behind the cover if `load` is slow or never fires.
+        setTimeout(dissolve, 2500);
+      })();
+    </script>
   </head>
   <body>
     <slot />
