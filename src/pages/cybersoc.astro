@@ -294,7 +294,7 @@ const BOOT_ONCE_PER_SESSION = true;
 <style>
   /* ── Page content ──────────────────────────────────────────────────── */
   .cybersoc-main {
-    max-width: 960px;
+    max-width: 1020px;
     margin: 0 auto;
     /* Generous horizontal padding keeps the box off the viewport edges. */
     padding: var(--space-12) var(--space-6) var(--space-16);
@@ -319,7 +319,7 @@ const BOOT_ONCE_PER_SESSION = true;
   }
 
   .about-box {
-    max-width: 780px;
+    max-width: 920px;
     margin: 0 auto;
     background-color: #f699cd; /* light pink */
     color: #000000;
@@ -328,7 +328,8 @@ const BOOT_ONCE_PER_SESSION = true;
     /* Roomy interior padding on all sides, scaling down on small screens. */
     padding: clamp(24px, 6vw, 56px);
     font-size: var(--text-base);
-    line-height: 1.8;
+    font-weight: 300; /* Lato thin */
+    line-height: 1.7;
   }
 
   .box-heading {
@@ -362,10 +363,6 @@ const BOOT_ONCE_PER_SESSION = true;
     left: 0.15em;
     top: 0;
     font-weight: 700;
-  }
-
-  @media (min-width: 768px) {
-    .about-box { font-size: var(--text-lg); }
   }
 
   /* The boot screen follows the site's light / dark theme through these vars. */
