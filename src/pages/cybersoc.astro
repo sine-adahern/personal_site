@@ -701,28 +701,51 @@ const PILE_TILTS = [-8, 6, -4, 9, -6];
   }
 
   /* The horizontal scroller. Scrollbar hidden; snapping keeps events centred. */
+  /* Full-bleed scroller so the timeline spans the screen and neighbouring
+     event stacks can peek in from the left/right edges. */
   .tl-viewport {
+    width: 100vw;
+    margin-left: calc(50% - 50vw);
+    margin-right: calc(50% - 50vw);
     overflow-x: auto;
     overflow-y: hidden;
     scroll-snap-type: x mandatory;
     scrollbar-width: none;                 /* Firefox */
     -webkit-overflow-scrolling: touch;
     outline: none;
-    border-radius: var(--radius-md);
   }
   .tl-viewport::-webkit-scrollbar { display: none; }  /* Chrome/Safari */
-  .tl-viewport:focus-visible { box-shadow: 0 0 0 2px var(--color-brand); }
+  .tl-viewport:focus-visible { box-shadow: inset 0 0 0 2px var(--color-brand); }
 
   .tl-track {
+    position: relative;
     display: flex;
     list-style: none;
     margin: 0;
-    padding: 0;
+    /* Leading / trailing room so the first & last events can centre. */
+    padding: 0 calc(50vw - clamp(150px, 27vw, 300px));
   }
 
-  /* Each event fills the viewport so only one is centred at a time. */
+  /* One continuous pink line across the whole timeline, sitting at the
+     vertical centre of the photo stacks and behind every photo. */
+  .tl-track::before {
+    content: '';
+    position: absolute;
+    z-index: 0;
+    left: 0;
+    right: 0;
+    top: calc(var(--space-6) + clamp(230px, 40vw, 340px) / 2);
+    height: 2px;
+    transform: translateY(-50%);
+    background: var(--color-brand);
+    opacity: 0.85;
+  }
+
+  /* Each event is narrower than the screen: the centred one fans out while
+     its neighbours peek in at the edges (still in their piled/stack form).
+     Width is tuned so a fanned event never covers the neighbour stacks. */
   .tl-event {
-    flex: 0 0 100%;
+    flex: 0 0 clamp(300px, 54vw, 600px);
     scroll-snap-align: center;
     display: flex;
     flex-direction: column;
@@ -737,20 +760,6 @@ const PILE_TILTS = [-8, 6, -4, 9, -6];
     width: 100%;
     height: clamp(230px, 40vw, 340px);
     margin-bottom: var(--space-6);
-  }
-
-  /* Thin pink line running horizontally through the photos — the "timeline". */
-  .tl-stack::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: 50%;
-    height: 2px;
-    transform: translateY(-50%);
-    background: var(--color-brand);
-    opacity: 0.85;
-    z-index: 0;
   }
 
   /* Bare photo (no frame). Stacked in the centre by default (a messy pile). */
