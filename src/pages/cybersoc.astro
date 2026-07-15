@@ -4,8 +4,9 @@ import SiteHeader from '../components/SiteHeader.astro';
 import SiteFooter from '../components/SiteFooter.astro';
 import SideNav from '../components/SideNav.astro';
 
-// Set to false to replay the boot intro on EVERY visit instead of
-// once per browser session. (Handy to flip to false while developing.)
+// Reloading the page ALWAYS replays the intro. This flag only affects in-site
+// navigation: true = play once per browser session when moving between pages;
+// false = replay on every navigation to this page as well.
 const BOOT_ONCE_PER_SESSION = true;
 ---
 
@@ -13,8 +14,7 @@ const BOOT_ONCE_PER_SESSION = true;
   <!-- ── Boot intro overlay ─────────────────────────────────────────────
        Sits on top of the real page. A kernel-style boot log prints, settles
        into a fake terminal, and on ENTER (or tap) "runs" a command before
-       dissolving to reveal <main>. Kept intentionally dark (terminal look)
-       regardless of the site's light/dark theme. -->
+       dissolving to reveal <main>. Follows the site's light/dark theme. -->
   <div
     id="boot-screen"
     class="boot-screen"
@@ -36,15 +36,26 @@ const BOOT_ONCE_PER_SESSION = true;
     </div>
   </div>
 
-  <!-- Runs before the page paints: on a repeat visit (or reduced motion) hide
-       the overlay immediately so it never flashes; otherwise lock scroll. -->
+  <!-- Runs before the page paints so the overlay never flashes: decide up front
+       whether to show the intro. A reload always shows it; otherwise show unless
+       we've already booted this session. Reduced motion always skips. -->
   <script is:inline define:vars={{ once: BOOT_ONCE_PER_SESSION }}>
     (function () {
-      var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      var seen = once && sessionStorage.getItem('cybersoc:booted') === '1';
       var el = document.getElementById('boot-screen');
       if (!el) return;
-      if (reduce || seen) {
+
+      var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      var reload = false;
+      try {
+        var nav = performance.getEntriesByType('navigation')[0];
+        if (nav && nav.type) reload = nav.type === 'reload';
+        else if (performance.navigation) reload = performance.navigation.type === 1;
+      } catch (e) {}
+
+      var seen = once && sessionStorage.getItem('cybersoc:booted') === '1';
+
+      if (reduce || (seen && !reload)) {
         el.setAttribute('hidden', '');
       } else {
         document.documentElement.classList.add('boot-active');
@@ -256,13 +267,21 @@ const BOOT_ONCE_PER_SESSION = true;
 </script>
 
 <style>
-  /* The boot screen stays dark like a real terminal in both site themes. */
+  /* The boot screen follows the site's light / dark theme through these vars. */
   .boot-screen {
+    --boot-bg:     #000000;
+    --boot-fg:     #cfcfcf;
+    --boot-dim:    #7d7d7d;
+    --boot-ok:     #57d977;
+    --boot-accent: #FF69B4; /* prompt user, cursor, info lines, ENTER button */
+    --boot-path:   #6fb2ff;
+    --boot-cmd:    #ffffff;
+
     position: fixed;
     inset: 0;
     z-index: 9998; /* below the nav-wheel transition cover (9999), above page */
-    background: #000;
-    color: #cfcfcf;
+    background: var(--boot-bg);
+    color: var(--boot-fg);
     font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
     font-size: clamp(11px, 2.6vw, 14px);
     line-height: 1.5;
@@ -272,6 +291,17 @@ const BOOT_ONCE_PER_SESSION = true;
     overflow: hidden;
     opacity: 1;
     transition: opacity 0.5s ease;
+  }
+
+  /* Light-theme palette for the terminal. */
+  :global([data-theme="light"]) .boot-screen {
+    --boot-bg:     #f6f6f3;
+    --boot-fg:     #2b2b2b;
+    --boot-dim:    #9a9a9a;
+    --boot-ok:     #178f43;
+    --boot-accent: #C22E7E;
+    --boot-path:   #2f6fd0;
+    --boot-cmd:    #111111;
   }
 
   /* Beats the base `display:flex` so the pre-paint hide actually hides it. */
@@ -300,33 +330,33 @@ const BOOT_ONCE_PER_SESSION = true;
   .boot-log .ln,
   .boot-out .ln { display: block; }
 
-  .boot-log .ok  { color: #57d977; }
-  .boot-log .dim { color: #7d7d7d; }
+  .boot-log .ok  { color: var(--boot-ok); }
+  .boot-log .dim { color: var(--boot-dim); }
 
   .boot-prompt { margin-top: 0.5em; }
 
   /* Brand pink on the prompt user ties the terminal back to the site. */
-  .prompt-user { color: #FF69B4; font-weight: 700; }
-  .prompt-sym  { color: #cfcfcf; }
-  .prompt-path { color: #6fb2ff; }
-  .boot-cmd    { color: #ffffff; }
+  .prompt-user { color: var(--boot-accent); font-weight: 700; }
+  .prompt-sym  { color: var(--boot-fg); }
+  .prompt-path { color: var(--boot-path); }
+  .boot-cmd    { color: var(--boot-cmd); }
 
   .cursor {
-    color: #FF69B4;
+    color: var(--boot-accent);
     animation: boot-blink 1s steps(1) infinite;
   }
   @keyframes boot-blink { 50% { opacity: 0; } }
 
   .boot-out { margin-top: 0.25em; }
-  .boot-out .out-info { color: #FF69B4; }
-  .boot-out .out-ok   { color: #57d977; }
+  .boot-out .out-info { color: var(--boot-accent); }
+  .boot-out .out-ok   { color: var(--boot-ok); }
 
   .boot-enter {
     display: inline-block;
     margin-top: 0.9em;
     background: none;
-    border: 1px solid #FF69B4;
-    color: #FF69B4;
+    border: 1px solid var(--boot-accent);
+    color: var(--boot-accent);
     font: inherit;
     letter-spacing: 0.05em;
     padding: 0.4em 0.85em;
@@ -336,8 +366,8 @@ const BOOT_ONCE_PER_SESSION = true;
   }
   .boot-enter:hover,
   .boot-enter:focus-visible {
-    background: #FF69B4;
-    color: #000;
+    background: var(--boot-accent);
+    color: var(--boot-bg);
     outline: none;
     animation: none;
   }
@@ -349,13 +379,13 @@ const BOOT_ONCE_PER_SESSION = true;
     right: clamp(10px, 3vw, 20px);
     background: none;
     border: none;
-    color: #7d7d7d;
+    color: var(--boot-dim);
     font: inherit;
     cursor: pointer;
     z-index: 1;
   }
   .boot-skip:hover,
-  .boot-skip:focus-visible { color: #FF69B4; outline: none; }
+  .boot-skip:focus-visible { color: var(--boot-accent); outline: none; }
 
   /* Lock scrolling of the page underneath while the intro is up. */
   :global(html.boot-active),
