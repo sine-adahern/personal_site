@@ -65,9 +65,34 @@ const BOOT_ONCE_PER_SESSION = true;
 
   <SiteHeader />
   <SideNav />
-  <main>
-    <h1>Cyber SOC</h1>
-    <!-- Real society content goes here — it's revealed once the boot intro finishes. -->
+  <main class="cybersoc-main">
+    <h1 class="cybersoc-title">
+      MTU Cybersecurity Society
+      <span class="cybersoc-role">(Re)founder and Chairperson</span>
+    </h1>
+
+    <section class="about-box" aria-labelledby="how-it-came-about">
+      <h2 class="box-heading" id="how-it-came-about">How It Came About</h2>
+
+      <p>When I started at MTU, the Cybersecurity Society technically already existed — but only on paper. Its previous board had finished their masters and moved on without leaving a legacy behind them: no handover, no committee, no plan for who came next. The society had been dormant for close to a year.</p>
+
+      <p>Cybersecurity is my degree and my genuine interest, and it seemed like a waste that a university with MTU's cyber credentials didn't have a student community to match. So alongside a group of my peers, I set out to bring it back.</p>
+
+      <p>Rebuilding it meant starting from the ground up:</p>
+
+      <ul class="rebuild-list">
+        <li><strong>Learning from the people who came before.</strong> We tracked down and met with former members to understand what the society had been, what had worked, and what had caused it to stall — so we wouldn't repeat the same mistake of building something that couldn't outlive us.</li>
+        <li><strong>Getting the university behind us.</strong> We liaised with MTU faculty and the Head of the Computer Science Department to re-establish the society properly and make sure it had institutional support.</li>
+        <li><strong>Putting a real committee in place.</strong> We held an AGM, elected a full board, and gave every role a clear owner.</li>
+        <li><strong>Starting to run events again.</strong> CTFs, industry talks, hackathons, and a space for people to actually turn up to.</li>
+      </ul>
+
+      <p>I was elected Chairperson, and within a few months the society went from inactive to sending students onto panels at a global telecoms conference.</p>
+
+      <p>MTU is one of Ireland's leading cybersecurity hubs — home to Cork's Nimbus Research Centre, its national Cyber Range and prototyping labs, dedicated cyber degrees, and the €7M Cyber Innovate programme. The society exists to bring that world within reach of students: hands-on skills, CTFs, and real connections to Ireland's cyber industry.</p>
+
+      <p>At its heart, though, it's about people. It's a space where students connect, collaborate, and grow together, with no experience required — from complete beginners to seasoned hackers. A community built on curiosity, teamwork, and a shared drive to learn.</p>
+    </section>
   </main>
   <SiteFooter />
 </BaseLayout>
@@ -267,6 +292,82 @@ const BOOT_ONCE_PER_SESSION = true;
 </script>
 
 <style>
+  /* ── Page content ──────────────────────────────────────────────────── */
+  .cybersoc-main {
+    max-width: 960px;
+    margin: 0 auto;
+    /* Generous horizontal padding keeps the box off the viewport edges. */
+    padding: var(--space-12) var(--space-6) var(--space-16);
+  }
+
+  .cybersoc-title {
+    font-family: 'Press Start 2P', cursive;
+    font-weight: 400;
+    font-size: clamp(1.05rem, 4.4vw, 2.1rem);
+    line-height: 1.5;
+    text-align: center;
+    color: #ffe4c4; /* same cream-yellow as the portfolio heading */
+    -webkit-text-stroke: 2px #000000;
+    paint-order: stroke fill;
+    margin: var(--space-8) 0 var(--space-12);
+  }
+
+  .cybersoc-role {
+    display: block;
+    font-size: 0.62em;
+    margin-top: 0.9em;
+  }
+
+  .about-box {
+    max-width: 780px;
+    margin: 0 auto;
+    background-color: #f699cd; /* light pink */
+    color: #000000;
+    border: 2px solid #000000;
+    border-radius: var(--radius-md);
+    /* Roomy interior padding on all sides, scaling down on small screens. */
+    padding: clamp(24px, 6vw, 56px);
+    font-size: var(--text-base);
+    line-height: 1.8;
+  }
+
+  .box-heading {
+    font-family: 'Press Start 2P', cursive;
+    font-weight: 400;
+    font-size: clamp(0.8rem, 2.6vw, 1.05rem);
+    line-height: 1.7;
+    color: #000000;
+    margin: 0 0 var(--space-6);
+  }
+
+  .about-box p { margin: 0 0 1.1em; }
+  .about-box p:last-child { margin-bottom: 0; }
+
+  .rebuild-list {
+    list-style: none;
+    margin: 0 0 1.1em;
+    padding: 0;
+    display: grid;
+    gap: 0.75em;
+  }
+
+  .rebuild-list li {
+    position: relative;
+    padding-left: 1.5em;
+  }
+
+  .rebuild-list li::before {
+    content: '\25B8'; /* ▸ terminal-style marker */
+    position: absolute;
+    left: 0.15em;
+    top: 0;
+    font-weight: 700;
+  }
+
+  @media (min-width: 768px) {
+    .about-box { font-size: var(--text-lg); }
+  }
+
   /* The boot screen follows the site's light / dark theme through these vars. */
   .boot-screen {
     --boot-bg:     #000000;
