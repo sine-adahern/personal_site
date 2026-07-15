@@ -722,8 +722,17 @@ const PILE_TILTS = [-8, 6, -4, 9, -6];
     display: flex;
     list-style: none;
     margin: 0;
-    /* Leading / trailing room so the first & last events can centre. */
-    padding: 0 calc(50vw - clamp(150px, 27vw, 300px));
+    /* Leading room so the first event can centre. (Trailing room is added as a
+       spacer below — browsers drop a flex scroll container's *end* padding from
+       the scrollable width, which would make the last event unreachable.) */
+    padding: 0;
+    padding-left: calc(50vw - clamp(150px, 27vw, 300px));
+  }
+  /* Trailing spacer: a real flex item, so it IS counted in the scroll width and
+     the last event can scroll all the way to centre. */
+  .tl-track::after {
+    content: '';
+    flex: 0 0 calc(50vw - clamp(150px, 27vw, 300px));
   }
 
   /* One continuous pink line across the whole timeline, sitting at the
