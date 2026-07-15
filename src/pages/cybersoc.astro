@@ -73,6 +73,15 @@ const timeline: TLEvent[] = [
 
 // Deterministic "messy pile" tilts so photos look hand-dropped, not aligned.
 const PILE_TILTS = [-8, 6, -4, 9, -6];
+
+// ── Title banner ─────────────────────────────────────────────────────
+// A scrambled, same-height sliding strip of event photos behind the page
+// heading. The three ROCCO shots are portrait phone screenshots that become
+// thin slivers at a fixed height, so they're left out of the banner.
+const bannerPhotos = [
+  'ctf-2', 'agm-3', 'awards-1', 'agm-1', 'ctf-3',
+  'awards-3', 'agm-4', 'ctf-1', 'awards-2', 'agm-2',
+].map((n) => `/images/cybersoc/${n}.jpg`);
 ---
 
 <BaseLayout title="Cyber SOC">
@@ -131,10 +140,19 @@ const PILE_TILTS = [-8, 6, -4, 9, -6];
   <SiteHeader />
   <SideNav />
   <main class="cybersoc-main">
-    <h1 class="cybersoc-title">
-      MTU Cybersecurity Society
-      <span class="cybersoc-role">(Re)founder and Chairperson</span>
-    </h1>
+    <header class="title-banner-wrap">
+      <div class="title-banner" aria-hidden="true">
+        <div class="tb-track">
+          {[...bannerPhotos, ...bannerPhotos].map((src) => (
+            <img class="tb-img" src={src} alt="" loading="lazy" draggable="false" />
+          ))}
+        </div>
+      </div>
+      <h1 class="cybersoc-title">
+        MTU Cybersecurity Society
+        <span class="cybersoc-role">(Re)founder and Chairperson</span>
+      </h1>
+    </header>
 
     <section class="about-box" aria-labelledby="how-it-came-about">
       <h2 class="box-heading" id="how-it-came-about">How It Came About</h2>
@@ -493,7 +511,58 @@ const PILE_TILTS = [-8, 6, -4, 9, -6];
     padding: var(--space-12) var(--space-6) var(--space-16);
   }
 
+  .title-banner-wrap {
+    position: relative;
+    isolation: isolate;
+    margin: var(--space-8) 0 var(--space-12);
+  }
+
+  /* Full-bleed sliding strip of photos behind the heading. */
+  .title-banner {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: calc(50% - 50vw);
+    width: 100vw;
+    overflow: hidden;
+    z-index: 0;
+    border-block: 2px solid #000;
+    /* Fade the strip into the page at both ends. */
+    -webkit-mask-image: linear-gradient(to right, transparent, #000 7%, #000 93%, transparent);
+    mask-image: linear-gradient(to right, transparent, #000 7%, #000 93%, transparent);
+  }
+  /* Darkening scrim so the heading stays readable over the photos. */
+  .title-banner::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background: rgba(0, 0, 0, 0.5);
+  }
+  .tb-track {
+    display: flex;
+    height: 100%;
+    width: max-content;
+    animation: tb-scroll 55s linear infinite;
+  }
+  .tb-img {
+    height: 100%;
+    width: auto;
+    display: block;
+    margin-right: 8px;   /* trailing margin on every image keeps the loop seamless */
+    object-fit: cover;
+  }
+  @keyframes tb-scroll {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .tb-track { animation: none; }
+  }
+
   .cybersoc-title {
+    position: relative;
+    z-index: 1;
     font-family: 'Press Start 2P', cursive;
     font-weight: 400;
     font-size: clamp(1.05rem, 4.4vw, 2.1rem);
@@ -502,7 +571,8 @@ const PILE_TILTS = [-8, 6, -4, 9, -6];
     color: #ffe4c4; /* same cream-yellow as the portfolio heading */
     -webkit-text-stroke: 2px #000000;
     paint-order: stroke fill;
-    margin: var(--space-8) 0 var(--space-12);
+    margin: 0;
+    padding: var(--space-12) var(--space-4);
   }
 
   .cybersoc-role {
