@@ -720,6 +720,9 @@ const PILE_TILTS = [-8, 6, -4, 9, -6];
   .tl-track {
     position: relative;
     display: flex;
+    /* Grow to the full content width (not just the viewport) so the pink line
+       drawn on ::before spans every event, not only the first screenful. */
+    width: max-content;
     list-style: none;
     margin: 0;
     /* Leading room so the first event can centre. (Trailing room is added as a
