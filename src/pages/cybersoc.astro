@@ -17,7 +17,7 @@ const BOOT_ONCE_PER_SESSION = true;
 type TLEvent = {
   title: string;
   date: string;
-  body: string;
+  body: string | string[];   // one paragraph, or several
   photos: { src: string; alt: string }[];
 };
 
@@ -55,14 +55,18 @@ const timeline: TLEvent[] = [
   },
   // ── TODO: replace the placeholder below with a real event ────────────
   {
-    title: 'Event Four',
-    date: '[ coming soon ]',
-    body: `Placeholder — swap in the fourth milestone here.`,
+    title: 'ROCCO Genesis 2026, Limerick',
+    date: '[Month Year]',
+    body: [
+      `Our members on a global stage. Society members attended ROCCO Genesis 2026, a global telecoms conference held in Limerick.`,
+      `<strong>Speaking on the "Human &amp; Artificial Intelligence" panel.</strong> As Chairperson, I was invited to sit on the panel alongside leaders from across the industry, exploring a question at the heart of our field: as AI becomes more capable, what is the irreplaceable role of human intelligence?`,
+      `<strong>Competing in the "Trust the Signal" hackathon.</strong> Our members took on a real-world security challenge — how do we build trust into SMS and voice communication? — with mentorship from the teams at Verizon and Cellusys.`,
+      `Beyond the panel and the hackathon, the conference put our members in the same room as students from universities across Ireland and industry leaders from around the world. Watching the society work with (and occasionally against 😅) each other, and seeing how far we'd come in only a few months, was the clearest proof yet that rebuilding this was worth doing.`,
+    ],
     photos: [
-      { src: '/images/cybersoc/agm-3.jpg', alt: 'placeholder' },
-      { src: '/images/cybersoc/agm-1.jpg', alt: 'placeholder' },
-      { src: '/images/cybersoc/agm-4.jpg', alt: 'placeholder' },
-      { src: '/images/cybersoc/agm-2.jpg', alt: 'placeholder' },
+      { src: '/images/cybersoc/rocco-1.jpg', alt: 'Society members at ROCCO Genesis 2026 in Limerick' },
+      { src: '/images/cybersoc/rocco-2.jpg', alt: 'Society members at ROCCO Genesis 2026 in Limerick' },
+      { src: '/images/cybersoc/rocco-3.jpg', alt: 'Society members at ROCCO Genesis 2026 in Limerick' },
     ],
   },
 ];
@@ -185,7 +189,9 @@ const PILE_TILTS = [-8, 6, -4, 9, -6];
                   {ev.title}
                   <span class="tl-event-date">{ev.date}</span>
                 </h3>
-                <p class="tl-event-body">{ev.body}</p>
+                {(Array.isArray(ev.body) ? ev.body : [ev.body]).map((par) => (
+                  <p class="tl-event-body" set:html={par} />
+                ))}
               </div>
             </li>
           ))}
@@ -721,6 +727,7 @@ const PILE_TILTS = [-8, 6, -4, 9, -6];
   .tl-track {
     position: relative;
     display: flex;
+    align-items: flex-start;
     /* Grow to the full content width (not just the viewport) so the pink line
        drawn on ::before spans every event, not only the first screenful. */
     width: max-content;
@@ -848,8 +855,10 @@ const PILE_TILTS = [-8, 6, -4, 9, -6];
     font-weight: 300;
     line-height: 1.7;
     color: var(--color-text-primary);
-    margin: 0;
+    margin: 0 0 0.75em;
   }
+  .tl-event-body:last-child { margin-bottom: 0; }
+  .tl-event-body :global(strong) { font-weight: 700; }
   :global([data-theme="light"]) .tl-event-body,
   :global([data-theme="light"]) .tl-heading { color: #1a1a1a; }
   :global([data-theme="light"]) .tl-heading { color: #C22E7E; }
