@@ -3,13 +3,361 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import SiteHeader from '../components/SiteHeader.astro';
 import SiteFooter from '../components/SiteFooter.astro';
 import SideNav from '../components/SideNav.astro';
+
+// Set to false to replay the boot intro on EVERY visit instead of
+// once per browser session. (Handy to flip to false while developing.)
+const BOOT_ONCE_PER_SESSION = true;
 ---
 
 <BaseLayout title="Cyber SOC">
+  <!-- ── Boot intro overlay ─────────────────────────────────────────────
+       Sits on top of the real page. A kernel-style boot log prints, settles
+       into a fake terminal, and on ENTER (or tap) "runs" a command before
+       dissolving to reveal <main>. Kept intentionally dark (terminal look)
+       regardless of the site's light/dark theme. -->
+  <div
+    id="boot-screen"
+    class="boot-screen"
+    data-once={BOOT_ONCE_PER_SESSION ? 'true' : 'false'}
+    role="dialog"
+    aria-label="System boot sequence"
+  >
+    <button id="boot-skip" class="boot-skip" type="button">skip &#9656;</button>
+    <div class="boot-inner">
+      <pre id="boot-log" class="boot-log" aria-hidden="true"></pre>
+      <div id="boot-prompt" class="boot-prompt" hidden>
+        <span class="prompt-line">
+          <span class="prompt-user">visitor@cybersoc</span><span class="prompt-sym">:</span><span class="prompt-path">~</span><span class="prompt-sym">$</span>
+          <span id="boot-cmd" class="boot-cmd"></span><span id="boot-cursor" class="cursor">&#9608;</span>
+        </span>
+        <pre id="boot-out" class="boot-out" aria-hidden="true"></pre>
+        <button id="boot-enter" class="boot-enter" type="button" hidden>&#9654; press ENTER</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Runs before the page paints: on a repeat visit (or reduced motion) hide
+       the overlay immediately so it never flashes; otherwise lock scroll. -->
+  <script is:inline define:vars={{ once: BOOT_ONCE_PER_SESSION }}>
+    (function () {
+      var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      var seen = once && sessionStorage.getItem('cybersoc:booted') === '1';
+      var el = document.getElementById('boot-screen');
+      if (!el) return;
+      if (reduce || seen) {
+        el.setAttribute('hidden', '');
+      } else {
+        document.documentElement.classList.add('boot-active');
+      }
+    })();
+  </script>
+
   <SiteHeader />
   <SideNav />
   <main>
     <h1>Cyber SOC</h1>
+    <!-- Real society content goes here — it's revealed once the boot intro finishes. -->
   </main>
   <SiteFooter />
 </BaseLayout>
+
+<script>
+  // ── Boot intro logic ────────────────────────────────────────────────
+  const overlay = document.getElementById('boot-screen');
+
+  // If the pre-paint inline script hid the overlay (repeat visit / reduced
+  // motion), there's nothing to animate — the real page is already showing.
+  if (overlay && !overlay.hasAttribute('hidden')) {
+    const logEl    = document.getElementById('boot-log') as HTMLElement;
+    const promptEl = document.getElementById('boot-prompt') as HTMLElement;
+    const cmdEl    = document.getElementById('boot-cmd') as HTMLElement;
+    const cursorEl = document.getElementById('boot-cursor') as HTMLElement;
+    const outEl    = document.getElementById('boot-out') as HTMLElement;
+    const enterEl  = document.getElementById('boot-enter') as HTMLButtonElement;
+    const skipEl   = document.getElementById('boot-skip') as HTMLButtonElement;
+
+    const oncePerSession = overlay.dataset.once === 'true';
+
+    // Kernel-style boot log. Lines starting with a "[  n.nnn ]" timestamp are
+    // dimmed; "[  OK  ]" tags go green. Blank strings render as spacer lines.
+    const BOOT_LINES = [
+      '[    0.000000] Linux version 6.8.0-cyber (root@mtu-cybersoc) #1 SMP PREEMPT',
+      '[    0.000000] Command line: BOOT_IMAGE=/boot/vmlinuz-cyber ro quiet splash',
+      '[    0.000031] KERNEL supported cpus: caffeine curiosity chaos',
+      '[    0.004212] x86/fpu: Supporting XSAVE feature 0x001: "curiosity register"',
+      '[    0.014550] ACPI: Early table checksum verification disabled',
+      '[    0.221004] smpboot: CPU0: online',
+      '[    0.331200] pci 0000:00:02.0: [8086] serial bus controller',
+      '[    0.402118] usb 1-1: new high-speed USB device number 2',
+      '[    0.402990] usb 1-1: product: USB Rubber Ducky (blocked)',
+      '[    0.511003] random: crng init done',
+      '[    0.688210] EXT4-fs (sda1): mounted filesystem with ordered data mode',
+      '[    0.712004] systemd[1]: Detected architecture x86-64.',
+      '[    0.740550] systemd[1]: Hostname set to <mtu-cybersoc>.',
+      '',
+      '[  OK  ] Reached target Cryptography Subsystem.',
+      '[  OK  ] Started Firewall (nftables).',
+      '[  OK  ] Started Intrusion Detection Daemon.',
+      '[  OK  ] Mounted /home/members.',
+      '[  OK  ] Started Coffee Supply Monitor.',
+      '[  OK  ] Reached target Capture The Flag.',
+      '[  OK  ] Started Weekly Meetup Scheduler.',
+      '[  OK  ] Finished Loading Society Roster.',
+      '[  OK  ] Reached target Multi-User System.',
+      '',
+      'MTU CyberSoc 6.8.0-cyber tty1',
+      '',
+    ];
+
+    const COMMAND = 'python3 cybersoc.py';
+
+    // Output "printed" after the command runs, then the page is revealed.
+    const OUT_LINES: { text: string; cls: string }[] = [
+      { text: '',                                                    cls: '' },
+      { text: '[*] initialising cybersoc.py',                        cls: 'info' },
+      { text: '[*] connecting to Munster Technological University',  cls: 'info' },
+      { text: '[*] decrypting member roster ............ done',      cls: 'info' },
+      { text: '[+] access granted \u2014 launching interface',       cls: 'ok'   },
+    ];
+
+    let phase: 'log' | 'prompt' | 'running' | 'done' = 'log';
+    let enterReady = false;
+    let logIndex = 0;
+    let timer: number | undefined;
+
+    const esc = (s: string) =>
+      s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+    function renderLine(raw: string): string {
+      if (raw === '') return '\u00a0';
+      const e = esc(raw);
+      if (raw.startsWith('[  OK  ]')) {
+        return '<span class="ok">[  OK  ]</span>' + e.slice('[  OK  ]'.length);
+      }
+      if (/^\[\s*\d/.test(raw)) return '<span class="dim">' + e + '</span>';
+      return e;
+    }
+
+    function appendLine(raw: string) {
+      const div = document.createElement('div');
+      div.className = 'ln';
+      div.innerHTML = renderLine(raw);
+      logEl.appendChild(div);
+      logEl.scrollTop = logEl.scrollHeight;
+    }
+
+    // ── Phase 1: print the boot log ───────────────────────────────────
+    function stepLog() {
+      if (logIndex >= BOOT_LINES.length) {
+        showPrompt();
+        return;
+      }
+      appendLine(BOOT_LINES[logIndex]);
+      logIndex++;
+      const jitter = 20 + Math.random() * 45; // fast, with a little variation
+      timer = window.setTimeout(stepLog, jitter);
+    }
+
+    function flushLog() {
+      if (timer) clearTimeout(timer);
+      while (logIndex < BOOT_LINES.length) {
+        appendLine(BOOT_LINES[logIndex]);
+        logIndex++;
+      }
+      showPrompt();
+    }
+
+    // ── Phase 2: the terminal prompt + auto-typed command ─────────────
+    function showPrompt() {
+      if (phase !== 'log') return;
+      phase = 'prompt';
+      promptEl.hidden = false;
+      logEl.scrollTop = logEl.scrollHeight;
+
+      let ci = 0;
+      function typeCmd() {
+        if (ci <= COMMAND.length) {
+          cmdEl.textContent = COMMAND.slice(0, ci);
+          ci++;
+          window.setTimeout(typeCmd, 45 + Math.random() * 40);
+        } else {
+          enterReady = true;
+          enterEl.hidden = false;
+          try { enterEl.focus({ preventScroll: true }); } catch (_) {}
+        }
+      }
+      typeCmd();
+    }
+
+    // ── Phase 3: "run" the command, then reveal the page ──────────────
+    function runCommand() {
+      if (phase !== 'prompt' || !enterReady) return;
+      phase = 'running';
+      enterEl.hidden = true;
+      cursorEl.style.display = 'none';
+
+      let oi = 0;
+      function stepOut() {
+        if (oi >= OUT_LINES.length) {
+          window.setTimeout(reveal, 480);
+          return;
+        }
+        const { text, cls } = OUT_LINES[oi];
+        const div = document.createElement('div');
+        div.className = 'ln';
+        if (text === '') {
+          div.innerHTML = '\u00a0';
+        } else if (cls) {
+          div.innerHTML = '<span class="out-' + cls + '">' + esc(text) + '</span>';
+        } else {
+          div.textContent = text;
+        }
+        outEl.appendChild(div);
+        logEl.scrollTop = logEl.scrollHeight;
+        oi++;
+        window.setTimeout(stepOut, 170 + Math.random() * 120);
+      }
+      stepOut();
+    }
+
+    function reveal() {
+      if (phase === 'done') return;
+      phase = 'done';
+      if (oncePerSession) {
+        try { sessionStorage.setItem('cybersoc:booted', '1'); } catch (_) {}
+      }
+      overlay.classList.add('is-leaving');
+      window.setTimeout(() => {
+        overlay.setAttribute('hidden', '');
+        document.documentElement.classList.remove('boot-active');
+      }, 520);
+    }
+
+    // ── Input wiring ──────────────────────────────────────────────────
+    // ENTER runs the command in the prompt phase, or fast-forwards the log.
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        if (phase === 'log') { e.preventDefault(); flushLog(); }
+        else if (phase === 'prompt') { e.preventDefault(); runCommand(); }
+      }
+    });
+
+    // Tap support (mobile has no ENTER key).
+    enterEl.addEventListener('click', runCommand);
+    skipEl.addEventListener('click', () => {
+      if (phase === 'log') flushLog();
+      else if (phase === 'prompt' && enterReady) runCommand();
+    });
+    // Tapping the log area during boot fast-forwards it.
+    logEl.addEventListener('click', () => { if (phase === 'log') flushLog(); });
+
+    stepLog();
+  }
+</script>
+
+<style>
+  /* The boot screen stays dark like a real terminal in both site themes. */
+  .boot-screen {
+    position: fixed;
+    inset: 0;
+    z-index: 9998; /* below the nav-wheel transition cover (9999), above page */
+    background: #000;
+    color: #cfcfcf;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
+    font-size: clamp(11px, 2.6vw, 14px);
+    line-height: 1.5;
+    display: flex;
+    flex-direction: column;
+    padding: clamp(14px, 4vw, 30px);
+    overflow: hidden;
+    opacity: 1;
+    transition: opacity 0.5s ease;
+  }
+
+  /* Beats the base `display:flex` so the pre-paint hide actually hides it. */
+  .boot-screen[hidden] { display: none !important; }
+
+  .boot-screen.is-leaving { opacity: 0; }
+
+  .boot-inner {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .boot-log,
+  .boot-out {
+    margin: 0;
+    font: inherit;
+    white-space: pre-wrap;
+    word-break: break-word;
+    overflow-y: auto;
+  }
+
+  .boot-log { flex: 0 1 auto; }
+  .boot-log .ln,
+  .boot-out .ln { display: block; }
+
+  .boot-log .ok  { color: #57d977; }
+  .boot-log .dim { color: #7d7d7d; }
+
+  .boot-prompt { margin-top: 0.5em; }
+
+  /* Brand pink on the prompt user ties the terminal back to the site. */
+  .prompt-user { color: #FF69B4; font-weight: 700; }
+  .prompt-sym  { color: #cfcfcf; }
+  .prompt-path { color: #6fb2ff; }
+  .boot-cmd    { color: #ffffff; }
+
+  .cursor {
+    color: #FF69B4;
+    animation: boot-blink 1s steps(1) infinite;
+  }
+  @keyframes boot-blink { 50% { opacity: 0; } }
+
+  .boot-out { margin-top: 0.25em; }
+  .boot-out .out-info { color: #FF69B4; }
+  .boot-out .out-ok   { color: #57d977; }
+
+  .boot-enter {
+    display: inline-block;
+    margin-top: 0.9em;
+    background: none;
+    border: 1px solid #FF69B4;
+    color: #FF69B4;
+    font: inherit;
+    letter-spacing: 0.05em;
+    padding: 0.4em 0.85em;
+    border-radius: 4px;
+    cursor: pointer;
+    animation: boot-pulse 1.4s ease-in-out infinite;
+  }
+  .boot-enter:hover,
+  .boot-enter:focus-visible {
+    background: #FF69B4;
+    color: #000;
+    outline: none;
+    animation: none;
+  }
+  @keyframes boot-pulse { 0%, 100% { opacity: 0.55; } 50% { opacity: 1; } }
+
+  .boot-skip {
+    position: absolute;
+    top: clamp(10px, 3vw, 20px);
+    right: clamp(10px, 3vw, 20px);
+    background: none;
+    border: none;
+    color: #7d7d7d;
+    font: inherit;
+    cursor: pointer;
+    z-index: 1;
+  }
+  .boot-skip:hover,
+  .boot-skip:focus-visible { color: #FF69B4; outline: none; }
+
+  /* Lock scrolling of the page underneath while the intro is up. */
+  :global(html.boot-active),
+  :global(html.boot-active body) { overflow: hidden; }
+</style>
