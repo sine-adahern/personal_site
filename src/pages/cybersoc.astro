@@ -208,6 +208,8 @@ const PILE_TILTS = [-8, 6, -4, 9, -6];
         <button class="tl-arrow" type="button" data-dir="1" aria-label="Next event">&#10095;</button>
       </div>
     </section>
+
+    <p class="tl-closing">Onwards — and I can't wait to see what we take on next.</p>
   </main>
   <SiteFooter />
 </BaseLayout>
@@ -472,23 +474,10 @@ const PILE_TILTS = [-8, 6, -4, 9, -6];
       else if (e.key === 'ArrowLeft') { e.preventDefault(); goTo(active - 1); }
     });
 
-    // Let a vertical trackpad/wheel gesture scroll the timeline sideways —
-    // but only while there's still room to scroll that way, so the page can
-    // keep scrolling normally once you reach either end.
-    viewport.addEventListener('wheel', (e) => {
-      if (e.ctrlKey) return; // pinch-zoom
-      const dominateY = Math.abs(e.deltaY) > Math.abs(e.deltaX);
-      const delta = dominateY ? e.deltaY : e.deltaX;
-      if (delta === 0) return;
-      const max = viewport.scrollWidth - viewport.clientWidth;
-      const room = (delta > 0 && viewport.scrollLeft < max - 1) ||
-                   (delta < 0 && viewport.scrollLeft > 1);
-      if (!room) return; // at an edge → let the page take over
-      if (dominateY) {
-        e.preventDefault();
-        viewport.scrollLeft += delta;
-      }
-    }, { passive: false });
+    // Note: we deliberately do NOT hijack vertical wheel/trackpad scrolling.
+    // Vertical gestures scroll the page (so you can read past the timeline);
+    // horizontal trackpad swipes scroll the timeline natively, and the arrows
+    // / dots / keyboard cover mouse-wheel users.
 
     updateActive();
     window.addEventListener('resize', updateActive);
@@ -920,4 +909,16 @@ const PILE_TILTS = [-8, 6, -4, 9, -6];
     .tl-photo,
     .tl-caption { transition: none; }
   }
+
+  /* Closing sign-off under the timeline. */
+  .tl-closing {
+    max-width: 620px;
+    margin: var(--space-12) auto 0;
+    text-align: center;
+    font-style: italic;
+    font-size: 1.05rem;
+    line-height: 1.6;
+    color: #ffe4c4;
+  }
+  :global([data-theme="light"]) .tl-closing { color: #C22E7E; }
 </style>
