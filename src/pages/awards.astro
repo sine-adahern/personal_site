@@ -4,49 +4,55 @@ import SiteHeader from '../components/SiteHeader.astro';
 import SiteFooter from '../components/SiteFooter.astro';
 import SideNav from '../components/SideNav.astro';
 
-
+// ─────────────────────────────────────────────────────────────────────────────
+// Award data. Edit these entries — or replace the cover images.
+//   cover : path to the picture (drop your own into /public/images/awards/ and
+//           point here; a .jpg/.png/.svg all work). The included award-N.svg
+//           files are just themed placeholders.
+//   year  : optional; shown as a small eyebrow above the title.
+//   title : shown under the cover and again at the top of the expanded view.
+//   blurb : the "more information" revealed when a card is opened.
+// To add or remove a card, just add/remove an entry — the grid reflows.
+// ─────────────────────────────────────────────────────────────────────────────
 const awards = [
   {
-    title: "NASA Space Camp — The Right Stuff Award",
+    title: "NASA — The Right Stuff Award",
+    year: "2023",
     cover: "/images/awards/award-1.svg",
-    alt: "Cover image for the NASA Space Camp Right Stuff Award",
+    alt: "Cover image for the NASA Right Stuff Award",
     blurb:
-      "Trained as an astronaut at NASA's Space Camp and came home with the Right Stuff Award — recognition for leadership and teamwork across the programme's simulated missions.",
+      "I was chosen from over 500 students to spend a week doing astronaut training at the Marshall Space Flight Center and Space Camp in Huntsville, Alabama, on a trip funded by Science Foundation Ireland and RTÉ. As well as learning about spaceflight, combustion, and what astronaut training actually involves, I came away with the Right Stuff Award, given for courage, integrity, and excellence. The whole experience was filmed and turned into a TV show for RTÉ.",
   },
   {
-    title: "SciFest Technology Category & EirGrid Award",
+    title: "SciFest & SciFest College",
+    year: "2023",
     cover: "/images/awards/award-2.svg",
-    alt: "Cover image for the SciFest Technology Category and EirGrid Award",
+    alt: "Cover image for the SciFest Technology Category and EirGrid Cleaner Climate Award",
     blurb:
-      "With a four-person team, won SciFest's Technology Category and the EirGrid Award for a carbon-capture filter that used CAD and 3D printing to cut CO₂ from car exhausts.",
+      "SciFest is the largest second-level STEM fair in Ireland, where students design and present their own research projects. My team of four built a carbon capture filter aimed at cutting CO₂ from car exhausts, combining carbon capture technology with 3D printing and CAD design. We won the Technology Category and also took home the EirGrid Cleaner Climate Award, which goes to the project judged to have the strongest mix of technical quality and real environmental impact.",
   },
   {
-    title: "Olympiads",
+    title: "Career Portal Award",
+    year: "2024",
     cover: "/images/awards/award-3.svg",
-    alt: "Cover image for the European Girls' Mathematical Olympiad",
+    alt: "Cover image for the national Career Portal Award",
     blurb:
-      "In 2024 I competed in two national olympiads. In the European Girls' Mathematical Olympiad, which is the leading maths competition for young women and feeds into the team that represents Ireland internationally, I ranked among the top 10 girls in the country through the selection process, tackling tough problems across areas like algebra, geometry, and number theory. I also competed in the Programming Olympiad, an algorithmic coding contest, and worked my way through the earlier rounds to reach the national finals. Both pushed my problem-solving under real time pressure and are a big part of where my analytical side comes from.",
+      "In 2024 I won the national Career Portal Award for my work in Huntsville, Alabama. The award recognised the effort I put into securing work experience at NASA and my commitment to earning the Right Stuff Award, as well as the experience I gained there.",
   },
   {
-    title: "National Programming Olympiad — Finalist",
+    title: "Leaving Certificate — 625 Points",
+    year: "2025",
     cover: "/images/awards/award-4.svg",
-    alt: "Cover image for the national Programming Olympiad finals",
+    alt: "Cover image for the Leaving Certificate 2025 result",
     blurb:
-      "Reached the finals of the national Programming Olympiad, solving timed algorithmic problems against the strongest young programmers in the country.",
+      "I achieved 625 points in the Leaving Certificate, the highest result possible, across English, Irish, Maths, French, Computer Science, History, Physics, and Applied Maths.",
   },
   {
-    title: "Lynra — Patch Accelerator Demo Day",
+    title: "Academic Awards",
     cover: "/images/awards/award-5.svg",
-    alt: "Cover image for Lynra at the Patch Summer Accelerator Demo Day",
+    alt: "Cover image for secondary-school academic awards",
     blurb:
-      "Co-founded Lynra at Dublin's Patch Summer Accelerator and presented the autonomous, tree-injecting rover live at Demo Day to an audience of 300+ investors, founders, and industry leaders.",
-  },
-  {
-    title: "SÓShielta — Hack Europe",
-    cover: "/images/awards/award-6.svg",
-    alt: "Cover image for SÓShielta, built at Hack Europe",
-    blurb:
-      "Built SÓShielta with a four-person team at Hack Europe, designing and shipping a working project inside the hackathon's tight time limit.",
+      "Throughout secondary school I picked up subject awards every year for outstanding grades in Maths, Physics, Applied Maths, Computer Science, and History. These came alongside Student of the Year awards and awards for participation and achievement.",
   },
 ];
 ---
@@ -70,12 +76,14 @@ const awards = [
             data-cover={award.cover}
             data-alt={award.alt}
             data-blurb={award.blurb}
+            data-year={award.year ?? ""}
             aria-haspopup="dialog"
           >
             <span class="award-cover">
               <img src={award.cover} alt={award.alt} loading="lazy" width="800" height="600" />
               <span class="award-expand" aria-hidden="true">+</span>
             </span>
+            {award.year && <span class="award-year">{award.year}</span>}
             <span class="award-title">{award.title}</span>
           </button>
         </li>
@@ -92,6 +100,7 @@ const awards = [
         <img id="award-modal-img" src="" alt="" width="800" height="600" />
       </div>
       <div class="award-modal__body">
+        <span class="award-modal__year" id="award-modal-year" hidden></span>
         <h2 class="award-modal__title" id="award-modal-title"></h2>
         <p class="award-modal__text" id="award-modal-text"></p>
       </div>
@@ -214,6 +223,15 @@ const awards = [
     transition: opacity 0.3s ease, transform 0.3s ease;
   }
 
+  .award-year {
+    font-family: 'Press Start 2P', cursive;
+    font-size: 0.6rem;
+    line-height: 1;
+    letter-spacing: 0.04em;
+    color: var(--color-accent-light);
+    margin-top: var(--space-1);
+  }
+
   .award-title {
     font-family: 'Lato', sans-serif;
     font-weight: 700;
@@ -222,6 +240,9 @@ const awards = [
     letter-spacing: 0.02em;
     color: var(--color-brand);
   }
+
+  /* Tighten the gap when a year eyebrow sits between cover and title. */
+  .award-year + .award-title { margin-top: calc(-1 * var(--space-1)); }
 
   /* Hover / focus: lift, glow, nudge the cover image, reveal the cue. */
   .award-card:hover .award-cover,
@@ -332,6 +353,18 @@ const awards = [
     padding: var(--space-8);
   }
 
+  .award-modal__year {
+    display: inline-block;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 0.7rem;
+    line-height: 1;
+    letter-spacing: 0.04em;
+    color: #000000;
+    margin-bottom: var(--space-4);
+  }
+
+  .award-modal__year[hidden] { display: none; }
+
   .award-modal__title {
     font-family: 'Lato', sans-serif;
     font-weight: 700;
@@ -384,17 +417,21 @@ const awards = [
   // animate it open, and restore focus to that card when it closes.
   const modal = document.getElementById('award-modal') as HTMLElement | null;
   const modalImg = document.getElementById('award-modal-img') as HTMLImageElement | null;
+  const modalYear = document.getElementById('award-modal-year');
   const modalTitle = document.getElementById('award-modal-title');
   const modalText = document.getElementById('award-modal-text');
   const cards = Array.from(document.querySelectorAll<HTMLButtonElement>('.award-card'));
 
-  if (modal && modalImg && modalTitle && modalText) {
+  if (modal && modalImg && modalYear && modalTitle && modalText) {
     let lastFocused: HTMLElement | null = null;
 
     const open = (card: HTMLButtonElement) => {
       lastFocused = card;
       modalImg.src = card.dataset.cover ?? '';
       modalImg.alt = card.dataset.alt ?? '';
+      const year = card.dataset.year ?? '';
+      modalYear.textContent = year;
+      modalYear.hidden = year === '';
       modalTitle.textContent = card.dataset.title ?? '';
       modalText.textContent = card.dataset.blurb ?? '';
 
