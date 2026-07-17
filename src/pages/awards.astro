@@ -1,474 +1,724 @@
----
-import BaseLayout from '../layouts/BaseLayout.astro';
-import SiteHeader from '../components/SiteHeader.astro';
-import SiteFooter from '../components/SiteFooter.astro';
-import SideNav from '../components/SideNav.astro';
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Award data. Edit these entries — or replace the cover images.
-//   cover : path to the picture (drop your own into /public/images/awards/ and
-//           point here; a .jpg/.png/.svg all work). The included award-N.svg
-//           files are just themed placeholders.
-//   year  : optional; shown as a small eyebrow above the title.
-//   title : shown under the cover and again at the top of the expanded view.
-//   blurb : the "more information" revealed when a card is opened.
-// To add or remove a card, just add/remove an entry — the grid reflows.
-// ─────────────────────────────────────────────────────────────────────────────
-const awards = [
-  {
-    title: "NASA — The Right Stuff Award",
-    year: "2023",
-    cover: "/images/awards/award-1.svg",
-    alt: "Cover image for the NASA Right Stuff Award",
-    blurb:
-      "I was chosen from over 500 students to spend a week doing astronaut training at the Marshall Space Flight Center and Space Camp in Huntsville, Alabama, on a trip funded by Science Foundation Ireland and RTÉ. As well as learning about spaceflight, combustion, and what astronaut training actually involves, I came away with the Right Stuff Award, given for courage, integrity, and excellence. The whole experience was filmed and turned into a TV show for RTÉ.",
-  },
-  {
-    title: "SciFest & SciFest College",
-    year: "2023",
-    cover: "/images/awards/award-2.svg",
-    alt: "Cover image for the SciFest Technology Category and EirGrid Cleaner Climate Award",
-    blurb:
-      "SciFest is the largest second-level STEM fair in Ireland, where students design and present their own research projects. My team of four built a carbon capture filter aimed at cutting CO₂ from car exhausts, combining carbon capture technology with 3D printing and CAD design. We won the Technology Category and also took home the EirGrid Cleaner Climate Award, which goes to the project judged to have the strongest mix of technical quality and real environmental impact.",
-  },
-  {
-    title: "Career Portal Award",
-    year: "2024",
-    cover: "/images/awards/award-3.svg",
-    alt: "Cover image for the national Career Portal Award",
-    blurb:
-      "In 2024 I won the national Career Portal Award for my work in Huntsville, Alabama. The award recognised the effort I put into securing work experience at NASA and my commitment to earning the Right Stuff Award, as well as the experience I gained there.",
-  },
-  {
-    title: "Leaving Certificate — 625 Points",
-    year: "2025",
-    cover: "/images/awards/award-4.svg",
-    alt: "Cover image for the Leaving Certificate 2025 result",
-    blurb:
-      "I achieved 625 points in the Leaving Certificate, the highest result possible, across English, Irish, Maths, French, Computer Science, History, Physics, and Applied Maths.",
-  },
-  {
-    title: "Academic Awards",
-    cover: "/images/awards/award-5.svg",
-    alt: "Cover image for secondary-school academic awards",
-    blurb:
-      "Throughout secondary school I picked up subject awards every year for outstanding grades in Maths, Physics, Applied Maths, Computer Science, and History. These came alongside Student of the Year awards and awards for participation and achievement.",
-  },
-];
----
-
-<BaseLayout title="Awards and Achievements">
-  <SiteHeader />
-  <SideNav />
-
-  <main class="awards-main">
-    <h1 class="awards-title">Awards &amp; Achievements</h1>
-    <p class="awards-hint">Tap a cover to read the story behind it.</p>
-
-    <ul class="award-grid">
-      {awards.map((award, i) => (
-        <li class="award-cell">
-          <button
-            type="button"
-            class="award-card"
-            data-index={i}
-            data-title={award.title}
-            data-cover={award.cover}
-            data-alt={award.alt}
-            data-blurb={award.blurb}
-            data-year={award.year ?? ""}
-            aria-haspopup="dialog"
-          >
-            <span class="award-cover">
-              <img src={award.cover} alt={award.alt} loading="lazy" width="800" height="600" />
-              <span class="award-expand" aria-hidden="true">+</span>
-            </span>
-            {award.year && <span class="award-year">{award.year}</span>}
-            <span class="award-title">{award.title}</span>
-          </button>
-        </li>
-      ))}
-    </ul>
-  </main>
-
-  <!-- Expanded view (one dialog, reused for every card) -->
-  <div class="award-modal" id="award-modal" role="dialog" aria-modal="true" aria-labelledby="award-modal-title" hidden>
-    <div class="award-modal__backdrop" data-close></div>
-    <div class="award-modal__panel" role="document">
-      <button type="button" class="award-modal__close" data-close aria-label="Close">&times;</button>
-      <div class="award-modal__media">
-        <img id="award-modal-img" src="" alt="" width="800" height="600" />
-      </div>
-      <div class="award-modal__body">
-        <span class="award-modal__year" id="award-modal-year" hidden></span>
-        <h2 class="award-modal__title" id="award-modal-title"></h2>
-        <p class="award-modal__text" id="award-modal-text"></p>
-      </div>
-    </div>
-  </div>
-
-  <SiteFooter />
-</BaseLayout>
-
-<style>
-  /* ── Page shell ────────────────────────────────────────────────────── */
-  .awards-main {
-    min-height: 100svh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 0 var(--space-6) var(--space-16);
-  }
-
-  .awards-title {
-    font-family: 'Press Start 2P', cursive;
-    font-size: calc(var(--text-2xl) * 1.2);
-    font-weight: 400;
-    color: #f699cd;
-    text-align: center;
-    line-height: 1.4;
-    margin-top: var(--space-12);
-    -webkit-text-stroke: 2px #000000;
-    paint-order: stroke fill;
-  }
-
-  .awards-hint {
-    margin-top: var(--space-4);
-    margin-bottom: var(--space-12);
-    color: var(--color-brand);
-    font-size: var(--text-sm);
-    font-weight: 700;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    text-align: center;
-    opacity: 0.85;
-  }
-
-  /* ── Grid of six ───────────────────────────────────────────────────── */
-  .award-grid {
-    list-style: none;
-    width: 100%;
-    max-width: 1080px;
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: var(--space-8);
-  }
-
-  @media (min-width: 600px) {
-    .award-grid { grid-template-columns: repeat(2, 1fr); }
-  }
-
-  @media (min-width: 900px) {
-    .award-grid { grid-template-columns: repeat(3, 1fr); }
-  }
-
-  .award-cell { display: flex; }
-
-  /* ── Card ──────────────────────────────────────────────────────────── */
-  .award-card {
-    /* button reset */
-    appearance: none;
-    border: none;
-    background: none;
-    padding: 0;
-    margin: 0;
-    font: inherit;
-    color: inherit;
-    text-align: left;
-    cursor: pointer;
-
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-3);
-  }
-
-  .award-cover {
-    position: relative;
-    display: block;
-    aspect-ratio: 4 / 3;
-    overflow: hidden;
-    border: 3px solid #FF69B4;
-    background-color: #000000;
-    transition:
-      transform 0.35s cubic-bezier(.22,.61,.36,1),
-      box-shadow 0.35s ease;
-  }
-
-  .award-cover img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-    transition: transform 0.5s cubic-bezier(.22,.61,.36,1);
-  }
-
-  /* The "expand" cue — echoes the site's images-expand-to-fill motif. */
-  .award-expand {
-    position: absolute;
-    right: var(--space-3);
-    bottom: var(--space-3);
-    width: 34px;
-    height: 34px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: 'Press Start 2P', cursive;
-    font-size: 0.8rem;
-    line-height: 1;
-    color: #000000;
-    background-color: #FF69B4;
-    opacity: 0;
-    transform: scale(0.8);
-    transition: opacity 0.3s ease, transform 0.3s ease;
-  }
-
-  .award-year {
-    font-family: 'Press Start 2P', cursive;
-    font-size: 0.6rem;
-    line-height: 1;
-    letter-spacing: 0.04em;
-    color: var(--color-accent-light);
-    margin-top: var(--space-1);
-  }
-
-  .award-title {
-    font-family: 'Lato', sans-serif;
-    font-weight: 700;
-    font-size: var(--text-lg);
-    line-height: 1.3;
-    letter-spacing: 0.02em;
-    color: var(--color-brand);
-  }
-
-  /* Tighten the gap when a year eyebrow sits between cover and title. */
-  .award-year + .award-title { margin-top: calc(-1 * var(--space-1)); }
-
-  /* Hover / focus: lift, glow, nudge the cover image, reveal the cue. */
-  .award-card:hover .award-cover,
-  .award-card:focus-visible .award-cover {
-    transform: translateY(-6px);
-    box-shadow: 0 12px 34px rgba(255, 105, 180, 0.45);
-  }
-
-  .award-card:hover .award-cover img,
-  .award-card:focus-visible .award-cover img {
-    transform: scale(1.06);
-  }
-
-  .award-card:hover .award-expand,
-  .award-card:focus-visible .award-expand {
-    opacity: 1;
-    transform: scale(1);
-  }
-
-  .award-card:focus-visible .award-cover {
-    outline: 2px solid #FF69B4;
-    outline-offset: 4px;
-  }
-
-  .award-card:focus { outline: none; }
-
-  /* ── Expanded modal ────────────────────────────────────────────────── */
-  .award-modal {
-    position: fixed;
-    inset: 0;
-    z-index: 1000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: var(--space-6);
-  }
-
-  .award-modal[hidden] { display: none; }
-
-  .award-modal__backdrop {
-    position: absolute;
-    inset: 0;
-    background-color: rgba(0, 0, 0, 0.82);
-    opacity: 0;
-    transition: opacity 0.3s ease;
-  }
-
-  .award-modal__panel {
-    position: relative;
-    z-index: 1;
-    width: min(880px, 100%);
-    max-height: 90svh;
-    overflow-y: auto;
-    background-color: #000000;
-    border: 3px solid #FF69B4;
-    display: flex;
-    flex-direction: column;
-    opacity: 0;
-    transform: scale(0.92);
-    transition: opacity 0.3s ease, transform 0.35s cubic-bezier(.22,.61,.36,1);
-  }
-
-  /* open state (toggled from script) */
-  .award-modal.is-open .award-modal__backdrop { opacity: 1; }
-  .award-modal.is-open .award-modal__panel { opacity: 1; transform: scale(1); }
-
-  .award-modal__close {
-    position: absolute;
-    top: var(--space-3);
-    right: var(--space-3);
-    z-index: 2;
-    width: 44px;
-    height: 44px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.75rem;
-    line-height: 1;
-    color: #000000;
-    background-color: #FF69B4;
-    border: none;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-  }
-
-  .award-modal__close:hover { background-color: var(--color-accent-light); }
-
-  .award-modal__close:focus-visible {
-    outline: 2px solid #FFFFFF;
-    outline-offset: 2px;
-  }
-
-  .award-modal__media {
-    width: 100%;
-    background-color: #000000;
-  }
-
-  .award-modal__media img {
-    width: 100%;
-    max-height: 52svh;
-    object-fit: contain;
-    display: block;
-  }
-
-  .award-modal__body {
-    background-color: #FF69B4;
-    color: #FFFFFF;
-    padding: var(--space-8);
-  }
-
-  .award-modal__year {
-    display: inline-block;
-    font-family: 'Press Start 2P', cursive;
-    font-size: 0.7rem;
-    line-height: 1;
-    letter-spacing: 0.04em;
-    color: #000000;
-    margin-bottom: var(--space-4);
-  }
-
-  .award-modal__year[hidden] { display: none; }
-
-  .award-modal__title {
-    font-family: 'Lato', sans-serif;
-    font-weight: 700;
-    font-size: var(--text-2xl);
-    line-height: 1.2;
-    margin-bottom: var(--space-4);
-  }
-
-  .award-modal__text {
-    font-size: var(--text-base);
-    line-height: 1.8;
-  }
-
-  /* ── Light-mode overrides (site toggles [data-theme="light"]) ──────── */
-  :global([data-theme="light"]) .awards-title { color: #f699cd; }
-
-  :global([data-theme="light"]) .award-cover { background-color: #ffffff; }
-
-  :global([data-theme="light"]) .award-modal__panel {
-    background-color: #ffffff;
-  }
-
-  :global([data-theme="light"]) .award-modal__media { background-color: #ffffff; }
-
-  :global([data-theme="light"]) .award-modal__body {
-    background-color: #f699cd;
-    color: #000000;
-  }
-
-  /* ── Reduced motion: keep it still ─────────────────────────────────── */
-  @media (prefers-reduced-motion: reduce) {
-    .award-cover,
-    .award-cover img,
-    .award-expand,
-    .award-modal__backdrop,
-    .award-modal__panel {
-      transition: none;
-    }
-
-    .award-card:hover .award-cover,
-    .award-card:focus-visible .award-cover { transform: none; }
-
-    .award-card:hover .award-cover img,
-    .award-card:focus-visible .award-cover img { transform: none; }
-  }
-</style>
-
-<script>
-  // Reuse one dialog for all cards: populate it from the clicked card's data,
-  // animate it open, and restore focus to that card when it closes.
-  const modal = document.getElementById('award-modal') as HTMLElement | null;
-  const modalImg = document.getElementById('award-modal-img') as HTMLImageElement | null;
-  const modalYear = document.getElementById('award-modal-year');
-  const modalTitle = document.getElementById('award-modal-title');
-  const modalText = document.getElementById('award-modal-text');
-  const cards = Array.from(document.querySelectorAll<HTMLButtonElement>('.award-card'));
-
-  if (modal && modalImg && modalYear && modalTitle && modalText) {
-    let lastFocused: HTMLElement | null = null;
-
-    const open = (card: HTMLButtonElement) => {
-      lastFocused = card;
-      modalImg.src = card.dataset.cover ?? '';
-      modalImg.alt = card.dataset.alt ?? '';
-      const year = card.dataset.year ?? '';
-      modalYear.textContent = year;
-      modalYear.hidden = year === '';
-      modalTitle.textContent = card.dataset.title ?? '';
-      modalText.textContent = card.dataset.blurb ?? '';
-
-      modal.hidden = false;
-      document.documentElement.style.overflow = 'hidden'; // lock background scroll
-      // next frame so the transition runs from the hidden state
-      requestAnimationFrame(() => modal.classList.add('is-open'));
-
-      const closeBtn = modal.querySelector<HTMLButtonElement>('.award-modal__close');
-      closeBtn?.focus();
-    };
-
-    const close = () => {
-      modal.classList.remove('is-open');
-      document.documentElement.style.overflow = '';
-
-      const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      const finish = () => { modal.hidden = true; };
-      if (reduce) {
-        finish();
-      } else {
-        modal.addEventListener('transitionend', finish, { once: true });
-        setTimeout(finish, 400); // fallback if transitionend doesn't fire
-      }
-
-      lastFocused?.focus();
-      lastFocused = null;
-    };
-
-    cards.forEach((card) => card.addEventListener('click', () => open(card)));
-
-    modal.querySelectorAll('[data-close]').forEach((el) =>
-      el.addEventListener('click', close)
-    );
-
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && !modal.hidden) close();
-    });
-  }
-</script>
+diff --git a/public/images/awards/award-1.svg b/public/images/awards/award-1.svg
+new file mode 100644
+index 0000000..877d6c1
+--- /dev/null
++++ b/public/images/awards/award-1.svg
+@@ -0,0 +1,19 @@
++<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600" role="img" aria-label="Placeholder cover for award 1">
++  <defs>
++    <radialGradient id="glow1" cx="50%" cy="42%" r="60%">
++      <stop offset="0%" stop-color="#3a0d29"/>
++      <stop offset="60%" stop-color="#12040e"/>
++      <stop offset="100%" stop-color="#000000"/>
++    </radialGradient>
++  </defs>
++  <rect width="800" height="600" fill="url(#glow1)"/>
++  <rect x="10" y="10" width="780" height="580" fill="none" stroke="#FF69B4" stroke-width="4"/>
++  <polygon points="400,100 435,202 543,204 457,269 488,371 400,310 312,371 343,269 257,204 365,202"
++           fill="#FF69B4" stroke="#000000" stroke-width="6" stroke-linejoin="round"/>
++  <polygon points="400,150 421,212 486,213 434,252 452,315 400,278 348,315 366,252 314,213 379,212"
++           fill="#FFB3D9" opacity="0.55"/>
++  <text x="400" y="440" text-anchor="middle" font-family="'Courier New', monospace" font-size="46"
++        font-weight="700" fill="#FF69B4" stroke="#000000" stroke-width="3" paint-order="stroke" letter-spacing="4">AWARD 1</text>
++  <text x="400" y="500" text-anchor="middle" font-family="'Courier New', monospace" font-size="20"
++        fill="#FFB3D9" letter-spacing="2">placeholder — swap for your photo</text>
++</svg>
+diff --git a/public/images/awards/award-2.svg b/public/images/awards/award-2.svg
+new file mode 100644
+index 0000000..2d5cfc3
+--- /dev/null
++++ b/public/images/awards/award-2.svg
+@@ -0,0 +1,19 @@
++<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600" role="img" aria-label="Placeholder cover for award 2">
++  <defs>
++    <radialGradient id="glow2" cx="50%" cy="42%" r="60%">
++      <stop offset="0%" stop-color="#3a0d29"/>
++      <stop offset="60%" stop-color="#12040e"/>
++      <stop offset="100%" stop-color="#000000"/>
++    </radialGradient>
++  </defs>
++  <rect width="800" height="600" fill="url(#glow2)"/>
++  <rect x="10" y="10" width="780" height="580" fill="none" stroke="#FF69B4" stroke-width="4"/>
++  <polygon points="400,100 435,202 543,204 457,269 488,371 400,310 312,371 343,269 257,204 365,202"
++           fill="#FF69B4" stroke="#000000" stroke-width="6" stroke-linejoin="round"/>
++  <polygon points="400,150 421,212 486,213 434,252 452,315 400,278 348,315 366,252 314,213 379,212"
++           fill="#FFB3D9" opacity="0.55"/>
++  <text x="400" y="440" text-anchor="middle" font-family="'Courier New', monospace" font-size="46"
++        font-weight="700" fill="#FF69B4" stroke="#000000" stroke-width="3" paint-order="stroke" letter-spacing="4">AWARD 2</text>
++  <text x="400" y="500" text-anchor="middle" font-family="'Courier New', monospace" font-size="20"
++        fill="#FFB3D9" letter-spacing="2">placeholder — swap for your photo</text>
++</svg>
+diff --git a/public/images/awards/award-3.svg b/public/images/awards/award-3.svg
+new file mode 100644
+index 0000000..9fb9375
+--- /dev/null
++++ b/public/images/awards/award-3.svg
+@@ -0,0 +1,19 @@
++<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600" role="img" aria-label="Placeholder cover for award 3">
++  <defs>
++    <radialGradient id="glow3" cx="50%" cy="42%" r="60%">
++      <stop offset="0%" stop-color="#3a0d29"/>
++      <stop offset="60%" stop-color="#12040e"/>
++      <stop offset="100%" stop-color="#000000"/>
++    </radialGradient>
++  </defs>
++  <rect width="800" height="600" fill="url(#glow3)"/>
++  <rect x="10" y="10" width="780" height="580" fill="none" stroke="#FF69B4" stroke-width="4"/>
++  <polygon points="400,100 435,202 543,204 457,269 488,371 400,310 312,371 343,269 257,204 365,202"
++           fill="#FF69B4" stroke="#000000" stroke-width="6" stroke-linejoin="round"/>
++  <polygon points="400,150 421,212 486,213 434,252 452,315 400,278 348,315 366,252 314,213 379,212"
++           fill="#FFB3D9" opacity="0.55"/>
++  <text x="400" y="440" text-anchor="middle" font-family="'Courier New', monospace" font-size="46"
++        font-weight="700" fill="#FF69B4" stroke="#000000" stroke-width="3" paint-order="stroke" letter-spacing="4">AWARD 3</text>
++  <text x="400" y="500" text-anchor="middle" font-family="'Courier New', monospace" font-size="20"
++        fill="#FFB3D9" letter-spacing="2">placeholder — swap for your photo</text>
++</svg>
+diff --git a/public/images/awards/award-4.svg b/public/images/awards/award-4.svg
+new file mode 100644
+index 0000000..9d869ce
+--- /dev/null
++++ b/public/images/awards/award-4.svg
+@@ -0,0 +1,19 @@
++<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600" role="img" aria-label="Placeholder cover for award 4">
++  <defs>
++    <radialGradient id="glow4" cx="50%" cy="42%" r="60%">
++      <stop offset="0%" stop-color="#3a0d29"/>
++      <stop offset="60%" stop-color="#12040e"/>
++      <stop offset="100%" stop-color="#000000"/>
++    </radialGradient>
++  </defs>
++  <rect width="800" height="600" fill="url(#glow4)"/>
++  <rect x="10" y="10" width="780" height="580" fill="none" stroke="#FF69B4" stroke-width="4"/>
++  <polygon points="400,100 435,202 543,204 457,269 488,371 400,310 312,371 343,269 257,204 365,202"
++           fill="#FF69B4" stroke="#000000" stroke-width="6" stroke-linejoin="round"/>
++  <polygon points="400,150 421,212 486,213 434,252 452,315 400,278 348,315 366,252 314,213 379,212"
++           fill="#FFB3D9" opacity="0.55"/>
++  <text x="400" y="440" text-anchor="middle" font-family="'Courier New', monospace" font-size="46"
++        font-weight="700" fill="#FF69B4" stroke="#000000" stroke-width="3" paint-order="stroke" letter-spacing="4">AWARD 4</text>
++  <text x="400" y="500" text-anchor="middle" font-family="'Courier New', monospace" font-size="20"
++        fill="#FFB3D9" letter-spacing="2">placeholder — swap for your photo</text>
++</svg>
+diff --git a/public/images/awards/award-5.svg b/public/images/awards/award-5.svg
+new file mode 100644
+index 0000000..ea931e4
+--- /dev/null
++++ b/public/images/awards/award-5.svg
+@@ -0,0 +1,19 @@
++<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600" role="img" aria-label="Placeholder cover for award 5">
++  <defs>
++    <radialGradient id="glow5" cx="50%" cy="42%" r="60%">
++      <stop offset="0%" stop-color="#3a0d29"/>
++      <stop offset="60%" stop-color="#12040e"/>
++      <stop offset="100%" stop-color="#000000"/>
++    </radialGradient>
++  </defs>
++  <rect width="800" height="600" fill="url(#glow5)"/>
++  <rect x="10" y="10" width="780" height="580" fill="none" stroke="#FF69B4" stroke-width="4"/>
++  <polygon points="400,100 435,202 543,204 457,269 488,371 400,310 312,371 343,269 257,204 365,202"
++           fill="#FF69B4" stroke="#000000" stroke-width="6" stroke-linejoin="round"/>
++  <polygon points="400,150 421,212 486,213 434,252 452,315 400,278 348,315 366,252 314,213 379,212"
++           fill="#FFB3D9" opacity="0.55"/>
++  <text x="400" y="440" text-anchor="middle" font-family="'Courier New', monospace" font-size="46"
++        font-weight="700" fill="#FF69B4" stroke="#000000" stroke-width="3" paint-order="stroke" letter-spacing="4">AWARD 5</text>
++  <text x="400" y="500" text-anchor="middle" font-family="'Courier New', monospace" font-size="20"
++        fill="#FFB3D9" letter-spacing="2">placeholder — swap for your photo</text>
++</svg>
+diff --git a/public/images/awards/award-6.svg b/public/images/awards/award-6.svg
+new file mode 100644
+index 0000000..d23d24d
+--- /dev/null
++++ b/public/images/awards/award-6.svg
+@@ -0,0 +1,19 @@
++<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600" role="img" aria-label="Placeholder cover for award 6">
++  <defs>
++    <radialGradient id="glow6" cx="50%" cy="42%" r="60%">
++      <stop offset="0%" stop-color="#3a0d29"/>
++      <stop offset="60%" stop-color="#12040e"/>
++      <stop offset="100%" stop-color="#000000"/>
++    </radialGradient>
++  </defs>
++  <rect width="800" height="600" fill="url(#glow6)"/>
++  <rect x="10" y="10" width="780" height="580" fill="none" stroke="#FF69B4" stroke-width="4"/>
++  <polygon points="400,100 435,202 543,204 457,269 488,371 400,310 312,371 343,269 257,204 365,202"
++           fill="#FF69B4" stroke="#000000" stroke-width="6" stroke-linejoin="round"/>
++  <polygon points="400,150 421,212 486,213 434,252 452,315 400,278 348,315 366,252 314,213 379,212"
++           fill="#FFB3D9" opacity="0.55"/>
++  <text x="400" y="440" text-anchor="middle" font-family="'Courier New', monospace" font-size="46"
++        font-weight="700" fill="#FF69B4" stroke="#000000" stroke-width="3" paint-order="stroke" letter-spacing="4">AWARD 6</text>
++  <text x="400" y="500" text-anchor="middle" font-family="'Courier New', monospace" font-size="20"
++        fill="#FFB3D9" letter-spacing="2">placeholder — swap for your photo</text>
++</svg>
+diff --git a/src/components/NavWheel.astro b/src/components/NavWheel.astro
+index 0027721..273d1bb 100644
+--- a/src/components/NavWheel.astro
++++ b/src/components/NavWheel.astro
+@@ -5,9 +5,9 @@ const panels: NavPanel[] = [
+   { name: 'Home',      href: '/',         thumb: '/thumbs/thumb-home.svg'      },
+   { name: 'About Me',  href: '/about',    thumb: '/thumbs/thumb-about-dark.jpg',  thumbLight: '/thumbs/thumb-about-light.jpg' },
+   { name: 'Portfolio', href: '/portfolio', thumb: '/thumbs/thumb-portfolio-dark.jpg', thumbLight: '/thumbs/thumb-portfolio-light.jpg' },
+-  { name: 'Trips',     href: '/trips',    thumb: '/thumbs/thumb-trips.svg'     },
++  { name: 'Awards and Achievements', href: '/awards',    thumb: '/thumbs/thumb-trips.svg'     },
+   { name: 'Cyber SOC', href: '/cybersoc', thumb: '/thumbs/thumb-cybersoc-dark.jpg', thumbLight: '/thumbs/thumb-cybersoc-light.jpg' },
+-  { name: 'Patch',           href: '/patch',    thumb: '/thumbs/thumb-patch.svg'      },
++  { name: 'Links',           href: '/links',    thumb: '/thumbs/thumb-patch.svg'      },
+   { name: 'Public Speaking', href: '/speaking', thumb: '/thumbs/thumb-speaking.svg'   },
+ ];
+ ---
+diff --git a/src/components/SideNav.astro b/src/components/SideNav.astro
+index cbdf872..ad6177d 100644
+--- a/src/components/SideNav.astro
++++ b/src/components/SideNav.astro
+@@ -3,9 +3,9 @@ const navItems = [
+   { name: 'Home',      href: '/',         thumb: '/thumbs/thumb-home.svg'      },
+   { name: 'About Me',  href: '/about',    thumb: '/thumbs/thumb-about-dark.jpg',  thumbLight: '/thumbs/thumb-about-light.jpg' },
+   { name: 'Portfolio', href: '/portfolio', thumb: '/thumbs/thumb-portfolio-dark.jpg', thumbLight: '/thumbs/thumb-portfolio-light.jpg' },
+-  { name: 'Trips',     href: '/trips',    thumb: '/thumbs/thumb-trips.svg'     },
++  { name: 'Awards and Achievements', href: '/awards',    thumb: '/thumbs/thumb-trips.svg'     },
+   { name: 'Cyber SOC', href: '/cybersoc', thumb: '/thumbs/thumb-cybersoc-dark.jpg', thumbLight: '/thumbs/thumb-cybersoc-light.jpg' },
+-  { name: 'Patch',           href: '/patch',     thumb: '/thumbs/thumb-patch.svg'     },
++  { name: 'Links',           href: '/links',     thumb: '/thumbs/thumb-patch.svg'     },
+   { name: 'Public Speaking', href: '/speaking',  thumb: '/thumbs/thumb-speaking.svg'  },
+ ];
+ ---
+diff --git a/src/pages/about.astro b/src/pages/about.astro
+index 7943b91..a73ed90 100644
+--- a/src/pages/about.astro
++++ b/src/pages/about.astro
+@@ -59,7 +59,7 @@ const photos = [
+           I work in Python, C++, JavaScript, and Rust, and I like the kind of problem-solving that rewards patience, a habit I picked up competing in the European Girls' Mathematical Olympiad (top 10 in Ireland) and the national Programming Olympiad finals. I'm happiest when I'm building something real: I co-founded <a href="/portfolio#lynra">Lynra</a> at Dublin's Patch accelerator, training an object-detection model and putting it on a rover that delivers micro-injections to diseased ash trees. Earlier, a four-person team and I won SciFest's Technology Category and the EirGrid Award for a carbon-capture filter that used CAD and 3D printing to cut CO₂ from car exhausts. More recently I built SÓShielta at Hack Europe with a four-person team.
+         </p>
+         <p class="bio-text">
+-          Outside the strictly technical stuff, I've trained as an astronaut at <a href="/trips">NASA's Space Camp</a> (and somehow came home with the Right Stuff Award). I read a lot — mystery novels especially — and I make my own clothes. Both scratch the same itch as everything else: at heart I'm a problem-solver, the kind who's just as happy untangling a network connectivity issue as a locked-room murder; figuring out how the pieces fit together to make something that works.
++          Outside the strictly technical stuff, I've trained as an astronaut at <a href="/awards">NASA's Space Camp</a> (and somehow came home with the Right Stuff Award). I read a lot — mystery novels especially — and I make my own clothes. Both scratch the same itch as everything else: at heart I'm a problem-solver, the kind who's just as happy untangling a network connectivity issue as a locked-room murder; figuring out how the pieces fit together to make something that works.
+         </p>
+         <p class="bio-text">
+           I'm always up for interesting projects and conversations — get in touch.
+diff --git a/src/pages/awards.astro b/src/pages/awards.astro
+new file mode 100644
+index 0000000..b332e5e
+--- /dev/null
++++ b/src/pages/awards.astro
+@@ -0,0 +1,481 @@
++---
++import BaseLayout from '../layouts/BaseLayout.astro';
++import SiteHeader from '../components/SiteHeader.astro';
++import SiteFooter from '../components/SiteFooter.astro';
++import SideNav from '../components/SideNav.astro';
++
++// ─────────────────────────────────────────────────────────────────────────────
++// Award data. Edit these entries — or replace the cover images.
++//   cover : path to the picture (drop your own into /public/images/awards/ and
++//           point here; a .jpg/.png/.svg all work). The included award-N.svg
++//           files are just themed placeholders.
++//   year  : optional; shown as a small eyebrow above the title.
++//   title : shown under the cover and again at the top of the expanded view.
++//   blurb : the "more information" revealed when a card is opened.
++// To add or remove a card, just add/remove an entry — the grid reflows.
++// ─────────────────────────────────────────────────────────────────────────────
++const awards = [
++  {
++    title: "NASA — The Right Stuff Award",
++    year: "2023",
++    cover: "/images/awards/award-1.svg",
++    alt: "Cover image for the NASA Right Stuff Award",
++    blurb:
++      "I was chosen from over 500 students to spend a week doing astronaut training at the Marshall Space Flight Center and Space Camp in Huntsville, Alabama, on a trip funded by Science Foundation Ireland and RTÉ. As well as learning about spaceflight, combustion, and what astronaut training actually involves, I came away with the Right Stuff Award, given for courage, integrity, and excellence. The whole experience was filmed and turned into a TV show for RTÉ.",
++  },
++  {
++    title: "SciFest & SciFest College",
++    year: "2023",
++    cover: "/images/awards/award-2.svg",
++    alt: "Cover image for the SciFest Technology Category and EirGrid Cleaner Climate Award",
++    blurb:
++      "SciFest is the largest second-level STEM fair in Ireland, where students design and present their own research projects. My team of four built a carbon capture filter aimed at cutting CO₂ from car exhausts, combining carbon capture technology with 3D printing and CAD design. We won the Technology Category and also took home the EirGrid Cleaner Climate Award, which goes to the project judged to have the strongest mix of technical quality and real environmental impact.",
++  },
++  {
++    title: "Career Portal Award",
++    year: "2024",
++    cover: "/images/awards/award-3.svg",
++    alt: "Cover image for the national Career Portal Award",
++    blurb:
++      "In 2024 I won the national Career Portal Award for my work in Huntsville, Alabama. The award recognised the effort I put into securing work experience at NASA and my commitment to earning the Right Stuff Award, as well as the experience I gained there.",
++  },
++  {
++    title: "Leaving Certificate — 625 Points",
++    year: "2025",
++    cover: "/images/awards/award-4.svg",
++    alt: "Cover image for the Leaving Certificate 2025 result",
++    blurb:
++      "I achieved 625 points in the Leaving Certificate, the highest result possible, across English, Irish, Maths, French, Computer Science, History, Physics, and Applied Maths.",
++  },
++  {
++    title: "Academic Awards",
++    cover: "/images/awards/award-5.svg",
++    alt: "Cover image for secondary-school academic awards",
++    blurb:
++      "Throughout secondary school I picked up subject awards every year for outstanding grades in Maths, Physics, Applied Maths, Computer Science, and History. These came alongside Student of the Year awards and awards for participation and achievement.",
++  },
++  {
++    title: "Maths & Programming Olympiads",
++    cover: "/images/awards/award-6.svg",
++    alt: "Cover image for the maths and programming olympiads",
++    blurb:
++      "I've competed at national and international level in both maths and programming — placing in the top 10 in Ireland at the European Girls' Mathematical Olympiad, and reaching the finals of the national Programming Olympiad. Both reward the patient, from-scratch problem-solving I enjoy most.",
++  },
++];
++---
++
++<BaseLayout title="Awards and Achievements">
++  <SiteHeader />
++  <SideNav />
++
++  <main class="awards-main">
++    <h1 class="awards-title">Awards &amp; Achievements</h1>
++    <p class="awards-hint">Tap a cover to read the story behind it.</p>
++
++    <ul class="award-grid">
++      {awards.map((award, i) => (
++        <li class="award-cell">
++          <button
++            type="button"
++            class="award-card"
++            data-index={i}
++            data-title={award.title}
++            data-cover={award.cover}
++            data-alt={award.alt}
++            data-blurb={award.blurb}
++            data-year={award.year ?? ""}
++            aria-haspopup="dialog"
++          >
++            <span class="award-cover">
++              <img src={award.cover} alt={award.alt} loading="lazy" width="800" height="600" />
++              <span class="award-expand" aria-hidden="true">+</span>
++            </span>
++            {award.year && <span class="award-year">{award.year}</span>}
++            <span class="award-title">{award.title}</span>
++          </button>
++        </li>
++      ))}
++    </ul>
++  </main>
++
++  <!-- Expanded view (one dialog, reused for every card) -->
++  <div class="award-modal" id="award-modal" role="dialog" aria-modal="true" aria-labelledby="award-modal-title" hidden>
++    <div class="award-modal__backdrop" data-close></div>
++    <div class="award-modal__panel" role="document">
++      <button type="button" class="award-modal__close" data-close aria-label="Close">&times;</button>
++      <div class="award-modal__media">
++        <img id="award-modal-img" src="" alt="" width="800" height="600" />
++      </div>
++      <div class="award-modal__body">
++        <span class="award-modal__year" id="award-modal-year" hidden></span>
++        <h2 class="award-modal__title" id="award-modal-title"></h2>
++        <p class="award-modal__text" id="award-modal-text"></p>
++      </div>
++    </div>
++  </div>
++
++  <SiteFooter />
++</BaseLayout>
++
++<style>
++  /* ── Page shell ────────────────────────────────────────────────────── */
++  .awards-main {
++    min-height: 100svh;
++    display: flex;
++    flex-direction: column;
++    align-items: center;
++    padding: 0 var(--space-6) var(--space-16);
++  }
++
++  .awards-title {
++    font-family: 'Press Start 2P', cursive;
++    font-size: calc(var(--text-2xl) * 1.2);
++    font-weight: 400;
++    color: #f699cd;
++    text-align: center;
++    line-height: 1.4;
++    margin-top: var(--space-12);
++    -webkit-text-stroke: 2px #000000;
++    paint-order: stroke fill;
++  }
++
++  .awards-hint {
++    margin-top: var(--space-4);
++    margin-bottom: var(--space-12);
++    color: var(--color-brand);
++    font-size: var(--text-sm);
++    font-weight: 700;
++    letter-spacing: 0.06em;
++    text-transform: uppercase;
++    text-align: center;
++    opacity: 0.85;
++  }
++
++  /* ── Grid of six ───────────────────────────────────────────────────── */
++  .award-grid {
++    list-style: none;
++    width: 100%;
++    max-width: 1080px;
++    display: grid;
++    grid-template-columns: 1fr;
++    gap: var(--space-8);
++  }
++
++  @media (min-width: 600px) {
++    .award-grid { grid-template-columns: repeat(2, 1fr); }
++  }
++
++  @media (min-width: 900px) {
++    .award-grid { grid-template-columns: repeat(3, 1fr); }
++  }
++
++  .award-cell { display: flex; }
++
++  /* ── Card ──────────────────────────────────────────────────────────── */
++  .award-card {
++    /* button reset */
++    appearance: none;
++    border: none;
++    background: none;
++    padding: 0;
++    margin: 0;
++    font: inherit;
++    color: inherit;
++    text-align: left;
++    cursor: pointer;
++
++    width: 100%;
++    display: flex;
++    flex-direction: column;
++    gap: var(--space-3);
++  }
++
++  .award-cover {
++    position: relative;
++    display: block;
++    aspect-ratio: 4 / 3;
++    overflow: hidden;
++    border: 3px solid #FF69B4;
++    background-color: #000000;
++    transition:
++      transform 0.35s cubic-bezier(.22,.61,.36,1),
++      box-shadow 0.35s ease;
++  }
++
++  .award-cover img {
++    width: 100%;
++    height: 100%;
++    object-fit: cover;
++    display: block;
++    transition: transform 0.5s cubic-bezier(.22,.61,.36,1);
++  }
++
++  /* The "expand" cue — echoes the site's images-expand-to-fill motif. */
++  .award-expand {
++    position: absolute;
++    right: var(--space-3);
++    bottom: var(--space-3);
++    width: 34px;
++    height: 34px;
++    display: flex;
++    align-items: center;
++    justify-content: center;
++    font-family: 'Press Start 2P', cursive;
++    font-size: 0.8rem;
++    line-height: 1;
++    color: #000000;
++    background-color: #FF69B4;
++    opacity: 0;
++    transform: scale(0.8);
++    transition: opacity 0.3s ease, transform 0.3s ease;
++  }
++
++  .award-year {
++    font-family: 'Press Start 2P', cursive;
++    font-size: 0.6rem;
++    line-height: 1;
++    letter-spacing: 0.04em;
++    color: var(--color-accent-light);
++    margin-top: var(--space-1);
++  }
++
++  .award-title {
++    font-family: 'Lato', sans-serif;
++    font-weight: 700;
++    font-size: var(--text-lg);
++    line-height: 1.3;
++    letter-spacing: 0.02em;
++    color: var(--color-brand);
++  }
++
++  /* Tighten the gap when a year eyebrow sits between cover and title. */
++  .award-year + .award-title { margin-top: calc(-1 * var(--space-1)); }
++
++  /* Hover / focus: lift, glow, nudge the cover image, reveal the cue. */
++  .award-card:hover .award-cover,
++  .award-card:focus-visible .award-cover {
++    transform: translateY(-6px);
++    box-shadow: 0 12px 34px rgba(255, 105, 180, 0.45);
++  }
++
++  .award-card:hover .award-cover img,
++  .award-card:focus-visible .award-cover img {
++    transform: scale(1.06);
++  }
++
++  .award-card:hover .award-expand,
++  .award-card:focus-visible .award-expand {
++    opacity: 1;
++    transform: scale(1);
++  }
++
++  .award-card:focus-visible .award-cover {
++    outline: 2px solid #FF69B4;
++    outline-offset: 4px;
++  }
++
++  .award-card:focus { outline: none; }
++
++  /* ── Expanded modal ────────────────────────────────────────────────── */
++  .award-modal {
++    position: fixed;
++    inset: 0;
++    z-index: 1000;
++    display: flex;
++    align-items: center;
++    justify-content: center;
++    padding: var(--space-6);
++  }
++
++  .award-modal[hidden] { display: none; }
++
++  .award-modal__backdrop {
++    position: absolute;
++    inset: 0;
++    background-color: rgba(0, 0, 0, 0.82);
++    opacity: 0;
++    transition: opacity 0.3s ease;
++  }
++
++  .award-modal__panel {
++    position: relative;
++    z-index: 1;
++    width: min(880px, 100%);
++    max-height: 90svh;
++    overflow-y: auto;
++    background-color: #000000;
++    border: 3px solid #FF69B4;
++    display: flex;
++    flex-direction: column;
++    opacity: 0;
++    transform: scale(0.92);
++    transition: opacity 0.3s ease, transform 0.35s cubic-bezier(.22,.61,.36,1);
++  }
++
++  /* open state (toggled from script) */
++  .award-modal.is-open .award-modal__backdrop { opacity: 1; }
++  .award-modal.is-open .award-modal__panel { opacity: 1; transform: scale(1); }
++
++  .award-modal__close {
++    position: absolute;
++    top: var(--space-3);
++    right: var(--space-3);
++    z-index: 2;
++    width: 44px;
++    height: 44px;
++    display: flex;
++    align-items: center;
++    justify-content: center;
++    font-size: 1.75rem;
++    line-height: 1;
++    color: #000000;
++    background-color: #FF69B4;
++    border: none;
++    cursor: pointer;
++    transition: background-color 0.2s ease;
++  }
++
++  .award-modal__close:hover { background-color: var(--color-accent-light); }
++
++  .award-modal__close:focus-visible {
++    outline: 2px solid #FFFFFF;
++    outline-offset: 2px;
++  }
++
++  .award-modal__media {
++    width: 100%;
++    background-color: #000000;
++  }
++
++  .award-modal__media img {
++    width: 100%;
++    max-height: 52svh;
++    object-fit: contain;
++    display: block;
++  }
++
++  .award-modal__body {
++    background-color: #FF69B4;
++    color: #FFFFFF;
++    padding: var(--space-8);
++  }
++
++  .award-modal__year {
++    display: inline-block;
++    font-family: 'Press Start 2P', cursive;
++    font-size: 0.7rem;
++    line-height: 1;
++    letter-spacing: 0.04em;
++    color: #000000;
++    margin-bottom: var(--space-4);
++  }
++
++  .award-modal__year[hidden] { display: none; }
++
++  .award-modal__title {
++    font-family: 'Lato', sans-serif;
++    font-weight: 700;
++    font-size: var(--text-2xl);
++    line-height: 1.2;
++    margin-bottom: var(--space-4);
++  }
++
++  .award-modal__text {
++    font-size: var(--text-base);
++    line-height: 1.8;
++  }
++
++  /* ── Light-mode overrides (site toggles [data-theme="light"]) ──────── */
++  :global([data-theme="light"]) .awards-title { color: #f699cd; }
++
++  :global([data-theme="light"]) .award-cover { background-color: #ffffff; }
++
++  :global([data-theme="light"]) .award-modal__panel {
++    background-color: #ffffff;
++  }
++
++  :global([data-theme="light"]) .award-modal__media { background-color: #ffffff; }
++
++  :global([data-theme="light"]) .award-modal__body {
++    background-color: #f699cd;
++    color: #000000;
++  }
++
++  /* ── Reduced motion: keep it still ─────────────────────────────────── */
++  @media (prefers-reduced-motion: reduce) {
++    .award-cover,
++    .award-cover img,
++    .award-expand,
++    .award-modal__backdrop,
++    .award-modal__panel {
++      transition: none;
++    }
++
++    .award-card:hover .award-cover,
++    .award-card:focus-visible .award-cover { transform: none; }
++
++    .award-card:hover .award-cover img,
++    .award-card:focus-visible .award-cover img { transform: none; }
++  }
++</style>
++
++<script>
++  // Reuse one dialog for all cards: populate it from the clicked card's data,
++  // animate it open, and restore focus to that card when it closes.
++  const modal = document.getElementById('award-modal') as HTMLElement | null;
++  const modalImg = document.getElementById('award-modal-img') as HTMLImageElement | null;
++  const modalYear = document.getElementById('award-modal-year');
++  const modalTitle = document.getElementById('award-modal-title');
++  const modalText = document.getElementById('award-modal-text');
++  const cards = Array.from(document.querySelectorAll<HTMLButtonElement>('.award-card'));
++
++  if (modal && modalImg && modalYear && modalTitle && modalText) {
++    let lastFocused: HTMLElement | null = null;
++
++    const open = (card: HTMLButtonElement) => {
++      lastFocused = card;
++      modalImg.src = card.dataset.cover ?? '';
++      modalImg.alt = card.dataset.alt ?? '';
++      const year = card.dataset.year ?? '';
++      modalYear.textContent = year;
++      modalYear.hidden = year === '';
++      modalTitle.textContent = card.dataset.title ?? '';
++      modalText.textContent = card.dataset.blurb ?? '';
++
++      modal.hidden = false;
++      document.documentElement.style.overflow = 'hidden'; // lock background scroll
++      // next frame so the transition runs from the hidden state
++      requestAnimationFrame(() => modal.classList.add('is-open'));
++
++      const closeBtn = modal.querySelector<HTMLButtonElement>('.award-modal__close');
++      closeBtn?.focus();
++    };
++
++    const close = () => {
++      modal.classList.remove('is-open');
++      document.documentElement.style.overflow = '';
++
++      const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
++      const finish = () => { modal.hidden = true; };
++      if (reduce) {
++        finish();
++      } else {
++        modal.addEventListener('transitionend', finish, { once: true });
++        setTimeout(finish, 400); // fallback if transitionend doesn't fire
++      }
++
++      lastFocused?.focus();
++      lastFocused = null;
++    };
++
++    cards.forEach((card) => card.addEventListener('click', () => open(card)));
++
++    modal.querySelectorAll('[data-close]').forEach((el) =>
++      el.addEventListener('click', close)
++    );
++
++    document.addEventListener('keydown', (e) => {
++      if (e.key === 'Escape' && !modal.hidden) close();
++    });
++  }
++</script>
+diff --git a/src/pages/patch.astro b/src/pages/links.astro
+similarity index 87%
+rename from src/pages/patch.astro
+rename to src/pages/links.astro
+index 8ce4b5c..26c17fe 100644
+--- a/src/pages/patch.astro
++++ b/src/pages/links.astro
+@@ -5,11 +5,11 @@ import SiteFooter from '../components/SiteFooter.astro';
+ import SideNav from '../components/SideNav.astro';
+ ---
+ 
+-<BaseLayout title="Patch">
++<BaseLayout title="Links">
+   <SiteHeader />
+   <SideNav />
+   <main>
+-    <h1>Patch</h1>
++    <h1>Links</h1>
+   </main>
+   <SiteFooter />
+ </BaseLayout>
+diff --git a/src/pages/trips.astro b/src/pages/trips.astro
+deleted file mode 100644
+index cfdb985..0000000
+--- a/src/pages/trips.astro
++++ /dev/null
+@@ -1,15 +0,0 @@
+----
+-import BaseLayout from '../layouts/BaseLayout.astro';
+-import SiteHeader from '../components/SiteHeader.astro';
+-import SiteFooter from '../components/SiteFooter.astro';
+-import SideNav from '../components/SideNav.astro';
+----
+-
+-<BaseLayout title="Trips">
+-  <SiteHeader />
+-  <SideNav />
+-  <main>
+-    <h1>Trips</h1>
+-  </main>
+-  <SiteFooter />
+-</BaseLayout>
