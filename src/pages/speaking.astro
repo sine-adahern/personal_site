@@ -5,11 +5,38 @@ import SiteFooter from '../components/SiteFooter.astro';
 import SideNav from '../components/SideNav.astro';
 ---
 
-<BaseLayout title="Public Speaking">
+<BaseLayout title="Speaking & Debating">
   <SiteHeader />
   <SideNav />
   <main>
-    <h1>Public Speaking</h1>
+    <h1>Speaking &amp; Debating</h1>
   </main>
   <SiteFooter />
 </BaseLayout>
+
+<style>
+  /*
+    Page-specific background. Overrides the global --color-bg-gradient just for
+    this page (this style block is only ever loaded on /speaking). A gentle
+    top-anchored radial glow using the site's existing pink accents keeps the
+    effect very subtle: colour concentrates at the top and fades to the base.
+
+    Dark (default): dark-pink (#E0429A accent) -> black
+    Light:          light-pink (#FFB3D9 accent) -> white
+  */
+  :global(body) {
+    background-image: radial-gradient(
+      ellipse 90% 55% at 50% 0%,
+      #E0429A 0%,
+      #000000 55%
+    );
+  }
+
+  :global([data-theme="light"] body) {
+    background-image: radial-gradient(
+      ellipse 90% 55% at 50% 0%,
+      #FFB3D9 0%,
+      #ffffff 55%
+    );
+  }
+</style>
