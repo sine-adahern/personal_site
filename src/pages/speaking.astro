@@ -39,4 +39,16 @@ import SideNav from '../components/SideNav.astro';
       #ffffff 55%
     );
   }
+
+  /*
+    Let the gradient run all the way to the top of the page. The shared header
+    has an opaque background by default; making it transparent here lets the
+    body gradient show through behind it. The "Sinéad Ahern" title keeps its
+    own colour + black stroke, so it stays fully visible (not transparent).
+  */
+  :global(.site-header) {
+    /* !important beats the header component's own more specific scoped rule
+       (.site-header[data-astro-cid-...]) which sets an opaque background. */
+    background-color: transparent !important;
+  }
 </style>
