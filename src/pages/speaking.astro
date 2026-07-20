@@ -9,7 +9,7 @@ import SideNav from '../components/SideNav.astro';
   <SiteHeader />
   <SideNav />
   <main>
-    <h1>Speaking &amp; Debating</h1>
+    <h1 class="speaking-title">Speaking &amp; Debating</h1>
   </main>
   <SiteFooter />
 </BaseLayout>
@@ -50,5 +50,22 @@ import SideNav from '../components/SideNav.astro';
     /* !important beats the header component's own more specific scoped rule
        (.site-header[data-astro-cid-...]) which sets an opaque background. */
     background-color: transparent !important;
+  }
+
+  /*
+    Page heading in the same pixel style as the other pages' titles
+    (.awards-title / .portfolio-title): Press Start 2P, centred, with the
+    black text-stroke. Brand pink keeps it in step with this page's theme.
+  */
+  .speaking-title {
+    font-family: 'Press Start 2P', cursive;
+    font-size: calc(var(--text-2xl) * 1.2);
+    font-weight: 400;
+    color: var(--color-brand);
+    text-align: center;
+    line-height: 1.4;
+    margin-top: var(--space-12);
+    -webkit-text-stroke: 2px #000000;
+    paint-order: stroke fill;
   }
 </style>
