@@ -3,6 +3,78 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import SiteHeader from '../components/SiteHeader.astro';
 import SiteFooter from '../components/SiteFooter.astro';
 import SideNav from '../components/SideNav.astro';
+
+// Events in ANTI-CHRONOLOGICAL order (most recent first) — they render top→bottom.
+// To change the photos: drop your images in /public/images/speaking/ and edit the
+// `images` array for each event (add/remove freely — the layout handles 1–3).
+const events = [
+  {
+    slug: 'rocco',
+    year: '2026',
+    title: 'Speaker, ROCCO Genesis, Limerick',
+    subtitle: 'Human & Artificial Intelligence Panel',
+    body: `I was invited to speak on the Human & Artificial Intelligence Panel at ROCCO Genesis 2026, a two-day telecoms innovation event that brings mobile network operators, industry leaders and disruptors together in Limerick. I joined the panel as a student contributor alongside seasoned industry professionals, sharing a perspective on where human judgement and artificial intelligence meet — and where the balance between them should sit. Holding my own in that room, as the student voice among established experts, is the appearance I'm proudest of so far.`,
+    images: [
+      { src: '/images/speaking/rocco-1.jpg', alt: 'ROCCO Genesis 2026 panel' },
+      { src: '/images/speaking/rocco-2.jpg', alt: 'ROCCO Genesis 2026' },
+    ],
+  },
+  {
+    slug: 'cybersoc-chair',
+    year: '2025–present',
+    title: 'Chairperson, MTU Cyber Security Society',
+    subtitle: '',
+    body: `As Chairperson of the Cyber Security Society at Munster Technological University, I lead our meetings and events, set the direction for the year, and speak in front of the group week to week. I've hosted tutorials introducing members to Capture The Flag (CTF) competitions and designed and run our own mini-CTFs from scratch. It's a different kind of public speaking to a conference stage — teaching, running a room, and making technical material land for a mixed-experience audience — and it's sharpened both my communication and my leadership.`,
+    images: [
+      { src: '/images/speaking/cybersoc-chair-1.jpg', alt: 'MTU Cyber Security Society' },
+      { src: '/images/speaking/cybersoc-chair-2.jpg', alt: 'Running a CTF session' },
+    ],
+  },
+  {
+    slug: 'eisenhower',
+    year: '2025',
+    title: 'Panellist, Eisenhower Fellowships Ireland Conference',
+    subtitle: 'Young Women Leaders Panel — “The Impact of AI on Everyday Life”',
+    body: `I was selected to speak on the Young Women Leaders Panel at the Eisenhower Fellowships Ireland Conference, part of the global leadership network founded in the name of Dwight D. Eisenhower. The panel, moderated by AI engineer Dr Amelia Kelly, explored the impact of AI on everyday life. It was my first move from competitive debating into being invited to contribute to a serious public conversation, and it began the thread on AI and its role in our lives that I've continued to speak on since.`,
+    images: [
+      { src: '/images/speaking/eisenhower-1.jpg', alt: 'Eisenhower Fellowships Ireland Conference' },
+      { src: '/images/speaking/eisenhower-2.jpg', alt: 'Young Women Leaders Panel' },
+    ],
+  },
+  {
+    slug: 'mceu-bulgaria',
+    year: '2024',
+    title: 'Delegate, National Model Council of the EU',
+    subtitle: 'Representing Bulgaria',
+    body: `I returned to the National Model Council of the European Union — the annual all-Ireland simulation of the Council of the EU run by the European Commission Representation in Ireland, in which teams debate live as EU member states. This year I represented Bulgaria in the debate on reforming the EU for future enlargement, adapting to an entirely new national brief and set of interests from the year before. Competing two years running, for two different countries, taught me to research a position quickly, argue it convincingly, and think on my feet under pressure.`,
+    images: [
+      { src: '/images/speaking/mceu-bulgaria-1.jpg', alt: 'National Model Council of the EU 2024' },
+      { src: '/images/speaking/mceu-bulgaria-2.jpg', alt: 'Representing Bulgaria' },
+    ],
+  },
+  {
+    slug: 'mceu-slovakia',
+    year: '2023',
+    title: 'Delegate, National Model Council of the EU (2nd place, national)',
+    subtitle: 'Representing Slovakia',
+    body: `I represented Slovakia in the debate on the EU's renewable energy transition at the National Model Council of the European Union, placing second nationally — an achievement I still hold onto (the iPad I won isn't a bad memento either). Stepping up from Model UN to a formal simulation of the Council of the EU meant researching a national position in real depth and defending it live against every other member state. It was my first taste of competitive debating, and finishing second confirmed it was something I wanted to keep doing.`,
+    images: [
+      { src: '/images/speaking/mceu-slovakia-1.jpg', alt: 'National Model Council of the EU 2023' },
+      { src: '/images/speaking/mceu-slovakia-2.jpg', alt: 'Representing Slovakia' },
+    ],
+  },
+  {
+    slug: 'mun-france',
+    year: '2023',
+    title: 'Delegate, Model United Nations',
+    subtitle: 'Representing France (regional)',
+    body: `My public speaking started at a regional Model United Nations while I was in secondary school, where I represented France. Model UN was where I learned the foundations that everything since has been built on: researching a country's stance, arguing a position that isn't your own, and speaking with composure under formal debate rules. It gave me the first real taste of thinking on my feet in front of a room — and the appetite to take it further.`,
+    images: [
+      { src: '/images/speaking/mun-france-1.jpg', alt: 'Regional Model United Nations' },
+      { src: '/images/speaking/mun-france-2.jpg', alt: 'Representing France' },
+    ],
+  },
+];
 ---
 
 <BaseLayout title="Speaking & Debating">
@@ -10,53 +82,96 @@ import SideNav from '../components/SideNav.astro';
   <SideNav />
   <main>
     <h1 class="speaking-title">Speaking &amp; Debating</h1>
+
+    <section class="timeline" aria-label="Public speaking &amp; debating timeline">
+      {events.map((ev) => (
+        <article class="tl-event" data-slug={ev.slug}>
+          <!-- central line, split into two halves so it can "break" open -->
+          <span class="tl-line tl-line-top" aria-hidden="true"></span>
+          <span class="tl-line tl-line-bottom" aria-hidden="true"></span>
+          <span class="tl-node" aria-hidden="true"></span>
+
+          <div class="tl-card">
+            <header class="tl-head">
+              <span class="tl-year">{ev.year}</span>
+              <h2 class="tl-heading">{ev.title}</h2>
+            </header>
+
+            <!-- detail: hidden until the event is in focus -->
+            <div class="tl-detail">
+              <div class="tl-detail-inner">
+                {ev.subtitle && <p class="tl-sub">{ev.subtitle}</p>}
+                <p class="tl-body">{ev.body}</p>
+                {ev.images.length > 0 && (
+                  <div class="tl-images">
+                    {ev.images.map((img) => (
+                      <img
+                        class="tl-img"
+                        src={img.src}
+                        alt={img.alt}
+                        loading="lazy"
+                        width="900"
+                        height="640"
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </article>
+      ))}
+    </section>
   </main>
   <SiteFooter />
 </BaseLayout>
 
+<script>
+  import { gsap } from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+  gsap.registerPlugin(ScrollTrigger);
+
+  const events = gsap.utils.toArray<HTMLElement>('.tl-event');
+
+  // Toggle `is-active` when an event passes through the centre of the viewport.
+  // The CSS handles the actual expand / zoom / line-break transitions.
+  events.forEach((ev) => {
+    ScrollTrigger.create({
+      trigger: ev,
+      start: 'top center',
+      end: 'bottom center',
+      onToggle: (self) => ev.classList.toggle('is-active', self.isActive),
+    });
+  });
+
+  // If nothing is centred yet (page loaded at the very top), open the first one
+  // so the page never looks empty.
+  requestAnimationFrame(() => {
+    if (!document.querySelector('.tl-event.is-active') && events[0]) {
+      events[0].classList.add('is-active');
+    }
+  });
+</script>
+
 <style>
   /*
-    Page-specific background. Overrides the global --color-bg-gradient just for
-    this page (this style block is only ever loaded on /speaking). A gentle
-    top-anchored radial glow using the site's existing pink accents keeps the
-    effect very subtle: colour concentrates at the top and fades to the base.
-
-    Dark (default): dark-pink (#E0429A accent) -> black
-    Light:          light-pink (#FFB3D9 accent) -> white
+    Page-specific background: a very subtle top-anchored pink glow using the
+    site's existing accent colours (only loaded on this page).
+    Dark (default): dark-pink #E0429A -> black.  Light: light-pink #FFB3D9 -> white.
   */
   :global(body) {
-    background-image: radial-gradient(
-      ellipse 90% 55% at 50% 0%,
-      #E0429A 0%,
-      #000000 55%
-    );
+    background-image: radial-gradient(ellipse 90% 55% at 50% 0%, #E0429A 0%, #000000 55%);
   }
-
   :global([data-theme="light"] body) {
-    background-image: radial-gradient(
-      ellipse 90% 55% at 50% 0%,
-      #FFB3D9 0%,
-      #ffffff 55%
-    );
+    background-image: radial-gradient(ellipse 90% 55% at 50% 0%, #FFB3D9 0%, #ffffff 55%);
   }
 
-  /*
-    Let the gradient run all the way to the top of the page. The shared header
-    has an opaque background by default; making it transparent here lets the
-    body gradient show through behind it. The "Sinéad Ahern" title keeps its
-    own colour + black stroke, so it stays fully visible (not transparent).
-  */
+  /* Header transparent so the gradient reaches the very top of the page. */
   :global(.site-header) {
-    /* !important beats the header component's own more specific scoped rule
-       (.site-header[data-astro-cid-...]) which sets an opaque background. */
     background-color: transparent !important;
   }
 
-  /*
-    Page heading in the same pixel style as the other pages' titles
-    (.awards-title / .portfolio-title): Press Start 2P, centred, with the
-    black text-stroke. Brand pink keeps it in step with this page's theme.
-  */
+  /* Page heading — same pixel style as the other pages' titles, centred. */
   .speaking-title {
     font-family: 'Press Start 2P', cursive;
     font-size: calc(var(--text-2xl) * 1.2);
@@ -67,5 +182,200 @@ import SideNav from '../components/SideNav.astro';
     margin-top: var(--space-12);
     -webkit-text-stroke: 2px #000000;
     paint-order: stroke fill;
+  }
+
+  /* ── Timeline theme tokens ─────────────────────────────────────────────── */
+  .timeline {
+    /* dark (default) */
+    --tl-line:   #FF69B4;
+    --tl-year:   #FF69B4;
+    --tl-title:  #FF8FC4;
+    --tl-sub:    #FFB3D9;
+    --tl-body:   #f2d9e7;
+    --tl-shadow: 0 2px 18px rgba(0, 0, 0, 0.85);
+
+    position: relative;
+    width: 100%;
+    max-width: 1100px;
+    margin: var(--space-16) auto 0;
+    padding: 0 var(--space-6);
+  }
+  :global([data-theme="light"]) .timeline {
+    --tl-line:   #E0429A;
+    --tl-year:   #E0429A;
+    --tl-title:  #C22E7E;
+    --tl-sub:    #C22E7E;
+    --tl-body:   #3a2730;
+    --tl-shadow: none;
+  }
+
+  /* ── One event = one full-height stage ─────────────────────────────────── */
+  .tl-event {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Central line, in two halves that meet at the centre node.
+     --gap is HALF the blank space kept clear at the centre for the heading. */
+  .tl-line {
+    position: absolute;
+    left: 50%;
+    width: 3px;
+    transform: translateX(-50%);
+    background: var(--tl-line);
+    opacity: 0.85;
+    --gap: 96px;
+  }
+  .tl-line-top {
+    top: 0;
+    height: calc(50% - var(--gap));
+    transform-origin: top center;
+    transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .tl-line-bottom {
+    bottom: 0;
+    height: calc(50% - var(--gap));
+    transform-origin: bottom center;
+    transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  /* When active, the halves retract toward the ends → the line "breaks" open. */
+  .tl-event.is-active .tl-line-top { transform: translateX(-50%) scaleY(0.32); }
+  .tl-event.is-active .tl-line-bottom { transform: translateX(-50%) scaleY(0.32); }
+
+  /* Node dot on the line — fades out as the card takes over the space. */
+  .tl-node {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 15px;
+    height: 15px;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    background: var(--tl-line);
+    box-shadow: 0 0 0 4px rgba(255, 105, 180, 0.18);
+    transition: opacity 0.4s ease, transform 0.5s ease;
+    z-index: 2;
+  }
+  .tl-event.is-active .tl-node {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(2.2);
+  }
+
+  /* ── Card ──────────────────────────────────────────────────────────────── */
+  .tl-card {
+    position: relative;
+    z-index: 3; /* always above the line, so text is never crossed by it */
+    width: 100%;
+    max-width: 760px;
+    text-align: center;
+    padding: var(--space-6);
+    transform: scale(0.9);
+    transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: transform;
+  }
+  .tl-event.is-active .tl-card { transform: scale(1); } /* zoom in */
+
+  .tl-year {
+    display: inline-block;
+    font-family: 'Press Start 2P', cursive;
+    font-size: var(--text-base);
+    color: var(--tl-year);
+    -webkit-text-stroke: 2px #000000;
+    paint-order: stroke fill;
+    margin-bottom: var(--space-4);
+  }
+
+  .tl-heading {
+    font-size: var(--text-2xl);
+    font-weight: 700;
+    line-height: 1.25;
+    color: var(--tl-title);
+    text-shadow: var(--tl-shadow);
+    margin: 0;
+  }
+
+  /* Detail block: animates from 0 → auto height using the grid-rows trick. */
+  .tl-detail {
+    display: grid;
+    grid-template-rows: 0fr;
+    opacity: 0;
+    transition: grid-template-rows 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+                opacity 0.5s ease;
+  }
+  .tl-detail-inner {
+    overflow: hidden;
+    min-height: 0;
+  }
+  .tl-event.is-active .tl-detail {
+    grid-template-rows: 1fr;
+    opacity: 1;
+  }
+
+  .tl-sub {
+    font-size: var(--text-lg);
+    font-style: italic;
+    font-weight: 400;
+    color: var(--tl-sub);
+    text-shadow: var(--tl-shadow);
+    margin: var(--space-4) 0 0;
+  }
+
+  .tl-body {
+    font-size: var(--text-base);
+    line-height: 1.75;
+    font-weight: 300;
+    color: var(--tl-body);
+    text-shadow: var(--tl-shadow);
+    max-width: 62ch;
+    margin: var(--space-5) auto 0;
+    text-align: left;
+  }
+
+  /* Pictures — only shown (and only fade in) when the event is in focus. */
+  .tl-images {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--space-4);
+    margin-top: var(--space-8);
+  }
+  .tl-img {
+    flex: 0 1 300px;
+    max-width: 320px;
+    height: auto;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    border: 2px solid var(--tl-line);
+    border-radius: var(--radius-sm);
+    opacity: 0;
+    transform: translateY(20px) scale(0.98);
+    transition: opacity 0.5s ease, transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .tl-event.is-active .tl-img { opacity: 1; transform: none; }
+  /* gentle stagger */
+  .tl-event.is-active .tl-img:nth-child(2) { transition-delay: 0.08s; }
+  .tl-event.is-active .tl-img:nth-child(3) { transition-delay: 0.16s; }
+
+  @media (min-width: 768px) {
+    .tl-heading { font-size: var(--text-3xl); }
+    .tl-year { font-size: var(--text-lg); }
+    .tl-body { font-size: var(--text-lg); }
+  }
+
+  /* Respect reduced-motion: no zoom / slide, minimal transitions. */
+  @media (prefers-reduced-motion: reduce) {
+    .tl-card,
+    .tl-line-top,
+    .tl-line-bottom,
+    .tl-node,
+    .tl-img,
+    .tl-detail {
+      transition-duration: 0.001s !important;
+    }
+    .tl-event.is-active .tl-card { transform: none; }
+    .tl-img { transform: none; }
   }
 </style>
