@@ -7,6 +7,8 @@ import SideNav from '../components/SideNav.astro';
 // Events in ANTI-CHRONOLOGICAL order (most recent first) — they render top→bottom.
 // To change the photos: drop your images in /public/images/speaking/ and edit the
 // `images` array for each event (add/remove freely — the layout handles 1–3).
+// Add `wide: true` to an image to show it at its natural (banner) aspect ratio
+// instead of the default 4:3 crop — useful for wide banners/graphics.
 const events = [
   {
     slug: 'rocco',
@@ -37,8 +39,7 @@ const events = [
     subtitle: 'Young Women Leaders Panel — “The Impact of AI on Everyday Life”',
     body: `I was selected to speak on the Young Women Leaders Panel at the Eisenhower Fellowships Ireland Conference, part of the global leadership network founded in the name of Dwight D. Eisenhower. The panel, moderated by AI engineer Dr Amelia Kelly, explored the impact of AI on everyday life. It was my first move from competitive debating into being invited to contribute to a serious public conversation, and it began the thread on AI and its role in our lives that I've continued to speak on since.`,
     images: [
-      { src: '/images/speaking/eisenhower-1.jpg', alt: 'Eisenhower Fellowships Ireland Conference' },
-      { src: '/images/speaking/eisenhower-2.jpg', alt: 'Young Women Leaders Panel' },
+      { src: '/images/speaking/eisenhower-1.jpg', alt: 'Young Women Leaders panel — The Impact of AI in Everyday Life', wide: true },
     ],
   },
   {
@@ -106,12 +107,12 @@ const events = [
                   <div class="tl-images">
                     {ev.images.map((img) => (
                       <img
-                        class="tl-img"
+                        class:list={['tl-img', img.wide && 'tl-img--wide']}
                         src={img.src}
                         alt={img.alt}
                         loading="lazy"
-                        width="900"
-                        height="640"
+                        width={img.wide ? 1080 : 900}
+                        height={img.wide ? 445 : 640}
                       />
                     ))}
                   </div>
@@ -358,6 +359,16 @@ const events = [
   /* gentle stagger */
   .tl-event.is-active .tl-img:nth-child(2) { transition-delay: 0.08s; }
   .tl-event.is-active .tl-img:nth-child(3) { transition-delay: 0.16s; }
+
+  /* Wide banner image: keep its natural aspect ratio (no 4:3 crop) and allow
+     it more width, so nothing important gets cut off. */
+  .tl-img--wide {
+    flex-basis: 100%;
+    max-width: 560px;
+    aspect-ratio: auto;
+    height: auto;
+    object-fit: contain;
+  }
 
   @media (min-width: 768px) {
     .tl-heading { font-size: var(--text-3xl); }
