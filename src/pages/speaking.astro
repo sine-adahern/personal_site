@@ -83,6 +83,7 @@ const events = [
   <SideNav />
   <main>
     <h1 class="speaking-title">Speaking &amp; Debating</h1>
+    <p class="speaking-intro">Over the past three years I've gone from a regional Model UN delegate to an invited panellist beside industry leaders — by way of national debate finals, AI panels, and leading a university society. This page is a record of where I've spoken, and how far the journey has taken me.</p>
 
     <section class="timeline" aria-label="Public speaking &amp; debating timeline">
       {events.map((ev) => (
@@ -177,7 +178,7 @@ const events = [
     font-family: 'Press Start 2P', cursive;
     font-size: calc(var(--text-2xl) * 1.2);
     font-weight: 400;
-    color: var(--color-brand);
+    color: #ffe4c4;
     text-align: center;
     line-height: 1.4;
     margin-top: var(--space-12);
@@ -185,7 +186,22 @@ const events = [
     paint-order: stroke fill;
   }
 
-  /* ── Timeline theme tokens ─────────────────────────────────────────────── */
+  .speaking-intro {
+    font-family: 'Lato', sans-serif;
+    color: #ffe4c4;
+    font-size: var(--text-base);
+    line-height: 1.7;
+    text-align: center;
+    max-width: 46rem;
+    margin: var(--space-6) auto 0;
+    padding: 0 var(--space-6);
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+  }
+  /* keep it legible on the light theme's white background */
+  :global([data-theme="light"]) .speaking-intro {
+    color: #a86a00;
+    text-shadow: none;
+  }
   .timeline {
     /* dark (default) */
     --tl-line:   #FF69B4;
