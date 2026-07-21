@@ -76,12 +76,40 @@ const events = [
     ],
   },
 ];
+
+// Flat list of the event photos, reused for the decorative vertical side banners.
+// The right column runs the list in reverse so the two sides aren't identical.
+const bannerImages = events.flatMap((ev) => ev.images.map((img) => img.src));
+const bannerImagesRev = [...bannerImages].reverse();
 ---
 
 <BaseLayout title="Speaking & Debating">
   <SiteHeader />
   <SideNav />
   <main>
+    <!-- ── Decorative vertical side banners (wide screens only) ──────────── -->
+    <!-- aria-hidden: the same photos already appear within the timeline below -->
+    <aside class="vbanner vbanner--left" aria-hidden="true">
+      <ul class="vbanner-track">
+        {bannerImages.map((src) => (
+          <li class="vbanner-item"><img src={src} alt="" class="vbanner-img" width="150" height="200" loading="lazy" /></li>
+        ))}
+        {bannerImages.map((src) => (
+          <li class="vbanner-item"><img src={src} alt="" class="vbanner-img" width="150" height="200" loading="lazy" /></li>
+        ))}
+      </ul>
+    </aside>
+    <aside class="vbanner vbanner--right" aria-hidden="true">
+      <ul class="vbanner-track">
+        {bannerImagesRev.map((src) => (
+          <li class="vbanner-item"><img src={src} alt="" class="vbanner-img" width="150" height="200" loading="lazy" /></li>
+        ))}
+        {bannerImagesRev.map((src) => (
+          <li class="vbanner-item"><img src={src} alt="" class="vbanner-img" width="150" height="200" loading="lazy" /></li>
+        ))}
+      </ul>
+    </aside>
+
     <h1 class="speaking-title">Speaking &amp; Debating</h1>
     <p class="speaking-intro">Over the past three years I've gone from a regional Model UN delegate to an invited panellist beside industry leaders — by way of national debate finals, AI panels, and leading a university society. This page is a record of where I've spoken, and how far the journey has taken me.</p>
 
@@ -153,6 +181,20 @@ const events = [
       events[0].classList.add('is-active');
     }
   });
+
+  // Decorative vertical side banners — slow, seamless downward scroll.
+  // Each track holds two identical copies of the photo list; animating from
+  // -50% to 0% moves it down by exactly one copy, so the loop is invisible.
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (!prefersReducedMotion) {
+    gsap.utils.toArray<HTMLElement>('.vbanner-track').forEach((track, i) => {
+      gsap.fromTo(
+        track,
+        { yPercent: -50 },
+        { yPercent: 0, duration: i === 0 ? 55 : 48, ease: 'none', repeat: -1 },
+      );
+    });
+  }
 </script>
 
 <style>
@@ -202,6 +244,56 @@ const events = [
     color: #a86a00;
     text-shadow: none;
   }
+
+  /* ── Decorative vertical side banners ──────────────────────────────────── */
+  /* Two slow-scrolling photo columns that frame the page on wide screens.
+     Fixed to the viewport edges and hidden below 1500px so they never overlap
+     the centred timeline. Rectangular tiles (not round like the About banner). */
+  .vbanner {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    width: 150px;
+    overflow: hidden;
+    z-index: 0;
+    pointer-events: none;
+    display: none;
+    /* fade the column in/out at the top and bottom edges */
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 8%, #000 92%, transparent 100%);
+    mask-image: linear-gradient(to bottom, transparent 0, #000 8%, #000 92%, transparent 100%);
+  }
+  .vbanner--left  { left: 0; }
+  .vbanner--right { right: 0; }
+
+  .vbanner-track {
+    display: flex;
+    flex-direction: column;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    will-change: transform;
+  }
+  /* margin-bottom (not gap) keeps the two copies exactly equal height, so the
+     -50% → 0% loop is perfectly seamless. */
+  .vbanner-item {
+    flex-shrink: 0;
+    width: 100%;
+    margin-bottom: var(--space-4);
+  }
+  .vbanner-img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border: 2px solid #FF69B4;
+    border-radius: var(--radius-sm);
+    display: block;
+  }
+
+  @media (min-width: 1500px) {
+    .vbanner { display: block; }
+  }
+
   .timeline {
     /* dark (default) */
     --tl-line:   #FF69B4;
