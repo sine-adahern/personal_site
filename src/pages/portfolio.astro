@@ -284,13 +284,29 @@ import SideNav from '../components/SideNav.astro';
 ></script>
 
 <script>
-  window.addEventListener('load', () => {
+  // Match the demo iframe to 2x the description box — but only in the
+  // side-by-side layout. Once stacked (<=900px) the box is narrow and very
+  // tall, so doubling it produced an enormous iframe; there we clear the
+  // inline height and let the stylesheet's viewport-based height apply.
+  const wide = window.matchMedia('(min-width: 901px)');
+
+  const sizeFrames = () => {
     const box = document.querySelector<HTMLElement>('.desc-col > .project-box');
     const frames = document.querySelectorAll<HTMLElement>('.demo-frame');
-    if (box && frames.length) {
-      const h = `${box.getBoundingClientRect().height * 2}px`;
-      frames.forEach((frame) => { frame.style.height = h; });
-    }
+    if (!box || !frames.length) return;
+
+    const h = wide.matches ? `${box.getBoundingClientRect().height * 2}px` : '';
+    frames.forEach((frame) => { frame.style.height = h; });
+  };
+
+  window.addEventListener('load', sizeFrames);
+  wide.addEventListener('change', sizeFrames);
+
+  // Rerun on resize/rotate, debounced so we're not measuring every frame.
+  let t: number;
+  window.addEventListener('resize', () => {
+    clearTimeout(t);
+    t = window.setTimeout(sizeFrames, 150);
   });
 </script>
 
@@ -426,7 +442,9 @@ import SideNav from '../components/SideNav.astro';
 
   .portfolio-title {
     font-family: 'Press Start 2P', cursive;
-    font-size: calc(var(--text-2xl) * 1.5);
+    font-size: clamp(1rem, 5.5vw, calc(var(--text-2xl) * 1.5));
+    overflow-wrap: break-word;
+    padding: 0 var(--space-4);
     font-weight: 400;
     color: #ffe4c4;
     text-align: center;
@@ -446,7 +464,12 @@ import SideNav from '../components/SideNav.astro';
 
   .project-heading {
     font-family: 'Press Start 2P', cursive;
-    font-size: calc(var(--text-2xl) * 1.5);
+    /* Press Start 2P is ~1em per character, so a fixed size overflows narrow
+       screens ("Brute-Force" alone is 11 chars). Scale with the viewport and
+       allow mid-word breaks as a last resort. */
+    font-size: clamp(1rem, 5.5vw, calc(var(--text-2xl) * 1.5));
+    overflow-wrap: break-word;
+    padding: 0 var(--space-4);
     font-weight: 400;
     color: #f699cd;
     text-align: center;
@@ -549,6 +572,7 @@ import SideNav from '../components/SideNav.astro';
      floated demo-explanation box below it. */
   .desc-col {
     flex: 1;
+    min-width: 0;   /* let the column shrink below its longest word */
     max-width: 600px;
     position: relative;
   }
@@ -560,6 +584,7 @@ import SideNav from '../components/SideNav.astro';
 
   .demo-wrapper {
     flex: 1;
+    min-width: 0;   /* ditto — the iframe must be free to narrow */
     display: flex;
     justify-content: center;
     align-items: flex-start;
@@ -585,6 +610,35 @@ import SideNav from '../components/SideNav.astro';
 
   :global([data-theme="light"]) .demo-frame--light {
     display: block;
+  }
+
+  /* Stack on narrow screens: description first, then the demo below it.
+     Matches the .lynra-row / .so-row / .mc-row behaviour. */
+  @media (max-width: 900px) {
+    .project-row {
+      flex-direction: column;
+      gap: var(--space-10);
+    }
+
+    .desc-col,
+    .desc-col > .project-box {
+      max-width: 100%;
+    }
+
+    /* Full width, and a height tied to the viewport rather than to the text
+       block (which is very tall once narrow). svh ignores the collapsing
+       mobile URL bar, so this doesn't jump mid-scroll. */
+    .demo-frame {
+      max-width: 100%;
+      height: 70svh;
+      min-height: 380px;
+    }
+
+    /* The arrow points from the description across to the demo on desktop;
+       stacked, it should point downward instead. */
+    .demo-arrow {
+      display: none;
+    }
   }
 
   .project-box--left {
@@ -1134,7 +1188,10 @@ import SideNav from '../components/SideNav.astro';
   }
 
   /* ── Desktop ───────────────────────────────────────────────────────── */
-  @media (min-width: 768px) {
+  /* 901px, not 768px: this must not start before the layout un-stacks at
+     900px, or the 768-900 band gets desktop-sized Press Start 2P headings
+     in a single narrow column. */
+  @media (min-width: 901px) {
     .portfolio-title {
       font-size: calc(var(--text-3xl) * 1.5);
     }
