@@ -48,7 +48,12 @@ export const panels: NavPanel[] = [
     thumb: '/thumbs/thumb-speaking-dark.png',
     thumbLight: '/thumbs/thumb-speaking-light.png',
   },
-  { name: 'Links', href: '/links', thumb: '/thumbs/thumb-patch.svg' },
+  {
+    name: 'Links',
+    href: '/links',
+    thumb: '/thumbs/thumb-links-dark.png',
+    thumbLight: '/thumbs/thumb-links-light.png',
+  },
 ];
 
 /** Degrees between adjacent panels on the wheel. */
