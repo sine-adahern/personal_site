@@ -42,7 +42,12 @@ export const panels: NavPanel[] = [
     thumb: '/thumbs/thumb-cybersoc-dark.jpg',
     thumbLight: '/thumbs/thumb-cybersoc-light.jpg',
   },
-  { name: 'Public Speaking', href: '/speaking', thumb: '/thumbs/thumb-speaking.svg' },
+  {
+    name: 'Public Speaking',
+    href: '/speaking',
+    thumb: '/thumbs/thumb-speaking-dark.png',
+    thumbLight: '/thumbs/thumb-speaking-light.png',
+  },
   { name: 'Links', href: '/links', thumb: '/thumbs/thumb-patch.svg' },
 ];
 
