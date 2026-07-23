@@ -1,0 +1,271 @@
+---
+/**
+ * HomeMini — a live, true-to-scale miniature of the home page, rendered as the
+ * face of the Home card in the nav wheel.
+ *
+ * Rather than a screenshot, this is the real page rebuilt at 1/nth size: the
+ * same header, the same seven thumbnails on the same wheel, the same floor
+ * shadows, the same footer. NavWheel drives it from the same angle value that
+ * drives the big wheel, so the small wheel turns in lockstep with the one
+ * around it — scroll the site and the picture of the site scrolls too.
+ *
+ * ── How it stays true to scale ───────────────────────────────────────────────
+ * Every length inside is expressed in `--u`, defined as one real page pixel:
+ *
+ *     --u: calc(100cqw / var(--vw))
+ *
+ * `100cqw` is the width of this card; `--vw` is the viewport width (set by JS,
+ * defaulting to 1440 for the no-JS render). So a real 480px card becomes
+ * `calc(480 * var(--u))` and shrinks by exactly the ratio the card bears to the
+ * screen. Nothing is hand-tuned, and it stays correct at any card size — which
+ * is what lets the click-to-expand transition simply grow this element to full
+ * screen and land on a pixel-accurate copy of the page.
+ *
+ * ── Why 2D-flattened 3D ─────────────────────────────────────────────────────
+ * The big wheel uses a `preserve-3d` track. Nesting a second 3D scene inside a
+ * card of the first is fragile across browsers, so each miniature card carries
+ * its own `perspective()` transform function instead. Because every card shares
+ * the track's centre point, per-element perspective is mathematically identical
+ * to a shared scene — and it flattens into the card face predictably. Depth
+ * order, which `preserve-3d` would handle for free, is applied as z-index.
+ *
+ * Recursion stops here: the Home slot *inside* the miniature is a drawn SVG of
+ * the wheel, so you get page → live wheel → drawn wheel and no runaway nesting.
+ */
+import { panels, ANGLE_STEP } from '../data/panels';
+
+/** Normalise to (-180, 180] so 0deg is dead centre, facing the camera. */
+const normalise = (deg: number) => ((((deg % 360) + 540) % 360) - 180);
+
+const PERSPECTIVE = 'perspective(calc(var(--mini-persp) * var(--u)))';
+const RADIUS = 'translateZ(calc(var(--mini-radius) * var(--u)))';
+const SHADOW_RADIUS = 'translateZ(calc((var(--mini-radius) - 1) * var(--u)))';
+const FLOOR = 'translateY(calc(var(--mini-cardh) * var(--u) / 2)) rotateX(-90deg)';
+
+// Static frame at angle 0, matching what NavWheel's JS writes on every tick.
+// This is what renders with JS disabled or reduced motion on, where it reads as
+// a still screenshot of the page rather than a live one.
+const items = panels.map((panel, i) => {
+  const angle = normalise(i * ANGLE_STEP);
+  const proximity = Math.cos((angle * Math.PI) / 180);
+
+  return {
+    ...panel,
+    style: [
+      `transform: ${PERSPECTIVE} rotateY(${angle.toFixed(2)}deg) ${RADIUS}`
+        + ` scale(${(0.8 + 0.2 * Math.max(0, proximity)).toFixed(4)})`,
+      `opacity: ${(0.4 + 0.6 * ((proximity + 1) / 2)).toFixed(4)}`,
+      `z-index: ${Math.round(proximity * 1000) + 2000}`,
+    ].join(';'),
+    shadowStyle: [
+      `transform: ${PERSPECTIVE} rotateY(${angle.toFixed(2)}deg) ${SHADOW_RADIUS} ${FLOOR}`
+        + ` scale(${(1 + 0.4 * ((1 - proximity) / 2)).toFixed(4)})`,
+      `opacity: ${(0.1 + 0.55 * ((proximity + 1) / 2)).toFixed(4)}`,
+      `z-index: ${Math.round(proximity * 1000) + 500}`,
+    ].join(';'),
+  };
+});
+---
+
+<div class="panel-mini" aria-hidden="true">
+  <div class="mini-page">
+    <p class="mini-title">Sinéad Ahern</p>
+
+    <div class="mini-stage">
+      <div class="mini-track">
+        {items.map((item) => (
+          <div class="mini-shadow" style={item.shadowStyle}></div>
+        ))}
+
+        {items.map((item) => (
+          <div class="mini-panel" style={item.style}>
+            <img
+              src={item.thumb}
+              alt=""
+              class={item.thumbLight ? 'mini-thumb thumb-dark' : 'mini-thumb'}
+              decoding="async"
+              draggable="false"
+            />
+            {item.thumbLight && (
+              <img
+                src={item.thumbLight}
+                alt=""
+                class="mini-thumb thumb-light"
+                decoding="async"
+                draggable="false"
+              />
+            )}
+            <span class="mini-name">{item.name}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    <div class="mini-footer">
+      <span class="mini-footer-link">Sinéad Ahern on LinkedIn</span>
+    </div>
+  </div>
+</div>
+
+<script>
+  // The miniature owns its own scale: `--u` (one real page pixel) is derived
+  // from the viewport width, so it has to know the real one. This runs whether
+  // or not the wheel animates — with reduced motion the miniature still needs
+  // to be to scale, it just holds still.
+  const mini = document.querySelector<HTMLElement>('.panel-mini');
+
+  if (mini) {
+    const sync = () => mini.style.setProperty('--vw', String(window.innerWidth));
+    sync();
+    window.addEventListener('resize', sync);
+  }
+</script>
+
+<style>
+  .panel-mini {
+    /* Sized like the <img> it replaces rather than pinned to the card, so the
+       card keeps its height in the stacked no-JS / reduced-motion fallback.
+       In wheel mode the card is already 16:9, so this resolves to the same box. */
+    position: relative;
+    flex: 0 0 auto;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    pointer-events: none;
+    user-select: none;
+
+    /* Query container: `cqw` below measures this box, so the miniature scales
+       with whatever size it is given — card-sized now, screen-sized mid-expand. */
+    container-type: size;
+
+    /* Viewport width in px. NavWheel keeps this in sync on load and resize;
+       1440 is the fallback for the server-rendered / no-JS case. */
+    --vw: 1440;
+
+    /* One real page pixel, expressed in miniature units. */
+    --u: calc(100cqw / var(--vw));
+
+    /* Wheel geometry in real page pixels — mirrors WHEEL_GEOMETRY.mobile.
+       Kept as CSS vars so the breakpoint is handled here, and the transforms
+       JS writes stay identical at both sizes. */
+    --mini-cardw: 288;
+    --mini-cardh: 162;
+    --mini-radius: 450;
+    --mini-persp: 1200;
+
+    background-color: var(--color-background);
+    background-image: var(--color-bg-gradient);
+  }
+
+  @media (min-width: 768px) {
+    .panel-mini {
+      --mini-cardw: 480;
+      --mini-cardh: 270;
+      --mini-radius: 780;
+      --mini-persp: 1800;
+    }
+  }
+
+  .mini-page {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ─── Header ─── */
+
+  .mini-title {
+    flex-shrink: 0;
+    margin: 0;
+    padding: calc(24 * var(--u)) calc(32 * var(--u));
+    font-family: 'Press Start 2P', cursive;
+    font-size: calc(24 * var(--u));
+    font-weight: 400;
+    line-height: 1.4;
+    white-space: nowrap;
+    color: var(--color-brand);
+    -webkit-text-stroke: calc(2 * var(--u)) #000000;
+    paint-order: stroke fill;
+  }
+
+  /* ─── Wheel ─── */
+
+  .mini-stage {
+    flex: 1;
+    display: grid;
+    place-items: center;
+    min-height: 0;
+  }
+
+  .mini-track {
+    position: relative;
+    width: calc(var(--mini-cardw) * var(--u));
+    height: calc(var(--mini-cardh) * var(--u));
+    /* Children carry their own perspective() and flatten into this box. */
+    transform-style: flat;
+  }
+
+  .mini-panel,
+  .mini-shadow {
+    position: absolute;
+    inset: 0;
+    width: calc(var(--mini-cardw) * var(--u));
+    height: calc(var(--mini-cardh) * var(--u));
+    will-change: transform, opacity;
+  }
+
+  .mini-panel {
+    overflow: hidden;
+    background-color: var(--color-surface);
+    border: calc(2 * var(--u)) solid #FF69B4;
+  }
+
+  .mini-shadow {
+    background: radial-gradient(
+      ellipse 80% 60% at 50% 50%,
+      rgba(255, 105, 180, 0.45),
+      transparent 100%
+    );
+  }
+
+  .mini-thumb {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  /* Caption bar. At this size the text is a suggestion of text rather than
+     something readable — which is exactly how the real page looks from here. */
+  .mini-name {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: calc(4 * var(--u)) calc(8 * var(--u));
+    font-size: calc(14 * var(--u));
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    background: var(--color-caption-bg);
+    color: var(--color-caption-text);
+  }
+
+  /* ─── Footer ─── */
+
+  .mini-footer {
+    flex-shrink: 0;
+    padding: calc(24 * var(--u));
+    border-top: calc(1 * var(--u)) solid rgba(255, 105, 180, 0.3);
+  }
+
+  .mini-footer-link {
+    font-size: calc(14 * var(--u));
+    font-weight: 700;
+    white-space: nowrap;
+    color: var(--color-brand);
+  }
+</style>
