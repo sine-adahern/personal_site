@@ -198,23 +198,6 @@ const bannerImagesRev = [...bannerImages].reverse();
 </script>
 
 <style>
-  /*
-    Page-specific background: a very subtle top-anchored pink glow using the
-    site's existing accent colours (only loaded on this page).
-    Dark (default): dark-pink #E0429A -> black.  Light: light-pink #FFB3D9 -> white.
-  */
-  :global(body) {
-    background-image: radial-gradient(ellipse 90% 55% at 50% 0%, #E0429A 0%, #000000 55%);
-  }
-  :global([data-theme="light"] body) {
-    background-image: radial-gradient(ellipse 90% 55% at 50% 0%, #FFB3D9 0%, #ffffff 55%);
-  }
-
-  /* Header transparent so the gradient reaches the very top of the page. */
-  :global(.site-header) {
-    background-color: transparent !important;
-  }
-
   /* Page heading — same pixel style as the other pages' titles, centred. */
   .speaking-title {
     font-family: 'Press Start 2P', cursive;
