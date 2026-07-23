@@ -3,13 +3,441 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import SiteHeader from '../components/SiteHeader.astro';
 import SiteFooter from '../components/SiteFooter.astro';
 import SideNav from '../components/SideNav.astro';
+
+interface Clipping {
+  /** Publication or channel. Printed small above the dateline. */
+  outlet: string;
+  /** ISO yyyy-mm-dd. Drives the sort order and the <time datetime> attribute. */
+  date: string;
+  /** 24-hour "HH:MM", or null to drop the time half of the dateline. */
+  time: string | null;
+  headline: string;
+  url: string;
+  /**
+   * Lead photo saved to /public/images/press/. 16:9 crops fit best.
+   * Leave as null and the card falls back to an outlet-name placeholder,
+   * so the page still looks deliberate while you're collecting images.
+   */
+  image: string | null;
+  /** Short photo description for screen readers. Unused when image is null. */
+  alt: string;
+}
+
+// HEADS UP: every `time` below is invented. I couldn't verify a single
+// publication time. Replace them, or set them to null to hide the time.
+// The dates marked "unconfirmed" are my guesses from context — the rest come
+// from the article URLs or the page itself.
+const clippings: Clipping[] = [
+  {
+    outlet: 'ROCCO Group',
+    date: '2026-01-12', // unconfirmed
+    time: '09:30',
+    headline: 'ROCCO Genesis 2026',
+    url: 'https://www.rocco.group/rocco-genesis-2026/',
+    image: null,
+    alt: '',
+  },
+  {
+    outlet: 'RTÉ News',
+    date: '2025-09-16',
+    time: '18:04',
+    headline: 'Watch: Students develop AI-led rover to treat ash dieback',
+    url: 'https://www.rte.ie/news/environment/2025/0916/1533599-students-ai-ash-dieback/',
+    image: null,
+    alt: '',
+  },
+  {
+    outlet: 'YouTube · Patch',
+    date: '2025-08-21', // unconfirmed
+    time: '12:00',
+    headline: 'Lynra — Patch Demo Day 2025',
+    url: 'https://www.youtube.com/watch?v=MHxypcSy0NM',
+    image: null,
+    alt: '',
+  },
+  {
+    outlet: 'RTÉ Kids',
+    date: '2024-10-03',
+    time: '17:20',
+    headline: 'Space Camp Challenge: Could these Irish teens make it to Mars?',
+    url: 'https://www.rte.ie/kids/2024/1003/1419198-space-camp-challenge-irish-teens-in-space/',
+    image: null,
+    alt: '',
+  },
+  {
+    outlet: 'RTÉ Player',
+    date: '2024-10-03', // unconfirmed — series page, no single publish date
+    time: null,
+    headline: 'Space Camp Challenge — full series',
+    url: 'https://www.rte.ie/player/series/space-camp-challenge/10001300-00-0000?epguid=IP10001301-01-0001',
+    image: null,
+    alt: '',
+  },
+  {
+    outlet: 'Extra.ie',
+    date: '2024-05-09',
+    time: '14:12',
+    headline:
+      'In pics: Secondary school students honoured at this year’s career skills competition',
+    url: 'https://extra.ie/2024/05/09/news/irish-news/career-skills-competition',
+    image: null,
+    alt: '',
+  },
+  {
+    outlet: 'Christ King GS',
+    date: '2024-05-09', // unconfirmed
+    time: '10:00',
+    headline: 'Career Portal Competition Winner',
+    url: 'https://www.christkingschool.com/news/n3dbzjvb5k3g4xprm9zju9wc5fus40',
+    image: null,
+    alt: '',
+  },
+  {
+    outlet: 'RTÉ Kids',
+    date: '2024-02-07',
+    time: '16:45',
+    headline: 'Who needs gravity when you are in space?!',
+    url: 'https://www.rte.ie/kids/2024/0207/1430987-who-needs-gravity-when-you-are-in-space/',
+    image: null,
+    alt: '',
+  },
+  {
+    outlet: 'BLOCK W',
+    date: '2023-11-14', // unconfirmed
+    time: '18:00',
+    headline: 'Redefining learning: workshop for the digital age',
+    url: 'https://www.blockw.ie/events-news/young-women-leaders-panel-on-the-impact-of-ai-on-everyday-life/',
+    image: null,
+    alt: '',
+  },
+  {
+    outlet: 'European Commission',
+    date: '2023-03-22',
+    time: '11:30',
+    headline:
+      'Six schools perform with distinction during EU Model Council debate on the renewable energy transition',
+    url: 'https://ireland.representation.ec.europa.eu/news-and-events/news/six-schools-perform-distinction-during-eu-model-council-debate-eus-renewable-energy-transition-2023-03-22_en',
+    image: null,
+    alt: '',
+  },
+  {
+    outlet: 'Irish Independent',
+    date: '2023-02-09', // unconfirmed
+    time: '07:00',
+    headline: 'Ingenious Cork teens invent carbon reducer',
+    url: 'https://www.independent.ie/county/cork/ingenious-cork-teens-invent-carbon-reducer/a/134135245.html',
+    image: null,
+    alt: '',
+  },
+  {
+    outlet: 'Cork Beo',
+    date: '2023-02-07', // unconfirmed
+    time: '13:25',
+    headline: 'Cork teens invent car exhaust fitting that strips out CO₂ emissions',
+    url: 'https://www.corkbeo.ie/news/local-news/cork-teens-invent-car-exhaust-26105265',
+    image: null,
+    alt: '',
+  },
+  {
+    outlet: 'IrishCentral',
+    date: '2023-02-07',
+    time: '19:40',
+    headline: 'Cork students’ device reduces CO₂ emissions in cars',
+    url: 'https://www.irishcentral.com/culture/education/cork-students-cars',
+    image: null,
+    alt: '',
+  },
+];
+
+// Newest first. ISO dates sort correctly as plain strings, so no Date() needed.
+const byNewest = [...clippings].sort((a, b) => b.date.localeCompare(a.date));
+
+/** 2025-09-16 → 16.09.2025. Done by hand so no timezone can shift the day. */
+function formatDate(iso: string): string {
+  const [year, month, day] = iso.split('-');
+  return `${day}.${month}.${year}`;
+}
 ---
 
-<BaseLayout title="Links">
+<BaseLayout title="Press">
   <SiteHeader />
   <SideNav />
   <main>
-    <h1>Links</h1>
+    <h1 class="press-heading">press</h1>
+    <p class="press-intro">
+      Where my work has turned up — newspapers, telly and the odd demo day.
+    </p>
+
+    <ul class="clip-grid" aria-label="Articles mentioning me">
+      {byNewest.map(item => (
+        <li class="clip-item">
+          <a
+            href={item.url}
+            class="clipping"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <div class="clip-cover">
+              {item.image ? (
+                <img
+                  src={item.image}
+                  alt={item.alt}
+                  class="clip-img"
+                  loading="lazy"
+                  width="480"
+                  height="270"
+                />
+              ) : (
+                <span class="clip-placeholder" aria-hidden="true">{item.outlet}</span>
+              )}
+            </div>
+
+            <div class="clip-body">
+              <p class="clip-outlet">{item.outlet}</p>
+
+              <p class="clip-dateline">
+                <time datetime={item.time ? `${item.date}T${item.time}` : item.date}>
+                  {formatDate(item.date)}
+                </time>
+                {item.time && <span>{item.time}</span>}
+              </p>
+
+              <h2 class="clip-headline">{item.headline}</h2>
+
+              <span class="clip-read" aria-hidden="true">read →</span>
+              <span class="visually-hidden">(opens in a new tab)</span>
+            </div>
+          </a>
+        </li>
+      ))}
+    </ul>
   </main>
   <SiteFooter />
 </BaseLayout>
+
+<style>
+  main {
+    min-height: 100svh;
+    padding-bottom: var(--space-16);
+  }
+
+  /* ── Page header ───────────────────────────────────────────────────── */
+
+  .press-heading {
+    font-family: 'Press Start 2P', cursive;
+    font-size: var(--text-2xl);
+    font-weight: 400;
+    color: var(--color-brand);
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: var(--space-16) var(--space-6) var(--space-4);
+    line-height: 1.4;
+  }
+
+  .press-intro {
+    font-size: var(--text-lg);
+    font-weight: 300;
+    color: var(--color-accent-light);
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 var(--space-6) var(--space-10);
+  }
+
+  /* ── Grid ──────────────────────────────────────────────────────────── */
+
+  .clip-grid {
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: var(--space-6);
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 var(--space-6);
+  }
+
+  /* ── The clipping itself ───────────────────────────────────────────── */
+
+  .clipping {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    text-decoration: none;
+    background-color: var(--color-surface-alt);
+    border: 2px solid #FF69B4;
+    transition: transform 0.2s ease, background-color 0.2s ease;
+  }
+
+  .clipping:hover {
+    transform: translateY(-4px);
+    background-color: #150a10;
+  }
+
+  .clipping:focus-visible {
+    outline: 2px solid var(--color-accent-dark);
+    outline-offset: 3px;
+  }
+
+  /* ── Cover photo ───────────────────────────────────────────────────── */
+
+  .clip-cover {
+    aspect-ratio: 16 / 9;
+    border-bottom: 2px solid #FF69B4;
+    background-color: var(--color-surface);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  /* Newsprint by default, full colour on hover. */
+  .clip-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    filter: grayscale(1) contrast(1.1);
+    transition: filter 0.2s ease;
+  }
+
+  .clipping:hover .clip-img {
+    filter: none;
+  }
+
+  .clip-placeholder {
+    font-family: 'Press Start 2P', cursive;
+    font-size: calc(var(--text-sm) * 0.7);
+    color: var(--color-accent-dark);
+    text-align: center;
+    padding: var(--space-3);
+    line-height: 1.6;
+  }
+
+  /* ── Body ──────────────────────────────────────────────────────────── */
+
+  .clip-body {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    padding: var(--space-4);
+  }
+
+  .clip-outlet {
+    font-family: 'Press Start 2P', cursive;
+    font-size: calc(var(--text-sm) * 0.6);
+    color: var(--color-brand);
+    letter-spacing: 0.5px;
+    line-height: 1.6;
+    margin: 0;
+    padding-bottom: var(--space-2);
+    border-bottom: 1px solid rgba(255, 105, 180, 0.45);
+  }
+
+  /* The 2px gap above turns this into a double rule — the newspaper bit. */
+  .clip-dateline {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-3);
+    margin: 2px 0 var(--space-2);
+    padding: var(--space-2) 0;
+    border-top: 1px solid rgba(255, 105, 180, 0.45);
+    font-size: var(--text-sm);
+    font-weight: 300;
+    letter-spacing: 2px;
+    color: var(--color-accent-light);
+  }
+
+  .clip-headline {
+    font-size: var(--text-lg);
+    font-weight: 700;
+    line-height: 1.3;
+    color: var(--color-brand);
+    margin: 0 0 var(--space-4);
+  }
+
+  .clip-read {
+    font-family: 'Press Start 2P', cursive;
+    font-size: calc(var(--text-sm) * 0.55);
+    letter-spacing: 1px;
+    color: var(--color-brand);
+    margin-top: auto;
+  }
+
+  .visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  /* ── Light theme ───────────────────────────────────────────────────── */
+  /* #FF69B4 goes weak on a near-white card, so the pinks step darker. */
+
+  :global([data-theme="light"]) .clipping {
+    border-color: var(--color-accent-dark);
+  }
+
+  :global([data-theme="light"]) .clipping:hover {
+    background-color: #ffe8f4;
+  }
+
+  :global([data-theme="light"]) .clip-cover {
+    border-bottom-color: var(--color-accent-dark);
+  }
+
+  :global([data-theme="light"]) .clip-outlet,
+  :global([data-theme="light"]) .clip-headline,
+  :global([data-theme="light"]) .clip-read,
+  :global([data-theme="light"]) .press-heading {
+    color: #C22E7E;
+  }
+
+  :global([data-theme="light"]) .clip-dateline,
+  :global([data-theme="light"]) .press-intro {
+    color: var(--color-accent-dark);
+  }
+
+  :global([data-theme="light"]) .clip-outlet {
+    border-bottom-color: rgba(194, 46, 126, 0.45);
+  }
+
+  :global([data-theme="light"]) .clip-dateline {
+    border-top-color: rgba(194, 46, 126, 0.45);
+  }
+
+  /* ── Responsive ────────────────────────────────────────────────────── */
+
+  @media (min-width: 768px) {
+    .press-heading {
+      font-size: var(--text-3xl);
+      padding: var(--space-16) var(--space-8) var(--space-4);
+    }
+
+    .press-intro {
+      padding: 0 var(--space-8) var(--space-12);
+    }
+
+    .clip-grid {
+      gap: var(--space-8);
+      padding: 0 var(--space-8);
+    }
+
+    .clip-headline {
+      font-size: var(--text-xl);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .clipping,
+    .clip-img {
+      transition: none;
+    }
+
+    .clipping:hover {
+      transform: none;
+    }
+  }
+</style>
