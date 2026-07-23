@@ -1,15 +1,6 @@
 ---
-import type { NavPanel } from '../types/nav';
-
-const panels: NavPanel[] = [
-  { name: 'Home',      href: '/',         thumb: '/thumbs/thumb-home.svg'      },
-  { name: 'About Me',  href: '/about',    thumb: '/thumbs/thumb-about-dark.jpg',  thumbLight: '/thumbs/thumb-about-light.jpg' },
-  { name: 'Portfolio', href: '/portfolio', thumb: '/thumbs/thumb-portfolio-dark.jpg', thumbLight: '/thumbs/thumb-portfolio-light.jpg' },
-  { name: 'Awards and Achievements', href: '/awards',    thumb: '/thumbs/thumb-awards-dark.png', thumbLight: '/thumbs/thumb-awards-light.png' },
-  { name: 'Cyber SOC', href: '/cybersoc', thumb: '/thumbs/thumb-cybersoc-dark.jpg', thumbLight: '/thumbs/thumb-cybersoc-light.jpg' },
-  { name: 'Public Speaking', href: '/speaking', thumb: '/thumbs/thumb-speaking.svg'   },
-  { name: 'Links',           href: '/links',    thumb: '/thumbs/thumb-patch.svg'      },
-];
+import { panels } from '../data/panels';
+import HomeMini from './HomeMini.astro';
 ---
 
 <nav class="nav-wheel" aria-label="Site navigation">
@@ -23,21 +14,29 @@ const panels: NavPanel[] = [
     {panels.map((panel) => (
       <li class="wheel-panel">
         <a href={panel.href} class="panel-card">
-          <img
-            src={panel.thumb}
-            alt={`Preview of the ${panel.name} page`}
-            class={panel.thumbLight ? 'panel-thumb thumb-dark' : 'panel-thumb'}
-            width="320"
-            height="180"
-          />
-          {panel.thumbLight && (
-            <img
-              src={panel.thumbLight}
-              alt={`Preview of the ${panel.name} page`}
-              class="panel-thumb thumb-light"
-              width="320"
-              height="180"
-            />
+          {panel.mini ? (
+            /* The Home card shows the page itself, rebuilt small and live,
+               rather than a picture of it. See HomeMini.astro. */
+            <HomeMini />
+          ) : (
+            <Fragment>
+              <img
+                src={panel.thumb}
+                alt={`Preview of the ${panel.name} page`}
+                class={panel.thumbLight ? 'panel-thumb thumb-dark' : 'panel-thumb'}
+                width="320"
+                height="180"
+              />
+              {panel.thumbLight && (
+                <img
+                  src={panel.thumbLight}
+                  alt={`Preview of the ${panel.name} page`}
+                  class="panel-thumb thumb-light"
+                  width="320"
+                  height="180"
+                />
+              )}
+            </Fragment>
           )}
           <span class="panel-name">{panel.name}</span>
         </a>
@@ -59,13 +58,20 @@ const panels: NavPanel[] = [
     const panelEls  = Array.from(document.querySelectorAll<HTMLElement>('.wheel-panel'));
     const shadowEls = Array.from(document.querySelectorAll<HTMLElement>('.wheel-shadow'));
 
+    // The live miniature on the Home card (HomeMini.astro). Its wheel is driven
+    // from the same angle as the big one, so the picture of the site always
+    // shows the site as it is right now.
+    const miniEl        = document.querySelector<HTMLElement>('.panel-mini');
+    const miniPanelEls  = Array.from(document.querySelectorAll<HTMLElement>('.mini-panel'));
+    const miniShadowEls = Array.from(document.querySelectorAll<HTMLElement>('.mini-shadow'));
+
     if (!navEl || !trackEl || panelEls.length === 0) return;
 
     const nav   = navEl;
     const track = trackEl;
 
     const PANEL_COUNT = panelEls.length;
-    const ANGLE_STEP  = 360 / PANEL_COUNT; // 60°
+    const ANGLE_STEP  = 360 / PANEL_COUNT;
 
     const RADIUS_MOBILE  = 450;
     const RADIUS_DESKTOP = 780;
@@ -79,6 +85,53 @@ const panels: NavPanel[] = [
     nav.classList.add('is-wheel');
 
     const state = { angle: 0 };
+
+    // ── Miniature ─────────────────────────────────────────────────────────────
+    // The miniature scales itself (HomeMini.astro owns `--u`); all it needs
+    // from here is the angle.
+    /**
+     * Position the miniature's cards for a given wheel angle.
+     *
+     * The big wheel rotates its track by -angle and each panel by its own slot
+     * angle. Rotations about a shared Y axis add, so one `rotateY(slot - angle)`
+     * per card is the same transform — which is what lets the miniature use
+     * self-contained perspective() instead of a nested 3D scene. Depth sorting
+     * is done by hand via z-index, since a flattened scene has none.
+     */
+    function updateMini(angle: number): void {
+      if (!miniEl) return;
+
+      miniPanelEls.forEach((miniPanel, i) => {
+        const diff = ((i * ANGLE_STEP - angle) % 360 + 540) % 360 - 180;
+        const proximity = Math.cos((diff * Math.PI) / 180);
+
+        const scale = 0.8 + 0.2 * Math.max(0, proximity);
+        miniPanel.style.transform =
+          'perspective(calc(var(--mini-persp) * var(--u))) ' +
+          `rotateY(${diff}deg) ` +
+          'translateZ(calc(var(--mini-radius) * var(--u))) ' +
+          `scale(${scale})`;
+        miniPanel.style.opacity = String(0.4 + 0.6 * ((proximity + 1) / 2));
+        miniPanel.style.zIndex  = String(Math.round(proximity * 1000) + 2000);
+
+        // Shadows sit in a band below every card, so the whole set stays under
+        // the whole set of cards — close enough at this scale, and it saves
+        // interleaving two z ranges every frame.
+        const miniShadow = miniShadowEls[i];
+        if (miniShadow) {
+          const shadowScale = 1.0 + 0.4 * ((1 - proximity) / 2);
+          miniShadow.style.transform =
+            'perspective(calc(var(--mini-persp) * var(--u))) ' +
+            `rotateY(${diff}deg) ` +
+            'translateZ(calc((var(--mini-radius) - 1) * var(--u))) ' +
+            'translateY(calc(var(--mini-cardh) * var(--u) / 2)) ' +
+            'rotateX(-90deg) ' +
+            `scale(${shadowScale})`;
+          miniShadow.style.opacity = String(0.1 + 0.55 * ((proximity + 1) / 2));
+          miniShadow.style.zIndex  = String(Math.round(proximity * 1000) + 500);
+        }
+      });
+    }
 
     function updateEmphasis(): void {
       panelEls.forEach((panel, i) => {
@@ -120,6 +173,8 @@ const panels: NavPanel[] = [
           shadow.style.opacity = String(shadowOpacity);
         }
       });
+
+      updateMini(state.angle);
     }
 
     function rotateTo(target: number, duration = 0.8, onComplete?: () => void): void {
@@ -294,6 +349,7 @@ const panels: NavPanel[] = [
     function expand(panel: HTMLElement, card: HTMLElement, href: string): void {
       const img  = visibleThumb(panel);
       const src  = img?.currentSrc || img?.src || '';
+      const mini = panel.querySelector<HTMLElement>('.panel-mini');
       const rect = card.getBoundingClientRect();
 
       const clone = document.createElement('div');
@@ -304,20 +360,44 @@ const panels: NavPanel[] = [
         `top: ${rect.top}px`,
         `width: ${rect.width}px`,
         `height: ${rect.height}px`,
-        `background-image: url("${src}")`,
-        'background-size: cover',
-        'background-position: center',
+        'overflow: hidden',
         'border: 2px solid #FF69B4',
         'z-index: 9998',
         'pointer-events: none',
       ].join(';');
+
+      if (mini) {
+        // The Home card has no thumbnail to blow up — it has the page itself.
+        // Clone the miniature and let the growing box carry it: its lengths are
+        // container-relative, so as the box reaches viewport size the small copy
+        // resolves to exactly the real thing. The wheel opens into itself.
+        const miniClone = mini.cloneNode(true) as HTMLElement;
+        miniClone.style.setProperty('--vw', String(window.innerWidth));
+        // Fill the growing box on both axes — the 16:9 sizing it uses in the
+        // card would leave a band once the box takes the viewport's shape.
+        miniClone.style.position    = 'absolute';
+        miniClone.style.inset       = '0';
+        miniClone.style.width       = 'auto';
+        miniClone.style.aspectRatio = 'auto';
+        clone.style.backgroundColor = 'var(--color-background)';
+        clone.appendChild(miniClone);
+      } else {
+        clone.style.backgroundImage    = `url("${src}")`;
+        clone.style.backgroundSize     = 'cover';
+        clone.style.backgroundPosition = 'center';
+      }
+
       document.body.appendChild(clone);
 
       // Hide the real card so it doesn't ghost underneath the growing clone.
       panel.style.visibility = 'hidden';
 
       try {
-        sessionStorage.setItem('pt:cover', JSON.stringify({ src, t: Date.now() }));
+        // The miniature has no single image to hand over, and it lands on the
+        // page it already depicts, so it skips the cross-page cover.
+        if (!mini) {
+          sessionStorage.setItem('pt:cover', JSON.stringify({ src, t: Date.now() }));
+        }
       } catch {
         // Private mode / storage disabled — the expand still runs, the next
         // page just appears without the dissolve.
