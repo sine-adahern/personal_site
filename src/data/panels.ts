@@ -63,8 +63,13 @@ export const ANGLE_STEP = 360 / panels.length;
  * Wheel geometry, in real CSS pixels, shared by the wheel and its miniature.
  * The miniature divides every one of these by the viewport width, so the small
  * copy is a true-to-scale reproduction rather than an approximation.
+ *
+ * On mobile, the card size is an upper bound rather than a fixed size: the front
+ * card is magnified by perspective / (perspective - radius) = 1.6, so at 288px
+ * it would paint 460.8px and overflow a phone. NavWheel fits it to the viewport
+ * below that cap; see `--card-w` there and `--mini-cardw` in HomeMini.
  */
 export const WHEEL_GEOMETRY = {
-  mobile: { cardW: 288, cardH: 162, radius: 450, perspective: 1200 },
+  mobile: { maxCardW: 288, maxCardH: 162, radius: 450, perspective: 1200 },
   desktop: { cardW: 480, cardH: 270, radius: 780, perspective: 1800 },
 } as const;
