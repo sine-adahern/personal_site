@@ -346,15 +346,23 @@ const photos: Photo[] = [
 
   /* ── Scrolling circle banner ───────────────────────────────────────── */
 
+  /* Height is just the circle plus its padding, so `--banner-size` is the one
+     number to turn: the strip is that plus 2 x the padding either side.
+     Phones: 96 + 40 = 136px, down from 204px, which was eating close to a
+     third of the viewport before you reached a word of the bio. */
   .banner-scroll {
+    --banner-size: 96px;
+
     width: 100%;
     overflow: hidden;
-    padding: var(--space-8) 0;
+    padding: var(--space-5) 0;
   }
 
   .banner-track {
     display: flex;
-    gap: var(--space-6);
+    /* Tighter alongside smaller circles, so the strip stays as densely packed
+       as it looks now rather than reading as gaps with photos between them. */
+    gap: var(--space-4);
     list-style: none;
     width: max-content;
     will-change: transform;
@@ -362,8 +370,8 @@ const photos: Photo[] = [
 
   .banner-item {
     flex-shrink: 0;
-    width: 140px;
-    height: 140px;
+    width: var(--banner-size);
+    height: var(--banner-size);
   }
 
   .banner-img {
@@ -376,9 +384,14 @@ const photos: Photo[] = [
   }
 
   @media (min-width: 768px) {
-    .banner-item {
-      width: 180px;
-      height: 180px;
+    /* 140 + 48 = 188px, down from 244px. */
+    .banner-scroll {
+      --banner-size: 140px;
+      padding: var(--space-6) 0;
+    }
+
+    .banner-track {
+      gap: var(--space-6);
     }
   }
 
