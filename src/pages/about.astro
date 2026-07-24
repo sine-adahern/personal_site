@@ -86,7 +86,12 @@ const photos: Photo[] = [
     <ul class="photo-grid" aria-label="Photo gallery">
       {photos.map(photo => (
         <li class:list={['photo-item', { 'photo-item--desktop-only': photo.desktopOnly }]}>
-          <div class="photo-card" data-caption={photo.caption}>
+          <button
+            class="photo-card"
+            type="button"
+            data-caption={photo.caption}
+            aria-label={`${photo.alt} — read the note`}
+          >
             <img
               src={photo.src}
               alt={photo.alt}
@@ -98,7 +103,7 @@ const photos: Photo[] = [
             <div class="photo-overlay" aria-hidden="true">
               <span class="photo-caption"></span>
             </div>
-          </div>
+          </button>
         </li>
       ))}
     </ul>
@@ -126,39 +131,212 @@ const photos: Photo[] = [
     });
   }
 
+  // ── Photo cards ──────────────────────────────────────────────────────────
+  // Hover shows a quick preview of the note. Clicking (or tapping) is the real
+  // path: the tile grows out to a centred panel, then the photo dissolves out
+  // from underneath the caption as the caption types over it. Hover never fired
+  // on a phone, so before this the notes were unreachable on touch entirely.
+
+  const canHover = window.matchMedia('(hover: hover)').matches;
+
+  const EXPAND_MARGIN = 24;   // gap left around the panel at the viewport edge
+  const EXPAND_MAX_W  = 460;  // don't blow the tile up past legible on a desktop
+
+  /** Centred landing box, 3:4 like the tiles, clamped to whichever axis binds. */
+  function expandedBox() {
+    let w = Math.min(window.innerWidth - EXPAND_MARGIN * 2, EXPAND_MAX_W);
+    let h = w * 4 / 3;
+    const maxH = window.innerHeight - EXPAND_MARGIN * 2;
+    if (h > maxH) {
+      h = maxH;
+      w = h * 3 / 4;
+    }
+    return { w, h, left: (window.innerWidth - w) / 2, top: (window.innerHeight - h) / 2 };
+  }
+
+  // Only ever one panel open, and closing it is the same call from every route
+  // out (scrim click, panel click, Escape).
+  let closeActive: (() => void) | null = null;
+
+  function expand(card: HTMLElement, text: string): void {
+    if (closeActive) return;
+
+    const sourceImg = card.querySelector<HTMLImageElement>('.photo-img');
+    const rect = card.getBoundingClientRect();
+
+    const scrim = document.createElement('div');
+    scrim.className = 'photo-zoom-scrim';
+
+    const box = document.createElement('div');
+    box.className = 'photo-zoom';
+    box.setAttribute('role', 'dialog');
+    box.setAttribute('aria-modal', 'true');
+    // Screen readers get the caption whole, here. The visible copy types itself
+    // in a character at a time, which would be gibberish announced live — so
+    // that copy is aria-hidden below.
+    box.setAttribute('aria-label', text);
+    box.tabIndex = -1;
+    box.style.left   = `${rect.left}px`;
+    box.style.top    = `${rect.top}px`;
+    box.style.width  = `${rect.width}px`;
+    box.style.height = `${rect.height}px`;
+
+    const img = document.createElement('img');
+    img.className = 'photo-zoom-img';
+    img.alt = '';
+    img.src = sourceImg?.currentSrc || sourceImg?.src || '';
+
+    const cap = document.createElement('p');
+    cap.className = 'photo-zoom-caption';
+    cap.setAttribute('aria-hidden', 'true');
+
+    box.append(img, cap);
+    document.body.append(scrim, box);
+
+    // The clone starts exactly over the tile, so hiding the tile costs nothing
+    // visually on frame one and stops it sitting there under the scrim once the
+    // clone has grown away from it.
+    card.style.visibility = 'hidden';
+    const scrollLock = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    box.focus();
+
+    const target  = expandedBox();
+    const typeDur = Math.max(0.5, text.length * 0.04); // same rate as the hover preview
+    const typer   = { i: 0 };
+    let tl: gsap.core.Timeline | undefined;
+
+    if (prefersReducedMotion) {
+      box.style.left   = `${target.left}px`;
+      box.style.top    = `${target.top}px`;
+      box.style.width  = `${target.w}px`;
+      box.style.height = `${target.h}px`;
+      gsap.set(scrim, { opacity: 1 });
+      gsap.set(img, { opacity: 0 });
+      cap.textContent = text;
+    } else {
+      tl = gsap.timeline();
+      tl.to(scrim, { opacity: 1, duration: 0.25 }, 0);
+      tl.to(box, {
+        left: target.left,
+        top: target.top,
+        width: target.w,
+        height: target.h,
+        duration: 0.45,
+        ease: 'power2.inOut',
+      }, 0);
+      // Both start as the growth ends: the photo dissolves away underneath the
+      // words as the words land on top of it.
+      tl.to(img, { opacity: 0, duration: Math.min(typeDur, 1.1), ease: 'power1.in' }, 0.45);
+      tl.to(typer, {
+        i: text.length,
+        duration: typeDur,
+        ease: 'none',
+        // Typed via textContent rather than TextPlugin: TextPlugin writes
+        // innerHTML, and a caption ending ">-<" loses its tail to the HTML
+        // parser, which is why that one reads short on hover.
+        onUpdate() {
+          cap.textContent = text.slice(0, Math.round(typer.i));
+        },
+      }, 0.45);
+    }
+
+    function onKey(e: KeyboardEvent): void {
+      if (e.key === 'Escape') close();
+    }
+
+    function close(): void {
+      if (!closeActive) return;
+      closeActive = null;
+      tl?.kill();
+      document.body.style.overflow = scrollLock;
+      window.removeEventListener('keydown', onKey);
+
+      // Re-measured rather than reused: the grid may have reflowed, and on a
+      // phone the address bar collapsing counts as a resize.
+      const back = card.getBoundingClientRect();
+
+      const done = () => {
+        box.remove();
+        scrim.remove();
+        card.style.visibility = '';
+        card.focus();
+      };
+
+      if (prefersReducedMotion) {
+        done();
+        return;
+      }
+
+      gsap.timeline({ onComplete: done })
+        .to(cap, { opacity: 0, duration: 0.15 }, 0)
+        .to(img, { opacity: 1, duration: 0.3 }, 0)
+        .to(box, {
+          left: back.left,
+          top: back.top,
+          width: back.width,
+          height: back.height,
+          duration: 0.4,
+          ease: 'power2.inOut',
+        }, 0.05)
+        .to(scrim, { opacity: 0, duration: 0.4 }, 0.05);
+    }
+
+    closeActive = close;
+    scrim.addEventListener('click', close);
+    box.addEventListener('click', close);
+    window.addEventListener('keydown', onKey);
+  }
+
   document.querySelectorAll<HTMLElement>('.photo-card').forEach(card => {
-    const overlay  = card.querySelector<HTMLElement>('.photo-overlay');
+    const overlay   = card.querySelector<HTMLElement>('.photo-overlay');
     const captionEl = card.querySelector<HTMLElement>('.photo-caption');
     const text = card.dataset.caption ?? '';
 
     if (!overlay || !captionEl) return;
 
-    let tween: gsap.core.Tween | undefined;
+    let hoverTween: gsap.core.Tween | undefined;
 
-    card.addEventListener('mouseenter', () => {
-      tween?.kill();
-      if (prefersReducedMotion) {
-        gsap.set(overlay, { opacity: 1 });
-        if (text) captionEl.textContent = text;
-        return;
-      }
-      gsap.to(overlay, { opacity: 1, duration: 0.2 });
-      if (text) {
-        tween = gsap.to(captionEl, {
-          text,
-          duration: Math.max(0.5, text.length * 0.04),
-          ease: 'none',
-          delay: 0.15,
-        });
-      }
-    });
-
-    card.addEventListener('mouseleave', () => {
-      tween?.kill();
+    const clearHover = () => {
+      hoverTween?.kill();
       captionEl.textContent = '';
-      gsap.to(overlay, { opacity: 0, duration: 0.3 });
+      gsap.set(overlay, { opacity: 0 });
+    };
+
+    // Gated on real hover capability: on a touch screen a tap synthesises
+    // mouseenter, which would flash the tiny preview under the panel opening.
+    if (canHover) {
+      card.addEventListener('mouseenter', () => {
+        hoverTween?.kill();
+        if (prefersReducedMotion) {
+          gsap.set(overlay, { opacity: 1 });
+          if (text) captionEl.textContent = text;
+          return;
+        }
+        gsap.to(overlay, { opacity: 1, duration: 0.2 });
+        if (text) {
+          hoverTween = gsap.to(captionEl, {
+            text,
+            duration: Math.max(0.5, text.length * 0.04),
+            ease: 'none',
+            delay: 0.15,
+          });
+        }
+      });
+
+      card.addEventListener('mouseleave', () => {
+        hoverTween?.kill();
+        captionEl.textContent = '';
+        gsap.to(overlay, { opacity: 0, duration: 0.3 });
+      });
+    }
+
+    card.addEventListener('click', () => {
+      clearHover();
+      expand(card, text);
     });
   });
+
 </script>
 
 <style>
@@ -298,13 +476,29 @@ const photos: Photo[] = [
     display: none;
   }
 
+  /* A <button>, so the notes are reachable by keyboard and announced as
+     activatable — hence the appearance reset before the card styling. */
   .photo-card {
+    display: block;
+    padding: 0;
+    font: inherit;
+    color: inherit;
+    text-align: left;
+    -webkit-appearance: none;
+    appearance: none;
+
     position: relative;
     width: 100%;
     height: 100%;
     cursor: pointer;
     background-color: var(--color-surface-alt);
     border: 2px solid #FF69B4;
+  }
+
+  .photo-card:focus-visible {
+    outline: none;
+    border-color: #FFB3D9;
+    box-shadow: 0 0 0 3px rgba(255, 105, 180, 0.5);
   }
 
   .photo-img {
@@ -339,6 +533,67 @@ const photos: Photo[] = [
   }
 
   :global([data-theme="light"]) .photo-caption {
+    color: #000000;
+  }
+
+  /* ── Expanded panel ────────────────────────────────────────────────────
+     Built by JS and appended to <body>, so it sits outside this component's
+     scoping — :global() is what lets these rules reach it. */
+
+  :global(.photo-zoom-scrim) {
+    position: fixed;
+    inset: 0;
+    z-index: 9000;
+    background-color: rgba(0, 0, 0, 0.75);
+    opacity: 0;
+    cursor: pointer;
+  }
+
+  :global([data-theme="light"] .photo-zoom-scrim) {
+    background-color: rgba(255, 255, 255, 0.8);
+  }
+
+  /* Sized and positioned entirely from JS: it starts life matching the tile's
+     bounding box and is animated to the centred box from there. The background
+     is what the photo dissolves away to reveal. */
+  :global(.photo-zoom) {
+    position: fixed;
+    z-index: 9001;
+    overflow: hidden;
+    cursor: pointer;
+    background-color: rgba(0, 0, 0, 0.92);
+    border: 2px solid #FF69B4;
+  }
+
+  :global([data-theme="light"] .photo-zoom) {
+    background-color: rgba(255, 255, 255, 0.94);
+  }
+
+  :global(.photo-zoom-img) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  :global(.photo-zoom-caption) {
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    padding: var(--space-5);
+    overflow-y: auto;
+    color: #FF69B4;
+    font-family: 'Press Start 2P', cursive;
+    font-weight: 400;
+    /* Press Start 2P is wide and the longest note runs ~200 characters, so this
+       stays small enough for it to fit the panel without scrolling on a phone. */
+    font-size: clamp(9px, 2.6vw, 13px);
+    line-height: 1.8;
+  }
+
+  :global([data-theme="light"] .photo-zoom-caption) {
     color: #000000;
   }
 
