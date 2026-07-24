@@ -17,6 +17,25 @@ import SideNav from '../components/SideNav.astro';
         Cookie cutter<img class="cookie cookie--head" src="/images/portfolio/cookie.png" alt="" aria-hidden="true" />
       </h2>
 
+      <div class="cookie-mobile">
+        <div class="cookie-mobile-media">
+          <img
+            class="cookie-cover-img"
+            src="/images/portfolio/cookie-guard-cover.png"
+            alt="Cookie Guard Reporter browser extension popup, showing blocking mode, the current site, and a cookie summary"
+            width="913"
+            height="663"
+            loading="lazy"
+          />
+          <img class="cookie cookie--m1" src="/images/portfolio/cookie.png" alt="" aria-hidden="true" />
+        </div>
+        <div class="project-box">
+          <p>A browser extension that unscrambles and explains a site's cookies in plain language, running entirely on-device so no cookie value is ever transmitted. Handles up to four layers of encoding (URL, Base64, hex, JWT, JSON, plus Protocol Buffers detection), classifies each cookie as functional, analytics, or advertising with a privacy-risk rating, recognises known trackers like Google Analytics (_ga) and Meta (_fbp), and gives you the option to filter them.</p>
+          <img class="cookie cookie--m2" src="/images/portfolio/cookie.png" alt="" aria-hidden="true" />
+        </div>
+        <img class="cookie cookie--m3" src="/images/portfolio/cookie.png" alt="" aria-hidden="true" />
+      </div>
+
       <div class="project-row">
         <div class="desc-col">
           <div class="project-box">
@@ -65,6 +84,18 @@ import SideNav from '../components/SideNav.astro';
 
     <section class="project-section">
       <h2 class="project-heading">SSH Brute-Force Intrusion Detection System</h2>
+
+      <div class="ssh-mobile">
+        <div class="ssh-mobile-images">
+          <img class="ssh-img ssh-img--attack ssh-img--dark" src="/images/portfolio/attack_defense_dark.png" alt="Diagram: SSH brute-force attack and how detector.py defends against it" />
+          <img class="ssh-img ssh-img--attack ssh-img--light" src="/images/portfolio/attack_defense_light.png" alt="Diagram: SSH brute-force attack and how detector.py defends against it" />
+          <img class="ssh-img ssh-img--dark" src="/images/portfolio/terminal-dark.png" alt="Terminal output from detector.py flagging repeated brute-force attempts" />
+          <img class="ssh-img ssh-img--light" src="/images/portfolio/terminal-light.png" alt="Terminal output from detector.py flagging repeated brute-force attempts" />
+        </div>
+        <div class="project-box">
+          <p>A Python tool that monitors a server's authentication logs as they're written and catches brute-force login attacks in real time. Uses a sliding 60-second window per source address to distinguish genuine attacks from mistyped passwords, emits structured JSON alerts tagged with MITRE ATT&amp;CK T1110.001 for direct ingestion into a security team's monitoring pipeline, and was validated against a live OpenSSH server on Ubuntu 24.04 with simulated attacks and real system journal logs.</p>
+        </div>
+      </div>
 
       <div class="ssh-row">
         <div class="ssh-images">
@@ -557,6 +588,14 @@ import SideNav from '../components/SideNav.astro';
     .cookie--below-desc { width: 40px; bottom: -32px; }
     .cookie--between    { width: 32px; right: -44px; }
     .cookie--below-demo { width: 38px; bottom: -34px; }
+  }
+
+  .cookie-mobile {
+    display: none;
+  }
+
+  .ssh-mobile {
+    display: none;
   }
 
   /* ── Description + demo row ────────────────────────────────────────── */
@@ -1211,6 +1250,129 @@ import SideNav from '../components/SideNav.astro';
 
     .project-box--right {
       margin-right: var(--space-10);
+    }
+  }
+
+  /* ── Cookie cutter + SSH: condensed mobile versions ────────────────────
+     On phones, swap the full desktop write-up (multiple text boxes, arrow,
+     interactive demo iframes) for one summary paragraph plus either a
+     static cover screenshot (Cookie cutter) or the existing diagram/terminal
+     images stacked above the text (SSH). The scattered decorative cookies
+     stay, just re-anchored to the mobile block instead of the hidden
+     desktop one. Placed last in the stylesheet so it wins the cascade over
+     the unconditional .project-row / .ssh-row / .project-box--right rules
+     declared earlier, which share its specificity. */
+  @media (max-width: 900px) {
+    .project-row,
+    .project-box--right,
+    .ssh-row {
+      display: none;
+    }
+
+    /* Slightly transparent text boxes on both condensed mobile sections. */
+    .cookie-mobile .project-box,
+    .ssh-mobile .project-box {
+      background-color: rgba(255, 105, 180, 0.85);
+    }
+
+    :global([data-theme="light"]) .cookie-mobile .project-box,
+    :global([data-theme="light"]) .ssh-mobile .project-box {
+      background-color: rgba(246, 153, 205, 0.85);
+    }
+
+    /* Cookie cutter */
+    .cookie-mobile {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--space-6);
+      padding: 0 var(--space-6);
+      position: relative;
+    }
+
+    .cookie-mobile-media {
+      position: relative;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+    }
+
+    .cookie-cover-img {
+      display: block;
+      width: 100%;
+      max-width: 420px;
+      height: auto;
+      border: 3px solid #f699cd;
+      border-radius: 8px;
+    }
+
+    /* Screenshot is of a light UI — dim it on the dark background, same
+       treatment as the SÓShieldta screenshots (.so-img). */
+    :global(html:not([data-theme="light"])) .cookie-cover-img {
+      border-color: #ffe4c4;
+      filter: brightness(0.82) contrast(1.05);
+    }
+
+    .cookie-mobile .project-box {
+      max-width: 600px;
+      margin: 0;
+      position: relative;
+    }
+
+    /* Scattered cookies, re-anchored from the hidden desktop boxes to the
+       mobile image and text block so the playful decoration survives. */
+    .cookie--m1 {
+      position: absolute;
+      top: -14px;
+      right: 4px;
+      width: 40px;
+      transform: rotate(-12deg);
+    }
+
+    .cookie--m2 {
+      position: absolute;
+      bottom: -20px;
+      left: 12px;
+      width: 38px;
+      transform: rotate(14deg);
+    }
+
+    .cookie--m3 {
+      width: 36px;
+      align-self: flex-end;
+      margin-right: var(--space-8);
+      transform: rotate(-8deg) translateY(-10px);
+    }
+
+    /* SSH Brute-Force */
+    .ssh-mobile {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-6);
+      padding: 0 var(--space-6);
+      width: 100%;
+    }
+
+    .ssh-mobile-images {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-6);
+      width: 100%;
+    }
+
+    .ssh-mobile-images .ssh-img {
+      max-width: 100%;
+    }
+
+    /* The desktop nudge that pushes the diagram down to line up with the
+       text column doesn't apply once it's simply first in a mobile stack. */
+    .ssh-mobile-images .ssh-img--attack {
+      margin-top: 0;
+    }
+
+    .ssh-mobile .project-box {
+      max-width: 100%;
+      margin: 0;
     }
   }
 </style>
