@@ -6,7 +6,21 @@ import SideNav from '../components/SideNav.astro';
 
 // Caption is the text that types across the image on hover.
 // alt is a short description used for screen readers / if an image fails to load.
-const photos = [
+type Photo = {
+  src: string;
+  alt: string;
+  caption: string;
+  /**
+   * Dropped from the grid on phones. The grid is 4 across on desktop (16 photos
+   * = a clean 4x4) and 3 across on phones, where 16 would leave a lone photo
+   * stranded on a sixth row — so one is held back to make it an even 3x5.
+   * Flagged here rather than sliced by index so reordering the list can't
+   * silently drop a different photo. Every photo still appears in the banner.
+   */
+  desktopOnly?: boolean;
+};
+
+const photos: Photo[] = [
   { src: '/images/about/photo-1.jpg',  alt: 'reading',       caption: `Reading is my first love. I'll devour any book, from fact to fiction, but my true love is mystery books.` },
   { src: '/images/about/photo-2.jpg',  alt: 'studying',      caption: `While I complain constantly about studying, it's the one that got me 625 points in my leaving cert, and allowed me to maintain a strong 4.0 GPA in college.` },
   { src: '/images/about/photo-3.jpg',  alt: 'piano',         caption: `I've been playing piano since I was 7, though I've never gone past grade 6.` },
@@ -22,7 +36,7 @@ const photos = [
   { src: '/images/about/photo-13.jpg', alt: 'nature',        caption: `After all those darn screens sometimes touching grass is sorely needed.` },
   { src: '/images/about/photo-14.jpg', alt: 'Irish',         caption: `mo teanga feinig agus mo teanga is fear` },
   { src: '/images/about/photo-15.jpg', alt: 'gym',           caption: `Is fear an tsláinte ná an táinte - or whatever they say` },
-  { src: '/images/about/photo-16.jpg', alt: 'cat',           caption: `My favorite animal and dream pet, this lil guy isn't mine though :(` },
+  { src: '/images/about/photo-16.jpg', alt: 'cat',           caption: `My favorite animal and dream pet, this lil guy isn't mine though :(`, desktopOnly: true },
 ];
 ---
 
@@ -67,12 +81,11 @@ const photos = [
       </div>
     </section>
 
-    <!-- ── 3 × 4 photo grid ──────────────────────────────────────────── -->
-    <!-- Add real src and caption per photo when content is ready.       -->
+    <!-- ── Photo grid: 3 across on phones (3 × 5), 4 across above ────── -->
     <h2 class="interests-heading">my interests</h2>
     <ul class="photo-grid" aria-label="Photo gallery">
       {photos.map(photo => (
-        <li class="photo-item">
+        <li class:list={['photo-item', { 'photo-item--desktop-only': photo.desktopOnly }]}>
           <div class="photo-card" data-caption={photo.caption}>
             <img
               src={photo.src}
@@ -263,10 +276,13 @@ const photos = [
 
   /* ── Photo grid ────────────────────────────────────────────────────── */
 
+  /* Phones: 3 across. With the desktop-only photo hidden that is 15 tiles,
+     landing as an exact 3 × 5 with no ragged final row. Four across on a
+     phone left each tile around 78px wide — too small to read a caption in. */
   .photo-grid {
     list-style: none;
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     gap: var(--space-3);
     padding: 0 var(--space-6) var(--space-8);
     max-width: 1200px;
@@ -276,6 +292,10 @@ const photos = [
   .photo-item {
     aspect-ratio: 3 / 4;
     overflow: hidden;
+  }
+
+  .photo-item--desktop-only {
+    display: none;
   }
 
   .photo-card {
@@ -323,9 +343,15 @@ const photos = [
   }
 
   @media (min-width: 768px) {
+    /* Back to the full set: 4 across, all 16 photos, a clean 4 × 4. */
     .photo-grid {
+      grid-template-columns: repeat(4, 1fr);
       gap: var(--space-4);
       padding: 0 var(--space-8) var(--space-10);
+    }
+
+    .photo-item--desktop-only {
+      display: list-item;
     }
 
     .photo-caption {
