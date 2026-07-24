@@ -78,11 +78,22 @@ import HomeMini from './HomeMini.astro';
     let radius = window.innerWidth >= 768 ? RADIUS_DESKTOP : RADIUS_MOBILE;
 
     // Card height drives the floor offset (translateY to panel bottom edge).
+    // On phones the CSS sizes the card from the viewport, so this is measured
+    // rather than assumed. offsetHeight is a layout box: rotation and
+    // perspective don't touch it, unlike getBoundingClientRect().
     const CARD_HEIGHT_MOBILE  = 162;
     const CARD_HEIGHT_DESKTOP = 270;
-    let cardHeight = window.innerWidth >= 768 ? CARD_HEIGHT_DESKTOP : CARD_HEIGHT_MOBILE;
 
+    function measureCardHeight(): number {
+      return track.offsetHeight
+        || (window.innerWidth >= 768 ? CARD_HEIGHT_DESKTOP : CARD_HEIGHT_MOBILE);
+    }
+
+    // Must precede the measurement: until this class lands the track is still
+    // the stacked-list fallback, and would measure as tall as the whole column.
     nav.classList.add('is-wheel');
+
+    let cardHeight = measureCardHeight();
 
     const state = { angle: 0 };
 
@@ -287,7 +298,7 @@ import HomeMini from './HomeMini.astro';
     // ── Resize ────────────────────────────────────────────────────────────────
     window.addEventListener('resize', () => {
       radius     = window.innerWidth >= 768 ? RADIUS_DESKTOP  : RADIUS_MOBILE;
-      cardHeight = window.innerWidth >= 768 ? CARD_HEIGHT_DESKTOP : CARD_HEIGHT_MOBILE;
+      cardHeight = measureCardHeight();
       updateEmphasis();
     });
 
@@ -516,6 +527,19 @@ import HomeMini from './HomeMini.astro';
     perspective-origin: 50% 50%;
     overflow: hidden;
     cursor: grab;
+
+    /* ── Card size ──────────────────────────────────────────────────────────
+       The front card sits at translateZ(radius), so perspective paints it
+       larger than its CSS box by p / (p - radius) — here 1200 / (1200 - 450),
+       a factor of 1.6. A 288px card therefore covers 460.8px of screen, which
+       overflows every phone (360–430px) and gets cut off by the overflow:hidden
+       above. So size the card from the space it has to land in, dividing the
+       viewport back through the magnification, and cap it at the original
+       288×162 so anything with room to spare is left exactly as it was. */
+    --wheel-mag: 1.6;
+    --wheel-gutter: 24px; /* total breathing room either side of the card */
+    --card-w: min(288px, (100vw - var(--wheel-gutter)) / var(--wheel-mag));
+    --card-h: calc(var(--card-w) * 9 / 16);
   }
 
   .nav-wheel.is-wheel:active {
@@ -529,9 +553,8 @@ import HomeMini from './HomeMini.astro';
     flex-direction: unset;
     gap: 0;
     max-width: unset;
-    /* 16:9 mobile card size: 288×162 */
-    width: 288px;
-    height: 162px;
+    width: var(--card-w);
+    height: var(--card-h);
   }
 
   /* Shadow footprint — flat pink-tinted ellipse on the floor.
@@ -540,8 +563,8 @@ import HomeMini from './HomeMini.astro';
     display: block;
     position: absolute;
     inset: 0;
-    width: 288px;
-    height: 162px;
+    width: var(--card-w);
+    height: var(--card-h);
     pointer-events: none;
     list-style: none;
     background: radial-gradient(
@@ -556,14 +579,14 @@ import HomeMini from './HomeMini.astro';
     position: absolute;
     inset: 0;
     backface-visibility: visible;
-    width: 288px;
-    height: 162px;
+    width: var(--card-w);
+    height: var(--card-h);
   }
 
   .nav-wheel.is-wheel .panel-card {
     position: relative;
-    width: 288px;
-    height: 162px;
+    width: var(--card-w);
+    height: var(--card-h);
   }
 
   /* Image fills the full 16:9 card face */
@@ -597,27 +620,14 @@ import HomeMini from './HomeMini.astro';
   @media (min-width: 768px) {
     .nav-wheel.is-wheel {
       perspective: 1800px;
-    }
 
-    /* 16:9 desktop card size: 480×270 */
-    .nav-wheel.is-wheel .wheel-track {
-      width: 480px;
-      height: 270px;
-    }
-
-    .nav-wheel.is-wheel .wheel-shadow {
-      width: 480px;
-      height: 270px;
-    }
-
-    .nav-wheel.is-wheel .wheel-panel {
-      width: 480px;
-      height: 270px;
-    }
-
-    .nav-wheel.is-wheel .panel-card {
-      width: 480px;
-      height: 270px;
+      /* Fixed 16:9 desktop card: 480×270, exactly as before — laptops are
+         left alone. (Magnification here is 1800 / (1800 - 780) = 1.765, so
+         the front card paints 847px; a window between 768 and 847px wide
+         still clips it. Swap these two lines for the min() form above with
+         --wheel-mag: 1.765 if that ever needs fitting too.) */
+      --card-w: 480px;
+      --card-h: 270px;
     }
   }
 </style>
