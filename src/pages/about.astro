@@ -66,18 +66,46 @@ const photos: Photo[] = [
     <section class="bio-strip" aria-label="About me">
       <div class="bio-inner">
         <h2 class="bio-heading">About me</h2>
-        <p class="bio-text">
-          I'm a Cybersecurity and IT Management student at Munster Technological University, and I currently chair <a href="/cybersoc">MTU's Cybersecurity Society</a>. My interest in security is hands-on: I've shadowed Johnson &amp; Johnson's cybersecurity team watching how threat detection actually works inside a large organisation, and I'm building toward a career in security engineering.
-        </p>
-        <p class="bio-text">
-          I work in Python, C++, JavaScript, and Rust, and I like the kind of problem-solving that rewards patience, a habit I picked up competing in the European Girls' Mathematical Olympiad (top 10 in Ireland) and the national Programming Olympiad finals. I'm happiest when I'm building something real: I co-founded <a href="/portfolio#lynra">Lynra</a> at Dublin's Patch accelerator, training an object-detection model and putting it on a rover that delivers micro-injections to diseased ash trees. Earlier, a four-person team and I won SciFest's Technology Category and the EirGrid Award for a carbon-capture filter that used CAD and 3D printing to cut CO₂ from car exhausts. More recently I built SÓShielta at Hack Europe with a four-person team.
-        </p>
-        <p class="bio-text">
-          Outside the strictly technical stuff, I've trained as an astronaut at <a href="/awards">NASA's Space Camp</a> (and somehow came home with the Right Stuff Award). I read a lot — mystery novels especially — and I make my own clothes. Both scratch the same itch as everything else: at heart I'm a problem-solver, the kind who's just as happy untangling a network connectivity issue as a locked-room murder; figuring out how the pieces fit together to make something that works.
-        </p>
-        <p class="bio-text">
-          I'm always up for interesting projects and conversations — get in touch.
-        </p>
+
+        <!--
+          Two copies of the bio, one tightened for phones, one full for wider
+          screens. CSS shows exactly one (see .bio-body--* below) — the other is
+          display:none, which also keeps it out of the accessibility tree, so a
+          screen reader only ever meets one version.
+
+          EDITING: these are separate copies of the same text. A change to one
+          needs the same change in the other, or the two will drift apart.
+        -->
+
+        <div class="bio-body bio-body--compact">
+          <p class="bio-text">
+            I'm a Cybersecurity and IT Management student at Munster Technological University, and I currently chair <a href="/cybersoc">MTU's Cybersecurity Society</a>. My interest in security is hands-on: I've shadowed Johnson &amp; Johnson's cybersecurity team to see how threat detection works inside a large organisation, and I'm building toward a career in security engineering.
+          </p>
+          <p class="bio-text">
+            I work in Python, C++, JavaScript, and Rust, and I like the kind of problem-solving that rewards patience, a habit I picked up competing in the European Girls' Mathematical Olympiad (top 10 in Ireland) and the national Programming Olympiad finals. I'm happiest when I'm building something real: I co-founded <a href="/portfolio#lynra">Lynra</a> at Dublin's Patch accelerator, training an object-detection model for a rover that delivers micro-injections to diseased ash trees. Earlier, my team won SciFest's Technology Category and the EirGrid Award for a 3D-printed carbon-capture filter for car exhausts. More recently, I built SÓShielta at Hack Europe with a four-person team.
+          </p>
+          <p class="bio-text">
+            Outside the strictly technical stuff, I've trained as an astronaut at <a href="/awards">NASA's Space Camp</a> (and somehow came home with the Right Stuff Award). I read a lot — mystery novels especially — and I make my own clothes. Both scratch the same itch as everything else: figuring out how the pieces fit together, whether it's a network issue or a locked-room mystery.
+          </p>
+          <p class="bio-text">
+            I'm always up for interesting projects and conversations — get in touch.
+          </p>
+        </div>
+
+        <div class="bio-body bio-body--full">
+          <p class="bio-text">
+            I'm a Cybersecurity and IT Management student at Munster Technological University, and I currently chair <a href="/cybersoc">MTU's Cybersecurity Society</a>. My interest in security is hands-on: I've shadowed Johnson &amp; Johnson's cybersecurity team watching how threat detection actually works inside a large organisation, and I'm building toward a career in security engineering.
+          </p>
+          <p class="bio-text">
+            I work in Python, C++, JavaScript, and Rust, and I like the kind of problem-solving that rewards patience, a habit I picked up competing in the European Girls' Mathematical Olympiad (top 10 in Ireland) and the national Programming Olympiad finals. I'm happiest when I'm building something real: I co-founded <a href="/portfolio#lynra">Lynra</a> at Dublin's Patch accelerator, training an object-detection model and putting it on a rover that delivers micro-injections to diseased ash trees. Earlier, a four-person team and I won SciFest's Technology Category and the EirGrid Award for a carbon-capture filter that used CAD and 3D printing to cut CO₂ from car exhausts. More recently I built SÓShielta at Hack Europe with a four-person team.
+          </p>
+          <p class="bio-text">
+            Outside the strictly technical stuff, I've trained as an astronaut at <a href="/awards">NASA's Space Camp</a> (and somehow came home with the Right Stuff Award). I read a lot — mystery novels especially — and I make my own clothes. Both scratch the same itch as everything else: at heart I'm a problem-solver, the kind who's just as happy untangling a network connectivity issue as a locked-room murder; figuring out how the pieces fit together to make something that works.
+          </p>
+          <p class="bio-text">
+            I'm always up for interesting projects and conversations — get in touch.
+          </p>
+        </div>
       </div>
     </section>
 
@@ -441,6 +469,19 @@ const photos: Photo[] = [
     margin-bottom: 0;
   }
 
+  /* Bio variants. `display: contents` rather than `block` so the wrapper leaves
+     no box of its own behind: the paragraphs stay direct children of .bio-inner
+     as far as layout is concerned, and the spacing is byte-for-byte what it was
+     before the wrapper existed. Each copy carries its own closing line so
+     `.bio-text:last-child` above still zeroes the final margin within it. */
+  .bio-body--compact {
+    display: contents;
+  }
+
+  .bio-body--full {
+    display: none;
+  }
+
   .bio-text a {
     color: #000000;
     font-weight: 600;
@@ -462,6 +503,14 @@ const photos: Photo[] = [
 
     .bio-text {
       font-size: var(--text-lg);
+    }
+
+    .bio-body--compact {
+      display: none;
+    }
+
+    .bio-body--full {
+      display: contents;
     }
   }
 
