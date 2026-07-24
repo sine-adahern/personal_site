@@ -210,6 +210,15 @@ const bannerImagesRev = [...bannerImages].reverse();
     background-image: radial-gradient(ellipse 90% 55% at 50% 0%, #FFB3D9 0%, #ffffff 55%);
   }
 
+  /* Width of one decorative side banner, and the gap it keeps from the
+     timeline. Both scale with the viewport so the columns shrink rather than
+     disappear on narrower screens. The timeline's max-width is derived from
+     these below, so the two can never collide. */
+  main {
+    --vbw:   clamp(70px, 10vw, 150px);
+    --vbgap: var(--space-6);
+  }
+
   /* Header transparent so the gradient reaches the very top of the page. */
   :global(.site-header) {
     background-color: transparent !important;
@@ -253,7 +262,7 @@ const bannerImagesRev = [...bannerImages].reverse();
     position: fixed;
     top: 0;
     bottom: 0;
-    width: 150px;
+    width: var(--vbw);
     overflow: hidden;
     z-index: 0;
     pointer-events: none;
@@ -279,19 +288,28 @@ const bannerImagesRev = [...bannerImages].reverse();
   .vbanner-item {
     flex-shrink: 0;
     width: 100%;
-    margin-bottom: var(--space-4);
+    margin-bottom: calc(var(--vbw) * 0.11);
   }
   .vbanner-img {
     width: 100%;
-    height: 200px;
+    height: auto;
+    aspect-ratio: 3 / 4;   /* matches the old 150x200 tile, but scales */
     object-fit: cover;
     border: 2px solid #FF69B4;
     border-radius: var(--radius-sm);
     display: block;
   }
 
-  @media (min-width: 1500px) {
+  /* Shown from tablet width up. Below this the columns would eat too much of a
+     phone screen, so they're dropped and the timeline takes the full width. */
+  @media (min-width: 768px) {
     .vbanner { display: block; }
+    /* Give the timeline whatever is left between the two columns, capped at its
+       normal 1100px. Above ~1500px this evaluates to 1100px, so wide screens
+       look exactly as they did before. */
+    .timeline {
+      max-width: min(1100px, calc(100% - 2 * (var(--vbw) + var(--vbgap))));
+    }
   }
 
   .timeline {
@@ -497,4 +515,3 @@ const bannerImagesRev = [...bannerImages].reverse();
     .tl-event.is-active .tl-card { transform: none; }
     .tl-img { transform: none; }
   }
-</style>
