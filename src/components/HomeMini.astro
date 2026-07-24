@@ -147,9 +147,15 @@ const items = panels.map((panel, i) => {
 
     /* Wheel geometry in real page pixels — mirrors WHEEL_GEOMETRY.mobile.
        Kept as CSS vars so the breakpoint is handled here, and the transforms
-       JS writes stay identical at both sizes. */
-    --mini-cardw: 288;
-    --mini-cardh: 162;
+       JS writes stay identical at both sizes.
+
+       The card size must track NavWheel's `--card-w`, which on phones is fitted
+       to the viewport rather than fixed. Same formula, unitless: `--vw` is
+       already the viewport width in real page pixels, which is exactly the
+       unit these numbers are in, so it needs no conversion. Get this wrong and
+       the miniature stops being a picture of the page it sits on. */
+    --mini-cardw: min(288, (var(--vw) - 24) / 1.6);
+    --mini-cardh: calc(var(--mini-cardw) * 9 / 16);
     --mini-radius: 450;
     --mini-persp: 1200;
 
