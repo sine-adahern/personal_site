@@ -17,25 +17,6 @@ import SideNav from '../components/SideNav.astro';
         Cookie cutter<img class="cookie cookie--head" src="/images/portfolio/cookie.png" alt="" aria-hidden="true" />
       </h2>
 
-      <div class="cookie-mobile">
-        <div class="cookie-mobile-media">
-          <img
-            class="cookie-cover-img"
-            src="/images/portfolio/cookie-guard-cover.png"
-            alt="Cookie Guard Reporter browser extension popup, showing blocking mode, the current site, and a cookie summary"
-            width="913"
-            height="663"
-            loading="lazy"
-          />
-          <img class="cookie cookie--m1" src="/images/portfolio/cookie.png" alt="" aria-hidden="true" />
-        </div>
-        <div class="project-box">
-          <p>A browser extension that unscrambles and explains a site's cookies in plain language, running entirely on-device so no cookie value is ever transmitted. Handles up to four layers of encoding (URL, Base64, hex, JWT, JSON, plus Protocol Buffers detection), classifies each cookie as functional, analytics, or advertising with a privacy-risk rating, recognises known trackers like Google Analytics (_ga) and Meta (_fbp), and gives you the option to filter them.</p>
-          <img class="cookie cookie--m2" src="/images/portfolio/cookie.png" alt="" aria-hidden="true" />
-        </div>
-        <img class="cookie cookie--m3" src="/images/portfolio/cookie.png" alt="" aria-hidden="true" />
-      </div>
-
       <div class="project-row">
         <div class="desc-col">
           <div class="project-box">
@@ -84,18 +65,6 @@ import SideNav from '../components/SideNav.astro';
 
     <section class="project-section">
       <h2 class="project-heading">SSH Brute-Force Intrusion Detection System</h2>
-
-      <div class="ssh-mobile">
-        <div class="ssh-mobile-images">
-          <img class="ssh-img ssh-img--attack ssh-img--dark" src="/images/portfolio/attack_defense_dark.png" alt="Diagram: SSH brute-force attack and how detector.py defends against it" />
-          <img class="ssh-img ssh-img--attack ssh-img--light" src="/images/portfolio/attack_defense_light.png" alt="Diagram: SSH brute-force attack and how detector.py defends against it" />
-          <img class="ssh-img ssh-img--dark" src="/images/portfolio/terminal-dark.png" alt="Terminal output from detector.py flagging repeated brute-force attempts" />
-          <img class="ssh-img ssh-img--light" src="/images/portfolio/terminal-light.png" alt="Terminal output from detector.py flagging repeated brute-force attempts" />
-        </div>
-        <div class="project-box">
-          <p>A Python tool that monitors a server's authentication logs as they're written and catches brute-force login attacks in real time. Uses a sliding 60-second window per source address to distinguish genuine attacks from mistyped passwords, emits structured JSON alerts tagged with MITRE ATT&amp;CK T1110.001 for direct ingestion into a security team's monitoring pipeline, and was validated against a live OpenSSH server on Ubuntu 24.04 with simulated attacks and real system journal logs.</p>
-        </div>
-      </div>
 
       <div class="ssh-row">
         <div class="ssh-images">
@@ -173,6 +142,18 @@ import SideNav from '../components/SideNav.astro';
             <span class="zoom-reticle" id="lynra-reticle" aria-hidden="true">
               <b class="c1"></b><b class="c2"></b><b class="c3"></b><b class="c4"></b>
             </span>
+
+            <!--
+              Phone-only description, laid over the zoom rather than beside it.
+              Lives inside the stage so it sits on top of the rover image and
+              gives the stage its height once the fixed 52vh is released.
+
+              EDITING: this condenses .lynra-text above into one paragraph. A
+              change to the story needs making in both places or they drift.
+            -->
+            <div class="lynra-compact">
+              <p>An autonomous rover that treats ash dieback, a fungal disease killing ash trees across Ireland and Europe, by identifying ash trees and delivering a micro-injected biostimulant directly into the trunk. Built with a four-person team at the Patch Summer Accelerator: a custom Roboflow object-detection model runs onboard a Raspberry Pi to locate injection sites from the camera feed in real time and instruct an Arduino controlling movement and delivery, with a chassis and injection system designed in Fusion 360 and 3D-printed in-house. Presented live at Demo Day to 300+ investors, founders, and industry leaders.</p>
+            </div>
           </div>
         </div>
       </div>
@@ -396,8 +377,15 @@ import SideNav from '../components/SideNav.astro';
       reticle!.style.opacity = index === 0 ? '0' : '0.9';
     }
 
-    // Active item = whichever list item sits nearest the middle of the viewport.
-    function update() {
+    // Phones hide the list and lay the description over the zoom instead, so
+    // there are no list items left to track. A display:none element reports an
+    // all-zero rect, which would tie every item at the same distance and pin
+    // the zoom on keyframe 1 for good — so that layout drives the same
+    // keyframes off the stage's own travel up the viewport.
+    const phone = window.matchMedia('(max-width: 767.98px)');
+
+    /** Keyframe from whichever list item sits nearest the middle of the viewport. */
+    function indexFromList(): number {
       const mid = window.innerHeight * 0.5;
       let best = -1;
       let dist = Infinity;
@@ -409,8 +397,27 @@ import SideNav from '../components/SideNav.astro';
         if (d < dist) { dist = d; best = i; }
       });
 
-      current = best === -1 ? 0 : best + 1;
       items.forEach((li, i) => li.classList.toggle('is-active', i === best));
+      return best === -1 ? 0 : best + 1;
+    }
+
+    /** Keyframe from how far the stage has travelled up the viewport. */
+    function indexFromScroll(): number {
+      const r = stage!.getBoundingClientRect();
+      // Off screen entirely: back to the resting wide shot.
+      if (r.bottom <= 0 || r.top >= window.innerHeight) return 0;
+
+      const from = window.innerHeight * 0.85;             // stage top entering
+      const to = window.innerHeight * 0.15 - r.height;    // stage bottom leaving
+      const p = clamp((from - r.top) / (from - to), 0, 1);
+
+      // Keyframes 1..5 spread evenly over that travel.
+      const steps = KF.length - 1;
+      return 1 + Math.min(steps - 1, Math.floor(p * steps));
+    }
+
+    function update() {
+      current = phone.matches ? indexFromScroll() : indexFromList();
 
       if (current !== shown) {
         shown = current;
@@ -427,6 +434,14 @@ import SideNav from '../components/SideNav.astro';
 
     window.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('resize', () => apply(current));
+
+    // Crossing the breakpoint swaps which driver is in charge and resizes the
+    // stage; re-read after the reflow, and force a re-apply since the keyframe
+    // index may land on the same number for a completely different layout.
+    phone.addEventListener('change', () => {
+      shown = -1;
+      requestAnimationFrame(update);
+    });
 
     if (zoomImg.complete) {
       apply(0);
@@ -588,14 +603,6 @@ import SideNav from '../components/SideNav.astro';
     .cookie--below-desc { width: 40px; bottom: -32px; }
     .cookie--between    { width: 32px; right: -44px; }
     .cookie--below-demo { width: 38px; bottom: -34px; }
-  }
-
-  .cookie-mobile {
-    display: none;
-  }
-
-  .ssh-mobile {
-    display: none;
   }
 
   /* ── Description + demo row ────────────────────────────────────────── */
@@ -964,6 +971,64 @@ import SideNav from '../components/SideNav.astro';
     }
   }
 
+  /* ── Lynra on phones: description over the zoom ─────────────────────
+     The two text boxes give way to one paragraph laid over the rover, and the
+     rover fades back far enough to read through. The stage stops being a fixed
+     52vh and takes its height from the paragraph instead — apply() re-reads
+     clientWidth/clientHeight every time, so the zoom refits itself. */
+  .lynra-compact {
+    display: none;
+  }
+
+  @media (max-width: 767.98px) {
+    .lynra-text {
+      display: none;
+    }
+
+    .zoom-stage {
+      height: auto;
+      min-height: 60vh;
+    }
+
+    /* "A bit more transparent": enough that white text holds up over the
+       busiest part of the photo, not so far that the rover stops reading as a
+       rover. Adjust this one number to taste. */
+    .zoom-img {
+      opacity: 0.3;
+    }
+
+    .lynra-compact {
+      display: block;
+      position: relative;  /* lifts it over the absolutely-placed image */
+      z-index: 2;
+      padding: var(--space-6);
+      font-size: var(--text-base);
+      line-height: 1.8;
+      color: #ffffff;
+      /* Cheap insurance for the few lines that land on a light patch. */
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+    }
+
+    .lynra-compact p {
+      margin: 0;
+    }
+
+    :global([data-theme="light"]) .lynra-compact {
+      color: #000000;
+      text-shadow: 0 1px 3px rgba(255, 255, 255, 0.9);
+    }
+
+    /* The stage's own tint is what the faded photo sits on; deepen it on dark
+       so the paragraph has a consistent backing rather than photo detail. */
+    .zoom-stage {
+      background-color: rgba(0, 0, 0, 0.55);
+    }
+
+    :global([data-theme="light"]) .zoom-stage {
+      background-color: rgba(255, 255, 255, 0.55);
+    }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .lynra-row .how-list li {
       transition: none;
@@ -1250,129 +1315,6 @@ import SideNav from '../components/SideNav.astro';
 
     .project-box--right {
       margin-right: var(--space-10);
-    }
-  }
-
-  /* ── Cookie cutter + SSH: condensed mobile versions ────────────────────
-     On phones, swap the full desktop write-up (multiple text boxes, arrow,
-     interactive demo iframes) for one summary paragraph plus either a
-     static cover screenshot (Cookie cutter) or the existing diagram/terminal
-     images stacked above the text (SSH). The scattered decorative cookies
-     stay, just re-anchored to the mobile block instead of the hidden
-     desktop one. Placed last in the stylesheet so it wins the cascade over
-     the unconditional .project-row / .ssh-row / .project-box--right rules
-     declared earlier, which share its specificity. */
-  @media (max-width: 900px) {
-    .project-row,
-    .project-box--right,
-    .ssh-row {
-      display: none;
-    }
-
-    /* Slightly transparent text boxes on both condensed mobile sections. */
-    .cookie-mobile .project-box,
-    .ssh-mobile .project-box {
-      background-color: rgba(255, 105, 180, 0.85);
-    }
-
-    :global([data-theme="light"]) .cookie-mobile .project-box,
-    :global([data-theme="light"]) .ssh-mobile .project-box {
-      background-color: rgba(246, 153, 205, 0.85);
-    }
-
-    /* Cookie cutter */
-    .cookie-mobile {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: var(--space-6);
-      padding: 0 var(--space-6);
-      position: relative;
-    }
-
-    .cookie-mobile-media {
-      position: relative;
-      width: 100%;
-      display: flex;
-      justify-content: center;
-    }
-
-    .cookie-cover-img {
-      display: block;
-      width: 100%;
-      max-width: 420px;
-      height: auto;
-      border: 3px solid #f699cd;
-      border-radius: 8px;
-    }
-
-    /* Screenshot is of a light UI — dim it on the dark background, same
-       treatment as the SÓShieldta screenshots (.so-img). */
-    :global(html:not([data-theme="light"])) .cookie-cover-img {
-      border-color: #ffe4c4;
-      filter: brightness(0.82) contrast(1.05);
-    }
-
-    .cookie-mobile .project-box {
-      max-width: 600px;
-      margin: 0;
-      position: relative;
-    }
-
-    /* Scattered cookies, re-anchored from the hidden desktop boxes to the
-       mobile image and text block so the playful decoration survives. */
-    .cookie--m1 {
-      position: absolute;
-      top: -14px;
-      right: 4px;
-      width: 40px;
-      transform: rotate(-12deg);
-    }
-
-    .cookie--m2 {
-      position: absolute;
-      bottom: -20px;
-      left: 12px;
-      width: 38px;
-      transform: rotate(14deg);
-    }
-
-    .cookie--m3 {
-      width: 36px;
-      align-self: flex-end;
-      margin-right: var(--space-8);
-      transform: rotate(-8deg) translateY(-10px);
-    }
-
-    /* SSH Brute-Force */
-    .ssh-mobile {
-      display: flex;
-      flex-direction: column;
-      gap: var(--space-6);
-      padding: 0 var(--space-6);
-      width: 100%;
-    }
-
-    .ssh-mobile-images {
-      display: flex;
-      flex-direction: column;
-      gap: var(--space-6);
-      width: 100%;
-    }
-
-    .ssh-mobile-images .ssh-img {
-      max-width: 100%;
-    }
-
-    /* The desktop nudge that pushes the diagram down to line up with the
-       text column doesn't apply once it's simply first in a mobile stack. */
-    .ssh-mobile-images .ssh-img--attack {
-      margin-top: 0;
-    }
-
-    .ssh-mobile .project-box {
-      max-width: 100%;
-      margin: 0;
     }
   }
 </style>
