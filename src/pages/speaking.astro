@@ -4,446 +4,497 @@ import SiteHeader from '../components/SiteHeader.astro';
 import SiteFooter from '../components/SiteFooter.astro';
 import SideNav from '../components/SideNav.astro';
 
-interface Clipping {
-  /** Publication or channel. Printed small above the dateline. */
-  outlet: string;
-  /** ISO yyyy-mm-dd. Drives the sort order and the <time datetime> attribute. */
-  date: string;
-  /** 24-hour "HH:MM", or null to drop the time half of the dateline. */
-  time: string | null;
-  headline: string;
-  url: string;
-  /**
-   * Lead photo saved to /public/images/press/. 16:9 crops fit best.
-   * Leave as null and the card falls back to an outlet-name placeholder,
-   * so the page still looks deliberate while you're collecting images.
-   */
-  image: string | null;
-  /** Short photo description for screen readers. Unused when image is null. */
-  alt: string;
-}
-
-// HEADS UP: every `time` below is invented. I couldn't verify a single
-// publication time. Replace them, or set them to null to hide the time.
-// The dates marked "unconfirmed" are my guesses from context — the rest come
-// from the article URLs or the page itself.
-const clippings: Clipping[] = [
+// Events in ANTI-CHRONOLOGICAL order (most recent first) — they render top→bottom.
+// To change the photos: drop your images in /public/images/speaking/ and edit the
+// `images` array for each event (add/remove freely — the layout handles 1–3).
+// Add `wide: true` to an image to show it at its natural (banner) aspect ratio
+// instead of the default 4:3 crop — useful for wide banners/graphics.
+const events = [
   {
-    outlet: 'ROCCO Group',
-    date: '2026-01-12', // unconfirmed
-    time: '09:30',
-    headline: 'ROCCO Genesis 2026',
-    url: 'https://www.rocco.group/rocco-genesis-2026/',
-    image: null,
-    alt: '',
+    slug: 'rocco',
+    year: '2026',
+    title: 'Speaker, ROCCO Genesis, Limerick',
+    subtitle: 'Human & Artificial Intelligence Panel',
+    body: `I was invited to speak on the Human & Artificial Intelligence Panel at ROCCO Genesis 2026, a two-day telecoms innovation event that brings mobile network operators, industry leaders and disruptors together in Limerick. I joined the panel as a student contributor alongside seasoned industry professionals, sharing a perspective on where human judgement and artificial intelligence meet — and where the balance between them should sit. Holding my own in that room, as the student voice among established experts, is the appearance I'm proudest of so far.`,
+    images: [
+      { src: '/images/speaking/rocco-1.jpg', alt: 'ROCCO Genesis 2026 panel' },
+      { src: '/images/speaking/rocco-2.jpg', alt: 'ROCCO Genesis 2026' },
+    ],
   },
   {
-    outlet: 'RTÉ News',
-    date: '2025-09-16',
-    time: '18:04',
-    headline: 'Watch: Students develop AI-led rover to treat ash dieback',
-    url: 'https://www.rte.ie/news/environment/2025/0916/1533599-students-ai-ash-dieback/',
-    image: null,
-    alt: '',
+    slug: 'cybersoc-chair',
+    year: '2025–present',
+    title: 'Chairperson, MTU Cyber Security Society',
+    subtitle: '',
+    body: `As Chairperson of the Cyber Security Society at Munster Technological University, I lead our meetings and events, set the direction for the year, and speak in front of the group week to week. I've hosted tutorials introducing members to Capture The Flag (CTF) competitions and designed and run our own mini-CTFs from scratch. It's a different kind of public speaking to a conference stage — teaching, running a room, and making technical material land for a mixed-experience audience — and it's sharpened both my communication and my leadership.`,
+    images: [
+      { src: '/images/speaking/cybersoc-chair-1.jpg', alt: 'MTU Cyber Security Society' },
+      { src: '/images/speaking/cybersoc-chair-2.jpg', alt: 'Running a CTF session' },
+    ],
   },
   {
-    outlet: 'YouTube · Patch',
-    date: '2025-08-21', // unconfirmed
-    time: '12:00',
-    headline: 'Lynra — Patch Demo Day 2025',
-    url: 'https://www.youtube.com/watch?v=MHxypcSy0NM',
-    image: null,
-    alt: '',
+    slug: 'eisenhower',
+    year: '2025',
+    title: 'Panellist, Eisenhower Fellowships Ireland Conference',
+    subtitle: 'Young Women Leaders Panel — “The Impact of AI on Everyday Life”',
+    body: `I was selected to speak on the Young Women Leaders Panel at the Eisenhower Fellowships Ireland Conference, part of the global leadership network founded in the name of Dwight D. Eisenhower. The panel, moderated by AI engineer Dr Amelia Kelly, explored the impact of AI on everyday life. It was my first move from competitive debating into being invited to contribute to a serious public conversation, and it began the thread on AI and its role in our lives that I've continued to speak on since.`,
+    images: [
+      { src: '/images/speaking/eisenhower-1.jpg', alt: 'Young Women Leaders panel — The Impact of AI in Everyday Life', wide: true },
+    ],
   },
   {
-    outlet: 'RTÉ Kids',
-    date: '2024-10-03',
-    time: '17:20',
-    headline: 'Space Camp Challenge: Could these Irish teens make it to Mars?',
-    url: 'https://www.rte.ie/kids/2024/1003/1419198-space-camp-challenge-irish-teens-in-space/',
-    image: null,
-    alt: '',
+    slug: 'mceu-bulgaria',
+    year: '2024',
+    title: 'Delegate, National Model Council of the EU',
+    subtitle: 'Representing Bulgaria',
+    body: `I returned to the National Model Council of the European Union — the annual all-Ireland simulation of the Council of the EU run by the European Commission Representation in Ireland, in which teams debate live as EU member states. This year I represented Bulgaria in the debate on reforming the EU for future enlargement, adapting to an entirely new national brief and set of interests from the year before. Competing two years running, for two different countries, taught me to research a position quickly, argue it convincingly, and think on my feet under pressure.`,
+    images: [
+      { src: '/images/speaking/mceu-bulgaria-1.jpg', alt: 'National Model Council of the EU 2024' },
+      { src: '/images/speaking/mceu-bulgaria-2.jpg', alt: 'Representing Bulgaria' },
+    ],
   },
   {
-    outlet: 'RTÉ Player',
-    date: '2024-10-03', // unconfirmed — series page, no single publish date
-    time: null,
-    headline: 'Space Camp Challenge — full series',
-    url: 'https://www.rte.ie/player/series/space-camp-challenge/10001300-00-0000?epguid=IP10001301-01-0001',
-    image: null,
-    alt: '',
+    slug: 'mceu-slovakia',
+    year: '2023',
+    title: 'Delegate, National Model Council of the EU (2nd place, national)',
+    subtitle: 'Representing Slovakia',
+    body: `I represented Slovakia in the debate on the EU's renewable energy transition at the National Model Council of the European Union, placing second nationally — an achievement I still hold onto (the iPad I won isn't a bad memento either). Stepping up from Model UN to a formal simulation of the Council of the EU meant researching a national position in real depth and defending it live against every other member state. It was my first taste of competitive debating, and finishing second confirmed it was something I wanted to keep doing.`,
+    images: [
+      { src: '/images/speaking/mceu-slovakia-1.jpg', alt: 'National Model Council of the EU 2023' },
+      { src: '/images/speaking/mceu-slovakia-2.jpg', alt: 'Representing Slovakia' },
+    ],
   },
   {
-    outlet: 'Extra.ie',
-    date: '2024-05-09',
-    time: '14:12',
-    headline:
-      'In pics: Secondary school students honoured at this year’s career skills competition',
-    url: 'https://extra.ie/2024/05/09/news/irish-news/career-skills-competition',
-    image: null,
-    alt: '',
-  },
-  {
-    outlet: 'Christ King GS',
-    date: '2024-05-09', // unconfirmed
-    time: '10:00',
-    headline: 'Career Portal Competition Winner',
-    url: 'https://www.christkingschool.com/news/n3dbzjvb5k3g4xprm9zju9wc5fus40',
-    image: null,
-    alt: '',
-  },
-  {
-    outlet: 'RTÉ Kids',
-    date: '2024-02-07',
-    time: '16:45',
-    headline: 'Who needs gravity when you are in space?!',
-    url: 'https://www.rte.ie/kids/2024/0207/1430987-who-needs-gravity-when-you-are-in-space/',
-    image: null,
-    alt: '',
-  },
-  {
-    outlet: 'BLOCK W',
-    date: '2023-11-14', // unconfirmed
-    time: '18:00',
-    headline: 'Redefining learning: workshop for the digital age',
-    url: 'https://www.blockw.ie/events-news/young-women-leaders-panel-on-the-impact-of-ai-on-everyday-life/',
-    image: null,
-    alt: '',
-  },
-  {
-    outlet: 'European Commission',
-    date: '2023-03-22',
-    time: '11:30',
-    headline:
-      'Six schools perform with distinction during EU Model Council debate on the renewable energy transition',
-    url: 'https://ireland.representation.ec.europa.eu/news-and-events/news/six-schools-perform-distinction-during-eu-model-council-debate-eus-renewable-energy-transition-2023-03-22_en',
-    image: null,
-    alt: '',
-  },
-  {
-    outlet: 'Irish Independent',
-    date: '2023-02-09', // unconfirmed
-    time: '07:00',
-    headline: 'Ingenious Cork teens invent carbon reducer',
-    url: 'https://www.independent.ie/county/cork/ingenious-cork-teens-invent-carbon-reducer/a/134135245.html',
-    image: null,
-    alt: '',
-  },
-  {
-    outlet: 'Cork Beo',
-    date: '2023-02-07', // unconfirmed
-    time: '13:25',
-    headline: 'Cork teens invent car exhaust fitting that strips out CO₂ emissions',
-    url: 'https://www.corkbeo.ie/news/local-news/cork-teens-invent-car-exhaust-26105265',
-    image: null,
-    alt: '',
-  },
-  {
-    outlet: 'IrishCentral',
-    date: '2023-02-07',
-    time: '19:40',
-    headline: 'Cork students’ device reduces CO₂ emissions in cars',
-    url: 'https://www.irishcentral.com/culture/education/cork-students-cars',
-    image: null,
-    alt: '',
+    slug: 'mun-france',
+    year: '2023',
+    title: 'Delegate, Model United Nations',
+    subtitle: 'Representing France (regional)',
+    body: `My public speaking started at a regional Model United Nations while I was in secondary school, where I represented France. Model UN was where I learned the foundations that everything since has been built on: researching a country's stance, arguing a position that isn't your own, and speaking with composure under formal debate rules. It gave me the first real taste of thinking on my feet in front of a room — and the appetite to take it further.`,
+    images: [
+      { src: '/images/speaking/mun-france-1.jpg', alt: 'Regional Model United Nations' },
+      { src: '/images/speaking/mun-france-2.jpg', alt: 'Representing France' },
+    ],
   },
 ];
 
-// Newest first. ISO dates sort correctly as plain strings, so no Date() needed.
-const byNewest = [...clippings].sort((a, b) => b.date.localeCompare(a.date));
-
-/** 2025-09-16 → 16.09.2025. Done by hand so no timezone can shift the day. */
-function formatDate(iso: string): string {
-  const [year, month, day] = iso.split('-');
-  return `${day}.${month}.${year}`;
-}
+// Flat list of the event photos, reused for the decorative vertical side banners.
+// The right column runs the list in reverse so the two sides aren't identical.
+const bannerImages = events.flatMap((ev) => ev.images.map((img) => img.src));
+const bannerImagesRev = [...bannerImages].reverse();
 ---
 
-<BaseLayout title="Press">
+<BaseLayout title="Speaking & Debating">
   <SiteHeader />
   <SideNav />
   <main>
-    <h1 class="press-heading">press</h1>
-    <p class="press-intro">
-      Where my work has turned up — newspapers, telly and the odd demo day.
-    </p>
+    <!-- ── Decorative vertical side banners (wide screens only) ──────────── -->
+    <!-- aria-hidden: the same photos already appear within the timeline below -->
+    <aside class="vbanner vbanner--left" aria-hidden="true">
+      <ul class="vbanner-track">
+        {bannerImages.map((src) => (
+          <li class="vbanner-item"><img src={src} alt="" class="vbanner-img" width="150" height="200" loading="lazy" /></li>
+        ))}
+        {bannerImages.map((src) => (
+          <li class="vbanner-item"><img src={src} alt="" class="vbanner-img" width="150" height="200" loading="lazy" /></li>
+        ))}
+      </ul>
+    </aside>
+    <aside class="vbanner vbanner--right" aria-hidden="true">
+      <ul class="vbanner-track">
+        {bannerImagesRev.map((src) => (
+          <li class="vbanner-item"><img src={src} alt="" class="vbanner-img" width="150" height="200" loading="lazy" /></li>
+        ))}
+        {bannerImagesRev.map((src) => (
+          <li class="vbanner-item"><img src={src} alt="" class="vbanner-img" width="150" height="200" loading="lazy" /></li>
+        ))}
+      </ul>
+    </aside>
 
-    <ul class="clip-grid" aria-label="Articles mentioning me">
-      {byNewest.map(item => (
-        <li class="clip-item">
-          <a
-            href={item.url}
-            class="clipping"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <div class="clip-cover">
-              {item.image ? (
-                <img
-                  src={item.image}
-                  alt={item.alt}
-                  class="clip-img"
-                  loading="lazy"
-                  width="480"
-                  height="270"
-                />
-              ) : (
-                <span class="clip-placeholder" aria-hidden="true">{item.outlet}</span>
-              )}
+    <h1 class="speaking-title">Speaking &amp; Debating</h1>
+    <p class="speaking-intro">Over the past three years I've gone from a regional Model UN delegate to an invited panellist beside industry leaders — by way of national debate finals, AI panels, and leading a university society. This page is a record of where I've spoken, and how far the journey has taken me.</p>
+
+    <section class="timeline" aria-label="Public speaking &amp; debating timeline">
+      {events.map((ev) => (
+        <article class="tl-event" data-slug={ev.slug}>
+          <!-- central line, split into two halves so it can "break" open -->
+          <span class="tl-line tl-line-top" aria-hidden="true"></span>
+          <span class="tl-line tl-line-bottom" aria-hidden="true"></span>
+          <span class="tl-node" aria-hidden="true"></span>
+
+          <div class="tl-card">
+            <header class="tl-head">
+              <span class="tl-year">{ev.year}</span>
+              <h2 class="tl-heading">{ev.title}</h2>
+            </header>
+
+            <!-- detail: hidden until the event is in focus -->
+            <div class="tl-detail">
+              <div class="tl-detail-inner">
+                {ev.subtitle && <p class="tl-sub">{ev.subtitle}</p>}
+                <p class="tl-body">{ev.body}</p>
+                {ev.images.length > 0 && (
+                  <div class="tl-images">
+                    {ev.images.map((img) => (
+                      <img
+                        class:list={['tl-img', img.wide && 'tl-img--wide']}
+                        src={img.src}
+                        alt={img.alt}
+                        loading="lazy"
+                        width={img.wide ? 1080 : 900}
+                        height={img.wide ? 445 : 640}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
-
-            <div class="clip-body">
-              <p class="clip-outlet">{item.outlet}</p>
-
-              <p class="clip-dateline">
-                <time datetime={item.time ? `${item.date}T${item.time}` : item.date}>
-                  {formatDate(item.date)}
-                </time>
-                {item.time && <span>{item.time}</span>}
-              </p>
-
-              <h2 class="clip-headline">{item.headline}</h2>
-
-              <span class="clip-read" aria-hidden="true">read →</span>
-              <span class="visually-hidden">(opens in a new tab)</span>
-            </div>
-          </a>
-        </li>
+          </div>
+        </article>
       ))}
-    </ul>
+    </section>
   </main>
   <SiteFooter />
 </BaseLayout>
 
+<script>
+  import { gsap } from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+  gsap.registerPlugin(ScrollTrigger);
+
+  const events = gsap.utils.toArray<HTMLElement>('.tl-event');
+
+  // Toggle `is-active` when an event passes through the centre of the viewport.
+  // The CSS handles the actual expand / zoom / line-break transitions.
+  events.forEach((ev) => {
+    ScrollTrigger.create({
+      trigger: ev,
+      start: 'top center',
+      end: 'bottom center',
+      onToggle: (self) => ev.classList.toggle('is-active', self.isActive),
+    });
+  });
+
+  // If nothing is centred yet (page loaded at the very top), open the first one
+  // so the page never looks empty.
+  requestAnimationFrame(() => {
+    if (!document.querySelector('.tl-event.is-active') && events[0]) {
+      events[0].classList.add('is-active');
+    }
+  });
+
+  // Decorative vertical side banners — slow, seamless downward scroll.
+  // Each track holds two identical copies of the photo list; animating from
+  // -50% to 0% moves it down by exactly one copy, so the loop is invisible.
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (!prefersReducedMotion) {
+    gsap.utils.toArray<HTMLElement>('.vbanner-track').forEach((track, i) => {
+      gsap.fromTo(
+        track,
+        { yPercent: -50 },
+        { yPercent: 0, duration: i === 0 ? 55 : 48, ease: 'none', repeat: -1 },
+      );
+    });
+  }
+</script>
+
 <style>
-  /* Headlines use PT Serif, loaded alongside Lato and Press Start 2P from the
-     @import block at the top of global.css. */
-
-  main {
-    min-height: 100svh;
-    padding-bottom: var(--space-16);
+  /*
+    Page-specific background: a very subtle top-anchored pink glow using the
+    site's existing accent colours (only loaded on this page).
+    Dark (default): dark-pink #E0429A -> black.  Light: light-pink #FFB3D9 -> white.
+  */
+  :global(body) {
+    background-image: radial-gradient(ellipse 90% 55% at 50% 0%, #E0429A 0%, #000000 55%);
+  }
+  :global([data-theme="light"] body) {
+    background-image: radial-gradient(ellipse 90% 55% at 50% 0%, #FFB3D9 0%, #ffffff 55%);
   }
 
-  /* ── Page header ───────────────────────────────────────────────────── */
+  /* Header transparent so the gradient reaches the very top of the page. */
+  :global(.site-header) {
+    background-color: transparent !important;
+  }
 
-  .press-heading {
+  /* Page heading — same pixel style as the other pages' titles, centred. */
+  .speaking-title {
     font-family: 'Press Start 2P', cursive;
-    font-size: var(--text-2xl);
+    font-size: calc(var(--text-2xl) * 1.2);
     font-weight: 400;
-    color: var(--color-brand);
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: var(--space-16) var(--space-6) var(--space-4);
+    color: #ffe4c4;
+    text-align: center;
     line-height: 1.4;
+    margin-top: var(--space-12);
+    -webkit-text-stroke: 2px #000000;
+    paint-order: stroke fill;
   }
 
-  .press-intro {
-    font-size: var(--text-lg);
-    font-weight: 300;
-    color: var(--color-accent-light);
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 var(--space-6) var(--space-10);
-  }
-
-  /* ── Grid ──────────────────────────────────────────────────────────── */
-
-  .clip-grid {
-    list-style: none;
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: var(--space-6);
-    max-width: 1200px;
-    margin: 0 auto;
+  .speaking-intro {
+    font-family: 'Lato', sans-serif;
+    color: #ffe4c4;
+    font-size: var(--text-base);
+    line-height: 1.7;
+    text-align: center;
+    max-width: 46rem;
+    margin: var(--space-6) auto 0;
     padding: 0 var(--space-6);
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+  }
+  /* keep it legible on the light theme's white background */
+  :global([data-theme="light"]) .speaking-intro {
+    color: #a86a00;
+    text-shadow: none;
   }
 
-  /* ── The clipping itself ───────────────────────────────────────────── */
+  /* ── Decorative vertical side banners ──────────────────────────────────── */
+  /* Two slow-scrolling photo columns that frame the page on wide screens.
+     Fixed to the viewport edges and hidden below 1500px so they never overlap
+     the centred timeline. Rectangular tiles (not round like the About banner). */
+  .vbanner {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    width: 150px;
+    overflow: hidden;
+    z-index: 0;
+    pointer-events: none;
+    display: none;
+    /* fade the column in/out at the top and bottom edges */
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 8%, #000 92%, transparent 100%);
+    mask-image: linear-gradient(to bottom, transparent 0, #000 8%, #000 92%, transparent 100%);
+  }
+  .vbanner--left  { left: 0; }
+  .vbanner--right { right: 0; }
 
-  .clipping {
+  .vbanner-track {
     display: flex;
     flex-direction: column;
-    height: 100%;
-    text-decoration: none;
-    background-color: var(--color-surface-alt);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    will-change: transform;
+  }
+  /* margin-bottom (not gap) keeps the two copies exactly equal height, so the
+     -50% → 0% loop is perfectly seamless. */
+  .vbanner-item {
+    flex-shrink: 0;
+    width: 100%;
+    margin-bottom: var(--space-4);
+  }
+  .vbanner-img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
     border: 2px solid #FF69B4;
-    transition: transform 0.2s ease, background-color 0.2s ease;
+    border-radius: var(--radius-sm);
+    display: block;
   }
 
-  .clipping:hover {
-    transform: translateY(-4px);
-    background-color: #150a10;
+  @media (min-width: 1500px) {
+    .vbanner { display: block; }
   }
 
-  .clipping:focus-visible {
-    outline: 2px solid var(--color-accent-dark);
-    outline-offset: 3px;
+  .timeline {
+    /* dark (default) */
+    --tl-line:   #FF69B4;
+    --tl-year:   #FF69B4;
+    --tl-title:  #FF8FC4;
+    --tl-sub:    #FFB3D9;
+    --tl-body:   #f2d9e7;
+    --tl-shadow: 0 2px 18px rgba(0, 0, 0, 0.85);
+
+    position: relative;
+    width: 100%;
+    max-width: 1100px;
+    margin: var(--space-16) auto 0;
+    padding: 0 var(--space-6);
+  }
+  :global([data-theme="light"]) .timeline {
+    --tl-line:   #E0429A;
+    --tl-year:   #E0429A;
+    --tl-title:  #C22E7E;
+    --tl-sub:    #C22E7E;
+    --tl-body:   #3a2730;
+    --tl-shadow: none;
   }
 
-  /* ── Cover photo ───────────────────────────────────────────────────── */
-
-  .clip-cover {
-    aspect-ratio: 16 / 9;
-    border-bottom: 2px solid #FF69B4;
-    background-color: var(--color-surface);
+  /* ── One event = one full-height stage ─────────────────────────────────── */
+  .tl-event {
+    position: relative;
+    min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
-    overflow: hidden;
   }
 
-  /* Newsprint by default, full colour on hover. */
-  .clip-img {
+  /* Central line, in two halves that meet at the centre node.
+     --gap is HALF the blank space kept clear at the centre for the heading. */
+  .tl-line {
+    position: absolute;
+    left: 50%;
+    width: 3px;
+    transform: translateX(-50%);
+    background: var(--tl-line);
+    opacity: 0.85;
+    --gap: 96px;
+  }
+  .tl-line-top {
+    top: 0;
+    height: calc(50% - var(--gap));
+    transform-origin: top center;
+    transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .tl-line-bottom {
+    bottom: 0;
+    height: calc(50% - var(--gap));
+    transform-origin: bottom center;
+    transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  /* When active, the halves retract toward the ends → the line "breaks" open. */
+  .tl-event.is-active .tl-line-top { transform: translateX(-50%) scaleY(0.32); }
+  .tl-event.is-active .tl-line-bottom { transform: translateX(-50%) scaleY(0.32); }
+
+  /* Node dot on the line — fades out as the card takes over the space. */
+  .tl-node {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 15px;
+    height: 15px;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    background: var(--tl-line);
+    box-shadow: 0 0 0 4px rgba(255, 105, 180, 0.18);
+    transition: opacity 0.4s ease, transform 0.5s ease;
+    z-index: 2;
+  }
+  .tl-event.is-active .tl-node {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(2.2);
+  }
+
+  /* ── Card ──────────────────────────────────────────────────────────────── */
+  .tl-card {
+    position: relative;
+    z-index: 3; /* always above the line, so text is never crossed by it */
     width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-    filter: grayscale(1) contrast(1.1);
-    transition: filter 0.2s ease;
-  }
-
-  .clipping:hover .clip-img {
-    filter: none;
-  }
-
-  .clip-placeholder {
-    font-family: 'Press Start 2P', cursive;
-    font-size: calc(var(--text-sm) * 0.7);
-    color: var(--color-accent-dark);
+    max-width: 760px;
     text-align: center;
-    padding: var(--space-3);
-    line-height: 1.6;
+    padding: var(--space-6);
+    transform: scale(0.9);
+    transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: transform;
   }
+  .tl-event.is-active .tl-card { transform: scale(1); } /* zoom in */
 
-  /* ── Body ──────────────────────────────────────────────────────────── */
-
-  .clip-body {
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-    padding: var(--space-4);
-  }
-
-  .clip-outlet {
+  .tl-year {
+    display: inline-block;
     font-family: 'Press Start 2P', cursive;
-    font-size: calc(var(--text-sm) * 0.6);
-    color: var(--color-brand);
-    letter-spacing: 0.5px;
-    line-height: 1.6;
-    margin: 0;
-    padding-bottom: var(--space-2);
-    border-bottom: 1px solid rgba(255, 105, 180, 0.45);
+    font-size: var(--text-base);
+    color: var(--tl-year);
+    -webkit-text-stroke: 2px #000000;
+    paint-order: stroke fill;
+    margin-bottom: var(--space-4);
   }
 
-  /* The 2px gap above turns this into a double rule — the newspaper bit. */
-  .clip-dateline {
-    display: flex;
-    justify-content: space-between;
-    gap: var(--space-3);
-    margin: 2px 0 var(--space-2);
-    padding: var(--space-2) 0;
-    border-top: 1px solid rgba(255, 105, 180, 0.45);
-    font-size: var(--text-sm);
-    font-weight: 300;
-    letter-spacing: 2px;
-    color: var(--color-accent-light);
-  }
-
-  /* Only the headline changes face — outlet, dateline and "read" stay on the
-     site's Press Start 2P / Lato pairing so the card still reads as ours. */
-  .clip-headline {
-    font-family: 'PT Serif', Georgia, 'Times New Roman', serif;
-    font-size: var(--text-lg);
+  .tl-heading {
+    font-size: var(--text-2xl);
     font-weight: 700;
     line-height: 1.25;
-    color: var(--color-brand);
-    margin: 0 0 var(--space-4);
+    color: var(--tl-title);
+    text-shadow: var(--tl-shadow);
+    margin: 0;
   }
 
-  .clip-read {
-    font-family: 'Press Start 2P', cursive;
-    font-size: calc(var(--text-sm) * 0.55);
-    letter-spacing: 1px;
-    color: var(--color-brand);
-    margin-top: auto;
+  /* Detail block: animates from 0 → auto height using the grid-rows trick. */
+  .tl-detail {
+    display: grid;
+    grid-template-rows: 0fr;
+    opacity: 0;
+    transition: grid-template-rows 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+                opacity 0.5s ease;
   }
-
-  .visually-hidden {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
+  .tl-detail-inner {
     overflow: hidden;
-    clip-path: inset(50%);
-    white-space: nowrap;
+    min-height: 0;
+  }
+  .tl-event.is-active .tl-detail {
+    grid-template-rows: 1fr;
+    opacity: 1;
   }
 
-  /* ── Light theme ───────────────────────────────────────────────────── */
-  /* #FF69B4 goes weak on a near-white card, so the pinks step darker. */
-
-  :global([data-theme="light"]) .clipping {
-    border-color: var(--color-accent-dark);
+  .tl-sub {
+    font-size: var(--text-lg);
+    font-style: italic;
+    font-weight: 400;
+    color: var(--tl-sub);
+    text-shadow: var(--tl-shadow);
+    margin: var(--space-4) 0 0;
   }
 
-  :global([data-theme="light"]) .clipping:hover {
-    background-color: #ffe8f4;
+  .tl-body {
+    font-size: var(--text-base);
+    line-height: 1.75;
+    font-weight: 300;
+    color: var(--tl-body);
+    text-shadow: var(--tl-shadow);
+    max-width: 62ch;
+    margin: var(--space-5) auto 0;
+    text-align: left;
   }
 
-  :global([data-theme="light"]) .clip-cover {
-    border-bottom-color: var(--color-accent-dark);
+  /* Pictures — only shown (and only fade in) when the event is in focus. */
+  .tl-images {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--space-4);
+    margin-top: var(--space-8);
   }
-
-  :global([data-theme="light"]) .clip-outlet,
-  :global([data-theme="light"]) .clip-headline,
-  :global([data-theme="light"]) .clip-read,
-  :global([data-theme="light"]) .press-heading {
-    color: #C22E7E;
+  .tl-img {
+    flex: 0 1 300px;
+    max-width: 320px;
+    height: auto;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    border: 2px solid var(--tl-line);
+    border-radius: var(--radius-sm);
+    opacity: 0;
+    transform: translateY(20px) scale(0.98);
+    transition: opacity 0.5s ease, transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
   }
+  .tl-event.is-active .tl-img { opacity: 1; transform: none; }
+  /* gentle stagger */
+  .tl-event.is-active .tl-img:nth-child(2) { transition-delay: 0.08s; }
+  .tl-event.is-active .tl-img:nth-child(3) { transition-delay: 0.16s; }
 
-  :global([data-theme="light"]) .clip-dateline,
-  :global([data-theme="light"]) .press-intro {
-    color: var(--color-accent-dark);
+  /* Wide banner image: keep its natural aspect ratio (no 4:3 crop) and allow
+     it more width, so nothing important gets cut off. */
+  .tl-img--wide {
+    flex-basis: 100%;
+    max-width: 560px;
+    aspect-ratio: auto;
+    height: auto;
+    object-fit: contain;
   }
-
-  :global([data-theme="light"]) .clip-outlet {
-    border-bottom-color: rgba(194, 46, 126, 0.45);
-  }
-
-  :global([data-theme="light"]) .clip-dateline {
-    border-top-color: rgba(194, 46, 126, 0.45);
-  }
-
-  /* ── Responsive ────────────────────────────────────────────────────── */
 
   @media (min-width: 768px) {
-    .press-heading {
-      font-size: var(--text-3xl);
-      padding: var(--space-16) var(--space-8) var(--space-4);
-    }
-
-    .press-intro {
-      padding: 0 var(--space-8) var(--space-12);
-    }
-
-    .clip-grid {
-      gap: var(--space-8);
-      padding: 0 var(--space-8);
-    }
-
-    .clip-headline {
-      font-size: var(--text-xl);
-    }
+    .tl-heading { font-size: var(--text-3xl); }
+    .tl-year { font-size: var(--text-lg); }
+    .tl-body { font-size: var(--text-lg); }
   }
 
+  /* Respect reduced-motion: no zoom / slide, minimal transitions. */
   @media (prefers-reduced-motion: reduce) {
-    .clipping,
-    .clip-img {
-      transition: none;
+    .tl-card,
+    .tl-line-top,
+    .tl-line-bottom,
+    .tl-node,
+    .tl-img,
+    .tl-detail {
+      transition-duration: 0.001s !important;
     }
-
-    .clipping:hover {
-      transform: none;
-    }
+    .tl-event.is-active .tl-card { transform: none; }
+    .tl-img { transform: none; }
   }
 </style>
