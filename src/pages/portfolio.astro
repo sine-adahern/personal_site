@@ -173,6 +173,17 @@ import SideNav from '../components/SideNav.astro';
             <span class="zoom-reticle" id="lynra-reticle" aria-hidden="true">
               <b class="c1"></b><b class="c2"></b><b class="c3"></b><b class="c4"></b>
             </span>
+            <!--
+              Phone-only description, laid over the zoom rather than beside it.
+              Lives inside the stage so it sits on top of the rover image and
+              gives the stage its height once the fixed 52vh is released.
+
+              EDITING: this condenses .lynra-text above into one paragraph. A
+              change to the story needs making in both places or they drift.
+            -->
+            <div class="lynra-compact">
+              <p>An autonomous rover that treats ash dieback, a fungal disease killing ash trees across Ireland and Europe, by identifying ash trees and delivering a micro-injected biostimulant directly into the trunk. Built with a four-person team at the Patch Summer Accelerator: a custom Roboflow object-detection model runs onboard a Raspberry Pi to locate injection sites from the camera feed in real time and instruct an Arduino controlling movement and delivery, with a chassis and injection system designed in Fusion 360 and 3D-printed in-house. Presented live at Demo Day to 300+ investors, founders, and industry leaders.</p>
+            </div>
           </div>
         </div>
       </div>
@@ -182,16 +193,8 @@ import SideNav from '../components/SideNav.astro';
       <h2 class="project-heading">SÓShieldta</h2>
       <p class="project-subheading">Social Engineering Simulation Platform</p>
 
-      <!-- Row 1: "What it does" (left) beside the landing-page screenshot (right). -->
       <div class="so-row">
-        <div class="so-text">
-          <div class="project-box">
-            <p class="how-title">What it does</p>
-            <p>Most people only get static security training, so their first real social-engineering attack is often a live one that breaches their company. SÓShieldta lets organisations safely run realistic simulated attacks against their own staff to test and improve how well they spot and react to them, with a dashboard that tracks results and flags who needs more training. As the only cybersecurity student on our four-person team, I was able to bring a technical insight to the most current attack surfaces we should be protecting, and the current attack vectors to protect against. The entire project was built in 30 hours at HackEurope 2026.</p>
-          </div>
-        </div>
-
-        <div class="so-media">
+        <div class="so-media so-media--stack">
           <img
             class="so-img"
             src="/images/portfolio/soshieldta-landing.png"
@@ -200,12 +203,6 @@ import SideNav from '../components/SideNav.astro';
             height="1077"
             loading="lazy"
           />
-        </div>
-      </div>
-
-      <!-- Row 2: dashboard screenshot (left) beside "How does it do this?" (right). -->
-      <div class="so-row so-row--flip">
-        <div class="so-media so-media--stack">
           <img
             class="so-img"
             src="/images/portfolio/soshieldta-dashboard.png"
@@ -214,27 +211,11 @@ import SideNav from '../components/SideNav.astro';
             height="1079"
             loading="lazy"
           />
-          <img
-            class="so-img"
-            src="/images/portfolio/soshieldta-campaign.png"
-            alt="A SÓShieldta campaign's test results: a per-employee timeline showing the phishing email being generated and sent, the employee's reply, and the AI evaluation flagging that they fell for it and shared confidential information."
-            width="1905"
-            height="1076"
-            loading="lazy"
-          />
         </div>
 
         <div class="so-text">
           <div class="project-box">
-            <p class="how-title">How does it do this?</p>
-            <ul class="how-list">
-              <li><strong>Context-driven attacks</strong> — organisations upload details like org charts and their tech stack, which the platform uses to generate lures tailored to each employee's role, so simulations feel convincing rather than obviously fake.</li>
-              <li><strong>Multi-channel simulation</strong> — attacks arrive across the surfaces real attackers use: phishing email, smishing (SMS), and vishing (AI voice calls).</li>
-              <li><strong>Realistic AI content</strong> — because mainstream models refuse to write phishing, lures and call scripts are generated through an open model, producing unique campaigns that don't pattern-match as spam.</li>
-              <li><strong>AI voice calls</strong> — vishing uses ElevenLabs for a convincing synthetic voice, with Twilio as a fallback for calls and texts.</li>
-              <li><strong>Closed-loop training</strong> — employees who fail get an instant targeted lesson and are prompted to write back to their employer on what they learned, replacing tick-box quizzes with real reflection.</li>
-              <li><strong>Built for scale</strong> — a Supabase backend and tiered Stripe billing make it work as a real multi-organisation product.</li>
-            </ul>
+            <p>A platform for running realistic simulated social-engineering attacks against an organisation's own staff, with a dashboard tracking who spots them and who needs more training. Uploaded context like org charts and tech stacks generates role-tailored lures across phishing email, smishing, and vishing (ElevenLabs voice with Twilio fallback), built on an open model since mainstream ones refuse to write phishing. Employees who fail get an instant targeted lesson, and a Supabase backend with tiered Stripe billing makes it a real multi-organisation product. As the only cybersecurity student on our four-person team, I brought insight on current attack surfaces and vectors. Built in 30 hours at HackEurope 2026 by a four-person team.</p>
           </div>
         </div>
       </div>
@@ -259,19 +240,7 @@ import SideNav from '../components/SideNav.astro';
           </div>
 
           <div class="project-box">
-            <p class="how-title">What it does</p>
-            <p>Cars burning fossil fuels are one of the largest drivers of climate change. Moving Clean is a filter designed to fit onto a car's exhaust and strip carbon dioxide out of its emissions before it reaches the air, splitting it into carbon that's safely stored and oxygen that's released back out — with the goal of making everyday driving far less damaging to the environment.</p>
-          </div>
-
-          <div class="project-box">
-            <p class="how-title">How does it do this?</p>
-            <ul class="how-list">
-              <li><strong>Direct Air Capture</strong> — adapts an existing technology that uses chemical reactions to pull CO₂ out of exhaust gas, rather than letting it escape into the atmosphere.</li>
-              <li><strong>Heat-driven separation</strong> — heat forces the CO₂ molecule to split into carbon and oxygen; the oxygen is released and the carbon is captured.</li>
-              <li><strong>Safe onboard storage</strong> — the separated carbon is held in a cylinder mounted under the car, safe near the engine because carbon combusts only at 300–450°C.</li>
-              <li><strong>Reusable output</strong> — the captured carbon isn't just waste: it can be repurposed as a feedstock for industrial materials or to support plant growth, closing the loop.</li>
-              <li><strong>Designed and built</strong> — developed as a working concept with 3D printing and CAD as part of a four-person team.</li>
-            </ul>
+            <p>An exhaust filter that strips CO₂ from a car's emissions before they reach the air, splitting it into safely stored carbon and released oxygen to make everyday driving less damaging. Adapts Direct Air Capture with heat-driven separation, storing the carbon in an under-car cylinder (safe near the engine, as carbon combusts only at 300–450°C) where it can be repurposed as an industrial feedstock or for plant growth. Developed as a working concept with CAD and 3D printing by a four-person team.</p>
           </div>
         </div>
 
@@ -396,8 +365,15 @@ import SideNav from '../components/SideNav.astro';
       reticle!.style.opacity = index === 0 ? '0' : '0.9';
     }
 
-    // Active item = whichever list item sits nearest the middle of the viewport.
-    function update() {
+    // Phones hide the list and lay the description over the zoom instead, so
+    // there are no list items left to track. A display:none element reports an
+    // all-zero rect, which would tie every item at the same distance and pin
+    // the zoom on keyframe 1 for good — so that layout drives the same
+    // keyframes off the stage's own travel up the viewport.
+    const phone = window.matchMedia('(max-width: 767.98px)');
+
+    /** Keyframe from whichever list item sits nearest the middle of the viewport. */
+    function indexFromList(): number {
       const mid = window.innerHeight * 0.5;
       let best = -1;
       let dist = Infinity;
@@ -409,8 +385,27 @@ import SideNav from '../components/SideNav.astro';
         if (d < dist) { dist = d; best = i; }
       });
 
-      current = best === -1 ? 0 : best + 1;
       items.forEach((li, i) => li.classList.toggle('is-active', i === best));
+      return best === -1 ? 0 : best + 1;
+    }
+
+    /** Keyframe from how far the stage has travelled up the viewport. */
+    function indexFromScroll(): number {
+      const r = stage!.getBoundingClientRect();
+      // Off screen entirely: back to the resting wide shot.
+      if (r.bottom <= 0 || r.top >= window.innerHeight) return 0;
+
+      const from = window.innerHeight * 0.85;             // stage top entering
+      const to = window.innerHeight * 0.15 - r.height;    // stage bottom leaving
+      const p = clamp((from - r.top) / (from - to), 0, 1);
+
+      // Keyframes 1..5 spread evenly over that travel.
+      const steps = KF.length - 1;
+      return 1 + Math.min(steps - 1, Math.floor(p * steps));
+    }
+
+    function update() {
+      current = phone.matches ? indexFromScroll() : indexFromList();
 
       if (current !== shown) {
         shown = current;
@@ -427,6 +422,14 @@ import SideNav from '../components/SideNav.astro';
 
     window.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('resize', () => apply(current));
+
+    // Crossing the breakpoint swaps which driver is in charge and resizes the
+    // stage; re-read after the reflow, and force a re-apply since the keyframe
+    // index may land on the same number for a completely different layout.
+    phone.addEventListener('change', () => {
+      shown = -1;
+      requestAnimationFrame(update);
+    });
 
     if (zoomImg.complete) {
       apply(0);
@@ -451,6 +454,19 @@ import SideNav from '../components/SideNav.astro';
     background-image: url('/images/portfolio/bg.svg');
     background-size: calc(100% / 6) auto;
     background-color: #ffffff;
+  }
+
+  /* Phones: the grid tiles scale with the (much narrower) viewport width, so
+     dividing by the same 6 packs them in far denser than on desktop. Divide
+     by fewer tiles instead so the squares read at a similar size. */
+  @media (max-width: 900px) {
+    :global(body) {
+      background-size: calc(100% / 3) auto;
+    }
+
+    :global([data-theme="light"] body) {
+      background-size: calc(100% / 3) auto;
+    }
   }
 
   /* Float the header over the grid — no white bar, no space taken in flow */
@@ -510,7 +526,7 @@ import SideNav from '../components/SideNav.astro';
 
   /* ── Text boxes ────────────────────────────────────────────────────── */
   .project-box {
-    background-color: #FF69B4;
+    background-color: rgba(255, 105, 180, 0.85);
     padding: var(--space-6);
     max-width: 600px;
     line-height: 1.8;
@@ -521,7 +537,18 @@ import SideNav from '../components/SideNav.astro';
   /* Light mode: black text, lighter box colour */
   :global([data-theme="light"]) .project-box {
     color: #000000;
-    background-color: #f699cd;
+    background-color: rgba(246, 153, 205, 0.85);
+  }
+
+  /* Phones: fade the boxes further so more of the page shows through. */
+  @media (max-width: 900px) {
+    .project-box {
+      background-color: rgba(255, 105, 180, 0.6);
+    }
+
+    :global([data-theme="light"]) .project-box {
+      background-color: rgba(246, 153, 205, 0.6);
+    }
   }
 
   /* ── Cookie cutter: scattered cookie emojis ────────────────────────── */
@@ -964,6 +991,64 @@ import SideNav from '../components/SideNav.astro';
     }
   }
 
+  /* ── Lynra on phones: description over the zoom ─────────────────────
+     The two text boxes give way to one paragraph laid over the rover, and the
+     rover fades back far enough to read through. The stage stops being a fixed
+     52vh and takes its height from the paragraph instead — apply() re-reads
+     clientWidth/clientHeight every time, so the zoom refits itself. */
+  .lynra-compact {
+    display: none;
+  }
+
+  @media (max-width: 767.98px) {
+    .lynra-text {
+      display: none;
+    }
+
+    .zoom-stage {
+      height: auto;
+      min-height: 60vh;
+    }
+
+    /* "A bit more transparent": enough that white text holds up over the
+       busiest part of the photo, not so far that the rover stops reading as a
+       rover. Adjust this one number to taste. */
+    .zoom-img {
+      opacity: 0.3;
+    }
+
+    .lynra-compact {
+      display: block;
+      position: relative;  /* lifts it over the absolutely-placed image */
+      z-index: 2;
+      padding: var(--space-6);
+      font-size: var(--text-base);
+      line-height: 1.8;
+      color: #ffffff;
+      /* Cheap insurance for the few lines that land on a light patch. */
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+    }
+
+    .lynra-compact p {
+      margin: 0;
+    }
+
+    :global([data-theme="light"]) .lynra-compact {
+      color: #000000;
+      text-shadow: 0 1px 3px rgba(255, 255, 255, 0.9);
+    }
+
+    /* The stage's own tint is what the faded photo sits on; deepen it on dark
+       so the paragraph has a consistent backing rather than photo detail. */
+    .zoom-stage {
+      background-color: rgba(0, 0, 0, 0.55);
+    }
+
+    :global([data-theme="light"]) .zoom-stage {
+      background-color: rgba(255, 255, 255, 0.55);
+    }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .lynra-row .how-list li {
       transition: none;
@@ -991,11 +1076,6 @@ import SideNav from '../components/SideNav.astro';
     padding: 0 var(--space-6);
     align-items: center;
     width: 100%;
-  }
-
-  /* Second row mirrors the first: screenshot left, text right. */
-  .so-row--flip {
-    flex-direction: row;
   }
 
   .so-text {
@@ -1039,15 +1119,10 @@ import SideNav from '../components/SideNav.astro';
     filter: brightness(0.82) contrast(1.05);
   }
 
-  /* Stack on narrow screens: text first, then its screenshot below it. */
+  /* Stack on narrow screens: images stay first, text follows below them. */
   @media (max-width: 900px) {
-    .so-row,
-    .so-row--flip {
+    .so-row {
       flex-direction: column;
-    }
-
-    .so-row--flip {
-      flex-direction: column-reverse;
     }
 
     .so-img {
@@ -1272,12 +1347,12 @@ import SideNav from '../components/SideNav.astro';
     /* Slightly transparent text boxes on both condensed mobile sections. */
     .cookie-mobile .project-box,
     .ssh-mobile .project-box {
-      background-color: rgba(255, 105, 180, 0.85);
+      background-color: rgba(255, 105, 180, 0.6);
     }
 
     :global([data-theme="light"]) .cookie-mobile .project-box,
     :global([data-theme="light"]) .ssh-mobile .project-box {
-      background-color: rgba(246, 153, 205, 0.85);
+      background-color: rgba(246, 153, 205, 0.6);
     }
 
     /* Cookie cutter */
