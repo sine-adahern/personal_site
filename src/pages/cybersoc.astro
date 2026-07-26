@@ -607,6 +607,14 @@ const bannerPhotos = [
   .about-box p { margin: 0 0 1.1em; }
   .about-box p:last-child { margin-bottom: 0; }
 
+  /* Phones: the opening paragraph reads a touch large against the narrower
+     column, so ease it down slightly. */
+  @media (max-width: 900px) {
+    .about-box p:first-of-type {
+      font-size: var(--text-sm);
+    }
+  }
+
   .rebuild-list {
     list-style: none;
     margin: 0 0 1.1em;
