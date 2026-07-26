@@ -49,10 +49,10 @@ export const panels: NavPanel[] = [
     thumbLight: '/thumbs/thumb-speaking-light.png',
   },
   {
-    name: 'Links',
-    href: '/links',
-    thumb: '/thumbs/thumb-links-dark.png',
-    thumbLight: '/thumbs/thumb-links-light.png',
+    name: 'Press',
+    href: '/press',
+    thumb: '/thumbs/thumb-press-dark.png',
+    thumbLight: '/thumbs/thumb-press-light.png',
   },
 ];
 

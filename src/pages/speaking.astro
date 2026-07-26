@@ -110,7 +110,21 @@ const bannerImagesRev = [...bannerImages].reverse();
       </ul>
     </aside>
 
-    <h1 class="speaking-title">Speaking &amp; Debating</h1>
+    <!-- ── Phone-only horizontal banner behind the title ──────────────────
+         The vertical side banners above are hidden below 768px (see their
+         media query), so on phones this reuses the same photo list as a
+         semi-transparent, horizontally-sliding strip behind the heading
+         instead. Hidden by default; the phone media query switches it on. -->
+    <header class="mtitle-wrap">
+      <div class="mtitle-banner" aria-hidden="true">
+        <div class="mtb-track">
+          {[...bannerImages, ...bannerImages].map((src) => (
+            <img class="mtb-img" src={src} alt="" loading="lazy" draggable="false" />
+          ))}
+        </div>
+      </div>
+      <h1 class="speaking-title">Speaking &amp; Debating</h1>
+    </header>
     <p class="speaking-intro">Over the past three years I've gone from a regional Model UN delegate to an invited panellist beside industry leaders — by way of national debate finals, AI panels, and leading a university society. This page is a record of where I've spoken, and how far the journey has taken me.</p>
 
     <section class="timeline" aria-label="Public speaking &amp; debating timeline">
@@ -226,6 +240,7 @@ const bannerImagesRev = [...bannerImages].reverse();
 
   /* Page heading — same pixel style as the other pages' titles, centred. */
   .speaking-title {
+    position: relative;
     font-family: 'Press Start 2P', cursive;
     font-size: calc(var(--text-2xl) * 1.2);
     font-weight: 400;
@@ -235,6 +250,76 @@ const bannerImagesRev = [...bannerImages].reverse();
     margin-top: var(--space-12);
     -webkit-text-stroke: 2px #000000;
     paint-order: stroke fill;
+  }
+
+  /* Phone-only sliding photo strip behind the title (see the markup comment
+     above). Hidden by default; switched on below 768px, the same breakpoint
+     where the vertical side banners disappear. */
+  .mtitle-banner {
+    display: none;
+  }
+
+  @media (max-width: 767.98px) {
+    .mtitle-wrap {
+      position: relative;
+      isolation: isolate;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 160px;
+      margin-top: var(--space-8);
+    }
+
+    .speaking-title {
+      z-index: 1;
+      margin-top: 0;
+    }
+
+    .mtitle-banner {
+      display: block;
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: calc(50% - 50vw);
+      width: 100vw;
+      overflow: hidden;
+      z-index: 0;
+      border-block: 2px solid #000;
+      /* Fade the strip into the page at both ends. */
+      -webkit-mask-image: linear-gradient(to right, transparent, #000 7%, #000 93%, transparent);
+      mask-image: linear-gradient(to right, transparent, #000 7%, #000 93%, transparent);
+    }
+    /* Darkening scrim so the heading stays readable over the photos — this is
+       the "semi-transparent" part: photos dimmed well back, not the text. */
+    .mtitle-banner::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      background: rgba(0, 0, 0, 0.55);
+    }
+    .mtb-track {
+      display: flex;
+      height: 100%;
+      width: max-content;
+      animation: mtb-scroll 42s linear infinite;
+    }
+    .mtb-img {
+      height: 100%;
+      width: auto;
+      display: block;
+      margin-right: 8px;
+      object-fit: cover;
+    }
+  }
+
+  @keyframes mtb-scroll {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .mtb-track { animation: none; }
   }
 
   .speaking-intro {
@@ -336,6 +421,16 @@ const bannerImagesRev = [...bannerImages].reverse();
     --tl-shadow: none;
   }
 
+  /* Smoother scroll between events: the page eases toward whichever event is
+     nearest instead of leaving the scroll wherever momentum happened to stop.
+     `proximity` (not `mandatory`) so scrolling into/out of the intro text and
+     closing sign-off above/below the timeline stays free. Applies on both
+     phone and laptop — this is a document-level scroll behaviour, not a
+     layout one, so there's no breakpoint to gate it on. */
+  :global(html) {
+    scroll-snap-type: y proximity;
+  }
+
   /* ── One event = one full-height stage ─────────────────────────────────── */
   .tl-event {
     position: relative;
@@ -343,6 +438,7 @@ const bannerImagesRev = [...bannerImages].reverse();
     display: flex;
     align-items: center;
     justify-content: center;
+    scroll-snap-align: center;
   }
 
   /* Central line, in two halves that meet at the centre node.

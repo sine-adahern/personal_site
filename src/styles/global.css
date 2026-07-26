@@ -9,12 +9,31 @@
   padding: 0;
 }
 
+/* Several pages use a "full-bleed" trick (left: calc(50% - 50vw); width: 100vw)
+   to let decorative strips/banners span edge-to-edge from inside a centred,
+   padded container. That's correct in principle, but 100vw includes the
+   vertical scrollbar's width in some browsers, and any element that's even
+   1px too wide will otherwise make the whole page scroll sideways. Clipping
+   here is a hard guarantee: no page can ever scroll horizontally, on any
+   phone size or browser, regardless of what a page-level fix misses.
+   Only on html, not body: fixed-position elements (like the off-canvas side
+   nav, translated out of view) are positioned against the viewport/html, not
+   body, so body's own overflow can't clip them — html's can. Setting it on
+   both turns them into two separate scroll containers (each gets
+   overflow-y: auto to pair with it), which breaks position: sticky elsewhere
+   on the site (Lynra's zoom, the Moving Clean CAD viewer); html alone
+   doesn't. */
+html {
+  overflow-x: hidden;
+}
+
 body {
   font-family: 'Lato', sans-serif;
   color: var(--color-text-secondary);
   background-color: var(--color-background);
   background-image: var(--color-bg-gradient);
   min-height: 100svh;
+  width: 100%;
 }
 
 /* Theme-aware thumbnail switching — !important beats scoped component display: block */
