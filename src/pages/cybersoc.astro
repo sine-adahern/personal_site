@@ -229,6 +229,15 @@ const bannerPhotos = [
 
     <p class="tl-closing">Onwards — and I can't wait to see what we take on next.</p>
   </main>
+
+  <!-- ── Phone-only photo lightbox ─────────────────────────────────────
+       On phones (see the script below), tapping a timeline photo opens it
+       enlarged here instead of leaving it pile-sized. Unused on desktop. -->
+  <div id="photo-lightbox" class="photo-lightbox" hidden>
+    <button id="photo-lightbox-close" class="photo-lightbox-close" type="button" aria-label="Close image">&times;</button>
+    <img id="photo-lightbox-img" class="photo-lightbox-img" src="" alt="" />
+  </div>
+
   <SiteFooter />
 </BaseLayout>
 
@@ -453,15 +462,26 @@ const bannerPhotos = [
         const d = Math.abs(centre - mid);
         if (d < bestDist) { bestDist = d; best = i; }
       }
-      if (best === active) return;
-      active = best;
-      events.forEach((el, i) => el.classList.toggle('is-active', i === active));
-      dots.forEach((d, i) => d.classList.toggle('is-active', i === active));
-      arrows.forEach((a) => {
-        const dir = Number(a.dataset.dir);
-        const atEnd = (dir < 0 && active === 0) || (dir > 0 && active === events.length - 1);
-        a.disabled = atEnd;
-      });
+      if (best !== active) {
+        active = best;
+        events.forEach((el, i) => el.classList.toggle('is-active', i === active));
+        dots.forEach((d, i) => d.classList.toggle('is-active', i === active));
+        arrows.forEach((a) => {
+          const dir = Number(a.dataset.dir);
+          const atEnd = (dir < 0 && active === 0) || (dir > 0 && active === events.length - 1);
+          a.disabled = atEnd;
+        });
+      }
+      syncHeight();
+    }
+
+    // The viewport's height defaults to whichever event is tallest (normal
+    // flex behaviour), which strands the controls below far more empty space
+    // than a short caption needs. Pin it to the active event's own height
+    // instead, so the arrows/dots always sit right under its text.
+    function syncHeight() {
+      const el = events[active];
+      if (el) viewport.style.height = `${el.offsetHeight}px`;
     }
 
     function onScroll() {
@@ -499,6 +519,55 @@ const bannerPhotos = [
 
     updateActive();
     window.addEventListener('resize', updateActive);
+  })();
+</script>
+
+<script>
+  // ── Photo lightbox (phone only) ─────────────────────────────────────
+  // On phones the timeline photos are small (they have to fit a pile of up
+  // to five), so tapping one opens it full-size instead. Desktop leaves the
+  // photos as-is — the fan-out on centring already shows them clearly.
+  (function () {
+    const lightbox = document.getElementById('photo-lightbox') as HTMLElement | null;
+    const lbImg    = document.getElementById('photo-lightbox-img') as HTMLImageElement | null;
+    const closeBtn = document.getElementById('photo-lightbox-close') as HTMLButtonElement | null;
+    const photos   = Array.from(document.querySelectorAll<HTMLImageElement>('.tl-photo img'));
+    if (!lightbox || !lbImg || !closeBtn || !photos.length) return;
+
+    const phone = window.matchMedia('(max-width: 900px)');
+
+    function open(src: string, alt: string) {
+      lbImg!.src = src;
+      lbImg!.alt = alt;
+      lightbox!.hidden = false;
+      // Next frame, so the hidden -> visible change transitions in.
+      requestAnimationFrame(() => lightbox!.classList.add('is-open'));
+      document.documentElement.classList.add('lightbox-active');
+    }
+
+    function close() {
+      lightbox!.classList.remove('is-open');
+      document.documentElement.classList.remove('lightbox-active');
+      window.setTimeout(() => {
+        if (!lightbox!.classList.contains('is-open')) lightbox!.hidden = true;
+      }, 220);
+    }
+
+    photos.forEach((img) => {
+      img.addEventListener('click', () => {
+        if (!phone.matches) return; // desktop: photos aren't clickable targets
+        open(img.currentSrc || img.src, img.alt);
+      });
+    });
+
+    closeBtn.addEventListener('click', close);
+    // Tapping the dimmed backdrop (not the photo itself) also closes it.
+    lightbox.addEventListener('click', (e) => {
+      if (e.target === lightbox) close();
+    });
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && lightbox!.classList.contains('is-open')) close();
+    });
   })();
 </script>
 
@@ -608,10 +677,27 @@ const bannerPhotos = [
   .about-box p:last-child { margin-bottom: 0; }
 
   /* Phones: the opening paragraph reads a touch large against the narrower
-     column, so ease it down slightly. */
+     column, so ease it down slightly; the box itself picks up the same
+     transparency as the portfolio page's phone-mode text boxes. Instead of
+     the whole (long) block sitting statically on the page, it becomes its
+     own scroll area with a top/bottom mask, so text fades in and out at the
+     edges as it scrolls rather than the page just growing to fit it all. */
   @media (max-width: 900px) {
     .about-box p:first-of-type {
       font-size: var(--text-sm);
+    }
+
+    .about-box {
+      background-color: rgba(246, 153, 205, 0.6);
+      max-height: 65vh;
+      overflow-y: auto;
+      scrollbar-width: none;                 /* Firefox */
+      -webkit-mask-image: linear-gradient(to bottom, transparent, #000 6%, #000 94%, transparent);
+      mask-image: linear-gradient(to bottom, transparent, #000 6%, #000 94%, transparent);
+    }
+
+    .about-box::-webkit-scrollbar {
+      display: none;                         /* Chrome/Safari */
     }
   }
 
@@ -787,6 +873,10 @@ const bannerPhotos = [
     scrollbar-width: none;                 /* Firefox */
     -webkit-overflow-scrolling: touch;
     outline: none;
+    /* Height is pinned to the active event by the script (so the controls sit
+       right under whichever caption is showing, not the tallest one); this
+       just smooths the change when a shorter/taller event becomes active. */
+    transition: height 0.3s ease;
   }
   .tl-viewport::-webkit-scrollbar { display: none; }  /* Chrome/Safari */
   .tl-viewport:focus-visible { box-shadow: inset 0 0 0 2px var(--color-brand); }
@@ -875,6 +965,13 @@ const bannerPhotos = [
     aspect-ratio: 4 / 5;
     object-fit: cover;
     background: #e8e8e8;
+  }
+
+  /* Phones: photos open in the lightbox on tap — hint at that affordance. */
+  @media (max-width: 900px) {
+    .tl-photo img {
+      cursor: zoom-in;
+    }
   }
 
   /* When the event is centred, photos fan out into a straight, level line. */
@@ -985,7 +1082,8 @@ const bannerPhotos = [
   /* Respect reduced-motion: no fan animation, photos sit fanned + captions shown. */
   @media (prefers-reduced-motion: reduce) {
     .tl-photo,
-    .tl-caption { transition: none; }
+    .tl-caption,
+    .tl-viewport { transition: none; }
   }
 
   /* Closing sign-off under the timeline. */
@@ -999,4 +1097,74 @@ const bannerPhotos = [
     color: #ffe4c4;
   }
   :global([data-theme="light"]) .tl-closing { color: #C22E7E; }
+
+  /* ── Photo lightbox (phone only) ──────────────────────────────────────
+     Hidden (display:none via [hidden]) until a photo is tapped on a phone
+     width; the script toggles .is-open a frame later so this transitions
+     in rather than popping. */
+  .photo-lightbox {
+    position: fixed;
+    inset: 0;
+    z-index: 9990; /* below the boot overlay (9998), above everything else */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.88);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+  .photo-lightbox.is-open {
+    opacity: 1;
+  }
+  .photo-lightbox[hidden] {
+    display: none;
+  }
+
+  .photo-lightbox-img {
+    max-width: 90vw;
+    max-height: 85vh;
+    display: block;
+    border-radius: 4px;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+    transform: scale(0.94);
+    transition: transform 0.2s ease;
+  }
+  .photo-lightbox.is-open .photo-lightbox-img {
+    transform: scale(1);
+  }
+
+  .photo-lightbox-close {
+    position: absolute;
+    top: clamp(10px, 3vw, 24px);
+    right: clamp(10px, 3vw, 24px);
+    width: 40px;
+    height: 40px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #ffe4c4;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.6);
+    color: #ffe4c4;
+    font-size: 1.4rem;
+    line-height: 1;
+    cursor: pointer;
+  }
+  .photo-lightbox-close:hover,
+  .photo-lightbox-close:focus-visible {
+    background: #ffe4c4;
+    color: #000000;
+    outline: none;
+  }
+
+  /* Lock scrolling of the page underneath while a photo is enlarged. */
+  :global(html.lightbox-active),
+  :global(html.lightbox-active body) { overflow: hidden; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .photo-lightbox,
+    .photo-lightbox-img {
+      transition: none;
+    }
+  }
 </style>
