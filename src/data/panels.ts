@@ -23,36 +23,48 @@ export const panels: NavPanel[] = [
     href: '/about',
     thumb: '/thumbs/thumb-about-dark.jpg',
     thumbLight: '/thumbs/thumb-about-light.jpg',
+    thumbMobile: '/thumbs/mobile/thumb-about-dark-mobile.png',
+    thumbMobileLight: '/thumbs/mobile/thumb-about-light-mobile.png',
   },
   {
     name: 'Portfolio',
     href: '/portfolio',
     thumb: '/thumbs/thumb-portfolio-dark.jpg',
     thumbLight: '/thumbs/thumb-portfolio-light.jpg',
+    thumbMobile: '/thumbs/mobile/thumb-portfolio-dark-mobile.png',
+    thumbMobileLight: '/thumbs/mobile/thumb-portfolio-light-mobile.png',
   },
   {
     name: 'Awards and Achievements',
     href: '/awards',
     thumb: '/thumbs/thumb-awards-dark.png',
     thumbLight: '/thumbs/thumb-awards-light.png',
+    thumbMobile: '/thumbs/mobile/thumb-awards-dark-mobile.png',
+    thumbMobileLight: '/thumbs/mobile/thumb-awards-light-mobile.png',
   },
   {
     name: 'Cyber SOC',
     href: '/cybersoc',
     thumb: '/thumbs/thumb-cybersoc-dark.jpg',
     thumbLight: '/thumbs/thumb-cybersoc-light.jpg',
+    thumbMobile: '/thumbs/mobile/thumb-cybersoc-dark-mobile.png',
+    thumbMobileLight: '/thumbs/mobile/thumb-cybersoc-light-mobile.png',
   },
   {
     name: 'Public Speaking',
     href: '/speaking',
     thumb: '/thumbs/thumb-speaking-dark.png',
     thumbLight: '/thumbs/thumb-speaking-light.png',
+    thumbMobile: '/thumbs/mobile/thumb-speaking-dark-mobile.png',
+    thumbMobileLight: '/thumbs/mobile/thumb-speaking-light-mobile.png',
   },
   {
     name: 'Press',
     href: '/press',
     thumb: '/thumbs/thumb-press-dark.png',
     thumbLight: '/thumbs/thumb-press-light.png',
+    thumbMobile: '/thumbs/mobile/thumb-press-dark-mobile.png',
+    thumbMobileLight: '/thumbs/mobile/thumb-press-light-mobile.png',
   },
 ];
 
@@ -61,15 +73,22 @@ export const ANGLE_STEP = 360 / panels.length;
 
 /**
  * Wheel geometry, in real CSS pixels, shared by the wheel and its miniature.
- * The miniature divides every one of these by the viewport width, so the small
- * copy is a true-to-scale reproduction rather than an approximation.
+ * The miniature divides every one of these by the viewport width (and height,
+ * on mobile), so the small copy is a true-to-scale reproduction rather than an
+ * approximation.
  *
- * On mobile, the card size is an upper bound rather than a fixed size: the front
- * card is magnified by perspective / (perspective - radius) = 1.6, so at 288px
- * it would paint 460.8px and overflow a phone. NavWheel fits it to the viewport
- * below that cap; see `--card-w` there and `--mini-cardw` in HomeMini.
+ * Mobile cards are portrait (9:19.5, matching the real phone-screenshot
+ * thumbnails in `thumbMobile`/`thumbMobileLight` above), not the 16:9 shape
+ * used on desktop. The card size is an upper bound rather than a fixed size:
+ * the front card is magnified by perspective / (perspective - radius) = 1.6,
+ * so a naive width-only fit (288px wide → ~625px tall → 1000px on screen)
+ * would overflow a phone's height long before its width. NavWheel and
+ * HomeMini both fit the card against *both* the viewport width and height and
+ * take whichever is more restrictive; see `--card-w` there and
+ * `--mini-cardw` in HomeMini — the two formulas must stay identical, or the
+ * miniature stops being a picture of the wheel it sits inside.
  */
 export const WHEEL_GEOMETRY = {
-  mobile: { maxCardW: 288, maxCardH: 162, radius: 450, perspective: 1200 },
+  mobile: { maxCardW: 288, maxCardH: 624, aspectW: 9, aspectH: 19.5, radius: 450, perspective: 1200 },
   desktop: { cardW: 480, cardH: 270, radius: 780, perspective: 1800 },
 } as const;

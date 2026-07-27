@@ -193,8 +193,58 @@ import SideNav from '../components/SideNav.astro';
       <h2 class="project-heading">SÓShieldta</h2>
       <p class="project-subheading">Social Engineering Simulation Platform</p>
 
+      <!-- Laptop: full write-up in two boxes, all three screenshots. -->
       <div class="so-row">
         <div class="so-media so-media--stack">
+          <img
+            class="so-img"
+            src="/images/portfolio/soshieldta-landing.png"
+            alt="The SÓShieldta landing page: the tagline 'Security starts with people' above a feature grid covering AI-powered attacks, employee risk scoring, multi-channel vectors, and automated remediation."
+            width="1905"
+            height="1077"
+            loading="lazy"
+          />
+          <img
+            class="so-img"
+            src="/images/portfolio/soshieldta-dashboard.png"
+            alt="The SÓShieldta security dashboard: risk score, campaigns run, failure rate and reporting rate, a per-channel breakdown for email, SMS, WhatsApp and voice, campaign analytics charts, and a recent test activity feed."
+            width="1907"
+            height="1079"
+            loading="lazy"
+          />
+          <img
+            class="so-img"
+            src="/images/portfolio/soshieldta-campaign.png"
+            alt="A SÓShieldta campaign's test results: a per-employee timeline showing the phishing email being generated and sent, the employee's reply, and the AI evaluation flagging that they fell for it and shared confidential information."
+            width="1905"
+            height="1076"
+            loading="lazy"
+          />
+        </div>
+
+        <div class="so-text">
+          <div class="project-box">
+            <p class="how-title">What it does</p>
+            <p>Most people only get static security training, so their first real social-engineering attack is often a live one that breaches their company. SÓShieldta lets organisations safely run realistic simulated attacks against their own staff to test and improve how well they spot and react to them, with a dashboard that tracks results and flags who needs more training. As the only cybersecurity student on our four-person team, I was able to bring a technical insight to the most current attack surfaces we should be protecting, and the current attack vectors to protect against. The entire project was built in 30 hours at HackEurope 2026.</p>
+          </div>
+
+          <div class="project-box">
+            <p class="how-title">How does it do this?</p>
+            <ul class="how-list">
+              <li><strong>Context-driven attacks</strong> — organisations upload details like org charts and their tech stack, which the platform uses to generate lures tailored to each employee's role, so simulations feel convincing rather than obviously fake.</li>
+              <li><strong>Multi-channel simulation</strong> — attacks arrive across the surfaces real attackers use: phishing email, smishing (SMS), and vishing (AI voice calls).</li>
+              <li><strong>Realistic AI content</strong> — because mainstream models refuse to write phishing, lures and call scripts are generated through an open model, producing unique campaigns that don't pattern-match as spam.</li>
+              <li><strong>AI voice calls</strong> — vishing uses ElevenLabs for a convincing synthetic voice, with Twilio as a fallback for calls and texts.</li>
+              <li><strong>Closed-loop training</strong> — employees who fail get an instant targeted lesson and are prompted to write back to their employer on what they learned, replacing tick-box quizzes with real reflection.</li>
+              <li><strong>Built for scale</strong> — a Supabase backend and tiered Stripe billing make it work as a real multi-organisation product.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Phone: condensed, two screenshots + one merged paragraph. -->
+      <div class="so-mobile">
+        <div class="so-mobile-media">
           <img
             class="so-img"
             src="/images/portfolio/soshieldta-landing.png"
@@ -1072,6 +1122,7 @@ import SideNav from '../components/SideNav.astro';
 
   .so-row {
     display: flex;
+    flex-direction: row-reverse;
     gap: var(--space-8);
     padding: 0 var(--space-6);
     align-items: center;
@@ -1082,7 +1133,9 @@ import SideNav from '../components/SideNav.astro';
     flex: 1;
     min-width: 0;
     display: flex;
-    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-8);
   }
 
   .so-text .project-box {
@@ -1097,11 +1150,16 @@ import SideNav from '../components/SideNav.astro';
     justify-content: center;
   }
 
-  /* Two screenshots stacked one below the other in a single column. */
+  /* Screenshots stacked one below the other in a single column. */
   .so-media--stack {
     flex-direction: column;
     align-items: center;
     gap: var(--space-8);
+  }
+
+  /* Condensed phone version — hidden on laptop; see the media query below. */
+  .so-mobile {
+    display: none;
   }
 
   .so-img {
@@ -1119,14 +1177,34 @@ import SideNav from '../components/SideNav.astro';
     filter: brightness(0.82) contrast(1.05);
   }
 
-  /* Stack on narrow screens: images stay first, text follows below them. */
+  /* Swap the laptop write-up for the condensed phone version below. */
   @media (max-width: 900px) {
     .so-row {
+      display: none;
+    }
+
+    .so-mobile {
+      display: flex;
       flex-direction: column;
+      gap: var(--space-6);
+      padding: 0 var(--space-6);
+      width: 100%;
+    }
+
+    .so-mobile-media {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-8);
+      width: 100%;
     }
 
     .so-img {
       max-width: 100%;
+    }
+
+    .so-mobile .project-box {
+      max-width: 100%;
+      margin: 0;
     }
   }
 

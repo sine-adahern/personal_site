@@ -79,21 +79,43 @@ const items = panels.map((panel, i) => {
 
         {items.map((item) => (
           <div class="mini-panel" style={item.style}>
-            <img
-              src={item.thumb}
-              alt=""
-              class={item.thumbLight ? 'mini-thumb thumb-dark' : 'mini-thumb'}
-              decoding="async"
-              draggable="false"
-            />
-            {item.thumbLight && (
+            <span class={item.thumbMobile ? 'mini-thumb-desktop has-mobile-alt' : 'mini-thumb-desktop'}>
               <img
-                src={item.thumbLight}
+                src={item.thumb}
                 alt=""
-                class="mini-thumb thumb-light"
+                class={item.thumbLight ? 'mini-thumb thumb-dark' : 'mini-thumb'}
                 decoding="async"
                 draggable="false"
               />
+              {item.thumbLight && (
+                <img
+                  src={item.thumbLight}
+                  alt=""
+                  class="mini-thumb thumb-light"
+                  decoding="async"
+                  draggable="false"
+                />
+              )}
+            </span>
+            {item.thumbMobile && (
+              <span class="mini-thumb-mobile">
+                <img
+                  src={item.thumbMobile}
+                  alt=""
+                  class={item.thumbMobileLight ? 'mini-thumb thumb-dark' : 'mini-thumb'}
+                  decoding="async"
+                  draggable="false"
+                />
+                {item.thumbMobileLight && (
+                  <img
+                    src={item.thumbMobileLight}
+                    alt=""
+                    class="mini-thumb thumb-light"
+                    decoding="async"
+                    draggable="false"
+                  />
+                )}
+              </span>
             )}
             <span class="mini-name">{item.name}</span>
           </div>
@@ -111,11 +133,15 @@ const items = panels.map((panel, i) => {
   // The miniature owns its own scale: `--u` (one real page pixel) is derived
   // from the viewport width, so it has to know the real one. This runs whether
   // or not the wheel animates — with reduced motion the miniature still needs
-  // to be to scale, it just holds still.
+  // to be to scale, it just holds still. Height is tracked too since mobile's
+  // portrait card is fitted against both viewport dimensions (see --mini-cardw).
   const mini = document.querySelector<HTMLElement>('.panel-mini');
 
   if (mini) {
-    const sync = () => mini.style.setProperty('--vw', String(window.innerWidth));
+    const sync = () => {
+      mini.style.setProperty('--vw', String(window.innerWidth));
+      mini.style.setProperty('--vh', String(window.innerHeight));
+    };
     sync();
     window.addEventListener('resize', sync);
   }
@@ -125,11 +151,12 @@ const items = panels.map((panel, i) => {
   .panel-mini {
     /* Sized like the <img> it replaces rather than pinned to the card, so the
        card keeps its height in the stacked no-JS / reduced-motion fallback.
-       In wheel mode the card is already 16:9, so this resolves to the same box. */
+       In wheel mode the card is already this shape, so this resolves to the
+       same box — 9:19.5 (portrait) on phones, 16:9 on desktop below. */
     position: relative;
     flex: 0 0 auto;
     width: 100%;
-    aspect-ratio: 16 / 9;
+    aspect-ratio: 9 / 19.5;
     overflow: hidden;
     pointer-events: none;
     user-select: none;
@@ -138,9 +165,11 @@ const items = panels.map((panel, i) => {
        with whatever size it is given — card-sized now, screen-sized mid-expand. */
     container-type: size;
 
-    /* Viewport width in px. NavWheel keeps this in sync on load and resize;
-       1440 is the fallback for the server-rendered / no-JS case. */
+    /* Viewport width/height in px. NavWheel keeps these in sync on load and
+       resize; the numbers here are the fallback for the server-rendered /
+       no-JS case. */
     --vw: 1440;
+    --vh: 900;
 
     /* One real page pixel, expressed in miniature units. */
     --u: calc(100cqw / var(--vw));
@@ -149,13 +178,15 @@ const items = panels.map((panel, i) => {
        Kept as CSS vars so the breakpoint is handled here, and the transforms
        JS writes stay identical at both sizes.
 
-       The card size must track NavWheel's `--card-w`, which on phones is fitted
-       to the viewport rather than fixed. Same formula, unitless: `--vw` is
-       already the viewport width in real page pixels, which is exactly the
-       unit these numbers are in, so it needs no conversion. Get this wrong and
-       the miniature stops being a picture of the page it sits on. */
-    --mini-cardw: min(288, (var(--vw) - 24) / 1.6);
-    --mini-cardh: calc(var(--mini-cardw) * 9 / 16);
+       The card size must track NavWheel's `--card-w`, which on phones is
+       fitted to both the viewport's width AND height (portrait cards are
+       height-dominant — see the long comment on NavWheel's --card-w). Same
+       formula, unitless: `--vw`/`--vh` are already the viewport dimensions in
+       real page pixels, which is exactly the unit these numbers are in, so
+       they need no conversion. Get this wrong and the miniature stops being a
+       picture of the wheel it sits inside. */
+    --mini-cardw: min(288, (var(--vw) - 24) / 1.6, (var(--vh) - 96) / 1.6 * 9 / 19.5);
+    --mini-cardh: calc(var(--mini-cardw) * 19.5 / 9);
     --mini-radius: 450;
     --mini-persp: 1200;
 
@@ -165,6 +196,7 @@ const items = panels.map((panel, i) => {
 
   @media (min-width: 768px) {
     .panel-mini {
+      aspect-ratio: 16 / 9;
       --mini-cardw: 480;
       --mini-cardh: 270;
       --mini-radius: 780;
@@ -242,6 +274,23 @@ const items = panels.map((panel, i) => {
     height: 100%;
     object-fit: cover;
     display: block;
+  }
+
+  /* Portrait phone thumbnails — mirrors the same pattern in NavWheel/SideNav.
+     The mini-panel's own box already switched shape (see .panel-mini above),
+     so this only needs to swap which image fills it. */
+  .mini-thumb-mobile {
+    display: none;
+  }
+
+  @media (max-width: 767.98px) {
+    .mini-thumb-desktop.has-mobile-alt {
+      display: none;
+    }
+
+    .mini-thumb-mobile {
+      display: contents;
+    }
   }
 
   /* Caption bar. At this size the text is a suggestion of text rather than

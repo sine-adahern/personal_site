@@ -28,24 +28,54 @@ const navItems = panels;
     {navItems.map(item => (
       <li>
         <a href={item.href} class="sidenav-link">
-          <img
-            src={item.thumb}
-            alt={`Preview of the ${item.name} page`}
-            class={item.thumbLight ? 'sidenav-thumb thumb-dark' : 'sidenav-thumb'}
-            width="240"
-            height="135"
-            loading="lazy"
-          />
-          {item.thumbLight && (
+          {/* Landscape pair — used at every width unless a portrait phone
+              screenshot below takes over. `has-mobile-alt` is only added when
+              one exists (Home has none), so it keeps showing normally there. */}
+          <span class={item.thumbMobile ? 'sidenav-thumb-desktop has-mobile-alt' : 'sidenav-thumb-desktop'}>
             <img
-              src={item.thumbLight}
+              src={item.thumb}
               alt={`Preview of the ${item.name} page`}
-              class="sidenav-thumb thumb-light"
+              class={item.thumbLight ? 'sidenav-thumb thumb-dark' : 'sidenav-thumb'}
               width="240"
               height="135"
               loading="lazy"
             />
+            {item.thumbLight && (
+              <img
+                src={item.thumbLight}
+                alt={`Preview of the ${item.name} page`}
+                class="sidenav-thumb thumb-light"
+                width="240"
+                height="135"
+                loading="lazy"
+              />
+            )}
+          </span>
+
+          {/* Portrait pair — real phone screenshots, phone widths only. */}
+          {item.thumbMobile && (
+            <span class="sidenav-thumb-mobile">
+              <img
+                src={item.thumbMobile}
+                alt={`Preview of the ${item.name} page`}
+                class={item.thumbMobileLight ? 'sidenav-thumb sidenav-thumb--portrait thumb-dark' : 'sidenav-thumb sidenav-thumb--portrait'}
+                width="240"
+                height="520"
+                loading="lazy"
+              />
+              {item.thumbMobileLight && (
+                <img
+                  src={item.thumbMobileLight}
+                  alt={`Preview of the ${item.name} page`}
+                  class="sidenav-thumb sidenav-thumb--portrait thumb-light"
+                  width="240"
+                  height="520"
+                  loading="lazy"
+                />
+              )}
+            </span>
           )}
+
           <span class="sidenav-name">{item.name}</span>
         </a>
       </li>
@@ -226,6 +256,31 @@ const navItems = panels;
   @media (min-width: 768px) {
     .sidenav-drawer {
       width: 320px;
+    }
+  }
+
+  /* ── Portrait phone thumbnails ────────────────────────────────────────
+     `.sidenav-thumb-mobile` is display:none by default (desktop) so, unlike
+     the theme swap above, it can't be reached by a real user regardless of
+     which one is active; below 768px it dissolves via `display: contents` so
+     its own dark/light pair take over the normal thumb-dark/thumb-light
+     theme toggling, and the landscape pair (only for panels that have a
+     mobile alternative) is hidden instead. */
+  .sidenav-thumb-mobile {
+    display: none;
+  }
+
+  .sidenav-thumb--portrait {
+    aspect-ratio: 9 / 19.5;
+  }
+
+  @media (max-width: 767.98px) {
+    .sidenav-thumb-desktop.has-mobile-alt {
+      display: none;
+    }
+
+    .sidenav-thumb-mobile {
+      display: contents;
     }
   }
 </style>

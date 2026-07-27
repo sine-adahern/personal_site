@@ -20,21 +20,47 @@ import HomeMini from './HomeMini.astro';
             <HomeMini />
           ) : (
             <Fragment>
-              <img
-                src={panel.thumb}
-                alt={`Preview of the ${panel.name} page`}
-                class={panel.thumbLight ? 'panel-thumb thumb-dark' : 'panel-thumb'}
-                width="320"
-                height="180"
-              />
-              {panel.thumbLight && (
+              {/* Landscape pair — every width unless a portrait phone
+                  screenshot below takes over (Home has none, via HomeMini). */}
+              <span class={panel.thumbMobile ? 'panel-thumb-desktop has-mobile-alt' : 'panel-thumb-desktop'}>
                 <img
-                  src={panel.thumbLight}
+                  src={panel.thumb}
                   alt={`Preview of the ${panel.name} page`}
-                  class="panel-thumb thumb-light"
+                  class={panel.thumbLight ? 'panel-thumb thumb-dark' : 'panel-thumb'}
                   width="320"
                   height="180"
                 />
+                {panel.thumbLight && (
+                  <img
+                    src={panel.thumbLight}
+                    alt={`Preview of the ${panel.name} page`}
+                    class="panel-thumb thumb-light"
+                    width="320"
+                    height="180"
+                  />
+                )}
+              </span>
+
+              {/* Portrait pair — real phone screenshots, phone widths only. */}
+              {panel.thumbMobile && (
+                <span class="panel-thumb-mobile">
+                  <img
+                    src={panel.thumbMobile}
+                    alt={`Preview of the ${panel.name} page`}
+                    class={panel.thumbMobileLight ? 'panel-thumb thumb-dark' : 'panel-thumb'}
+                    width="320"
+                    height="694"
+                  />
+                  {panel.thumbMobileLight && (
+                    <img
+                      src={panel.thumbMobileLight}
+                      alt={`Preview of the ${panel.name} page`}
+                      class="panel-thumb thumb-light"
+                      width="320"
+                      height="694"
+                    />
+                  )}
+                </span>
               )}
             </Fragment>
           )}
@@ -81,7 +107,10 @@ import HomeMini from './HomeMini.astro';
     // On phones the CSS sizes the card from the viewport, so this is measured
     // rather than assumed. offsetHeight is a layout box: rotation and
     // perspective don't touch it, unlike getBoundingClientRect().
-    const CARD_HEIGHT_MOBILE  = 162;
+    // Just a fallback for the rare case offsetHeight reads 0 before layout —
+    // the real value is fitted per-viewport by CSS (--card-h) and always
+    // measured below, so this doesn't need to be exact.
+    const CARD_HEIGHT_MOBILE  = 480;
     const CARD_HEIGHT_DESKTOP = 270;
 
     function measureCardHeight(): number {
@@ -512,6 +541,32 @@ import HomeMini from './HomeMini.astro';
     display: block;
   }
 
+  /* ── Portrait phone thumbnails ────────────────────────────────────────
+     Mirrors SideNav's treatment: `.panel-thumb-mobile` is display:none by
+     default (desktop) so it's unreachable at any width above the phone
+     breakpoint; below it, it dissolves via `display: contents` so its own
+     dark/light pair take over the normal thumb-dark/thumb-light theme
+     toggling in place of the (now-hidden) landscape pair. In wheel mode the
+     card itself changes shape (see below); this aspect-ratio only matters
+     for the stacked-list / reduced-motion fallback. */
+  .panel-thumb-mobile {
+    display: none;
+  }
+
+  @media (max-width: 767.98px) {
+    .panel-thumb-desktop.has-mobile-alt {
+      display: none;
+    }
+
+    .panel-thumb-mobile {
+      display: contents;
+    }
+
+    .panel-thumb-mobile .panel-thumb {
+      aspect-ratio: 9 / 19.5;
+    }
+  }
+
   .panel-name {
     padding: var(--space-2) var(--space-3);
     font-size: var(--text-base);
@@ -531,15 +586,26 @@ import HomeMini from './HomeMini.astro';
     /* ── Card size ──────────────────────────────────────────────────────────
        The front card sits at translateZ(radius), so perspective paints it
        larger than its CSS box by p / (p - radius) — here 1200 / (1200 - 450),
-       a factor of 1.6. A 288px card therefore covers 460.8px of screen, which
-       overflows every phone (360–430px) and gets cut off by the overflow:hidden
-       above. So size the card from the space it has to land in, dividing the
-       viewport back through the magnification, and cap it at the original
-       288×162 so anything with room to spare is left exactly as it was. */
+       a factor of 1.6. Mobile cards are portrait (9:19.5, matching the real
+       phone-screenshot thumbnails), so unlike the old 16:9 shape they're
+       height-dominant: fitting by width alone (288px wide → ~625px tall →
+       1000px on screen) would overflow a phone's height long before its
+       width. So fit the card against *both* the viewport width and height,
+       dividing each back through the magnification, and take whichever is
+       tighter — capped at 288×624 so anything with room to spare is left at
+       that size. --wheel-gutter-y roughly covers this section's own
+       top/bottom padding (2 × --space-8) plus a little breathing room.
+       HomeMini's --mini-cardw must stay the same formula, in real page
+       pixels, or its wheel stops matching this one. */
     --wheel-mag: 1.6;
-    --wheel-gutter: 24px; /* total breathing room either side of the card */
-    --card-w: min(288px, (100vw - var(--wheel-gutter)) / var(--wheel-mag));
-    --card-h: calc(var(--card-w) * 9 / 16);
+    --wheel-gutter-x: 24px; /* total breathing room either side of the card */
+    --wheel-gutter-y: 96px; /* total breathing room above/below the card */
+    --card-w: min(
+      288px,
+      (100vw - var(--wheel-gutter-x)) / var(--wheel-mag),
+      (100svh - var(--wheel-gutter-y)) / var(--wheel-mag) * 9 / 19.5
+    );
+    --card-h: calc(var(--card-w) * 19.5 / 9);
   }
 
   .nav-wheel.is-wheel:active {
