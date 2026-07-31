@@ -2,12 +2,43 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import SiteHeader from '../components/SiteHeader.astro';
 import SiteFooter from '../components/SiteFooter.astro';
+
+// Affirmation words that swirl in the background, behind the name.
+// r  = orbit radius (vmin), a = start angle, dur = seconds per lap,
+// dir = normal / reverse spin, sz = size (rem), op = opacity.
+const words = [
+  { text: 'strong',      r: 16, a: 10,  dur: 30, dir: 'normal',  sz: 1.5, op: 0.5  },
+  { text: 'brave',       r: 16, a: 130, dur: 34, dir: 'reverse', sz: 1.3, op: 0.45 },
+  { text: 'beautiful',   r: 16, a: 250, dur: 32, dir: 'normal',  sz: 1.4, op: 0.5  },
+  { text: 'kind',        r: 26, a: 40,  dur: 44, dir: 'reverse', sz: 1.2, op: 0.42 },
+  { text: 'clever',      r: 26, a: 100, dur: 40, dir: 'normal',  sz: 1.3, op: 0.42 },
+  { text: 'loved',       r: 26, a: 170, dur: 46, dir: 'reverse', sz: 1.5, op: 0.5  },
+  { text: 'radiant',     r: 26, a: 230, dur: 42, dir: 'normal',  sz: 1.2, op: 0.4  },
+  { text: 'fearless',    r: 26, a: 300, dur: 48, dir: 'reverse', sz: 1.3, op: 0.42 },
+  { text: 'brilliant',   r: 36, a: 20,  dur: 56, dir: 'normal',  sz: 1.1, op: 0.32 },
+  { text: 'wonderful',   r: 36, a: 80,  dur: 52, dir: 'reverse', sz: 1.2, op: 0.35 },
+  { text: 'magic',       r: 36, a: 150, dur: 58, dir: 'normal',  sz: 1.4, op: 0.4  },
+  { text: 'bright',      r: 36, a: 210, dur: 54, dir: 'reverse', sz: 1.2, op: 0.35 },
+  { text: 'cherished',   r: 36, a: 280, dur: 60, dir: 'normal',  sz: 1.1, op: 0.32 },
+  { text: 'unstoppable', r: 36, a: 340, dur: 50, dir: 'reverse', sz: 1.1, op: 0.3  },
+];
 ---
 
 <BaseLayout title="Aoife">
   <SiteHeader />
 
   <main class="egg-main">
+    <div class="swirl" aria-hidden="true">
+      {words.map((w) => (
+        <div class="swirl-orbit">
+          <span
+            class="swirl-word"
+            style={`--r:${w.r}vmin; --a:${w.a}deg; --dur:${w.dur}s; --dir:${w.dir}; font-size:${w.sz}rem; opacity:${w.op};`}
+          >{w.text}</span>
+        </div>
+      ))}
+    </div>
+
     <h1 class="egg-name">Aoife</h1>
   </main>
 
@@ -16,18 +47,65 @@ import SiteFooter from '../components/SiteFooter.astro';
 
 <style>
   .egg-main {
+    position: relative;
     min-height: 100svh;
     display: flex;
     align-items: center;
     justify-content: center;
     padding: var(--space-16) var(--space-6);
     text-align: center;
+    overflow: hidden;
+  }
+
+  /* Layer that holds every orbiting word, sitting behind the name. */
+  .swirl {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  /* Each orbit fills the area and centres its word, so translateX pushes
+     outward from the exact centre regardless of word length. */
+  .swirl-orbit {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .swirl-word {
+    font-family: 'Press Start 2P', cursive;
+    color: #f699cd;
+    white-space: nowrap;
+    will-change: transform;
+    /* Static position (used as-is when motion is reduced). */
+    transform: rotate(var(--a)) translateX(var(--r)) rotate(calc(-1 * var(--a)));
+    animation: swirl var(--dur) linear infinite;
+    animation-direction: var(--dir);
+  }
+
+  /* Outer rotate walks the word around the circle; the inner counter-rotate
+     keeps the text upright the whole way round. */
+  @keyframes swirl {
+    from {
+      transform: rotate(var(--a))
+                 translateX(var(--r))
+                 rotate(calc(-1 * var(--a)));
+    }
+    to {
+      transform: rotate(calc(var(--a) + 360deg))
+                 translateX(var(--r))
+                 rotate(calc(-1 * (var(--a) + 360deg)));
+    }
   }
 
   .egg-name {
+    position: relative;
+    z-index: 2;
     font-family: 'Press Start 2P', cursive;
-    /* Massive but responsive: scales with the viewport, capped so it never
-       overflows on very wide screens. */
     font-size: clamp(2.5rem, 15vw, 10rem);
     font-weight: 400;
     line-height: 1.1;
@@ -35,5 +113,10 @@ import SiteFooter from '../components/SiteFooter.astro';
     -webkit-text-stroke: 3px #000000;
     paint-order: stroke fill;
     margin: 0;
+  }
+
+  /* Respect users who prefer less motion: words stay put, spread around. */
+  @media (prefers-reduced-motion: reduce) {
+    .swirl-word { animation: none; }
   }
 </style>
