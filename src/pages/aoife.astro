@@ -1,0 +1,77 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import SiteHeader from '../components/SiteHeader.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+
+// Hidden on purpose: no entry in src/data/panels.ts, so it never appears in
+// the nav wheel or side drawer. The only way in is the "A" of "Awards &
+// Achievements" on /awards — see .easter-egg-link there.
+---
+
+<BaseLayout title="Aoife">
+  <SiteHeader />
+
+  <main class="egg-main">
+    <p class="egg-kicker">you found the secret page</p>
+    <h1 class="egg-title">Hi, Aoife.</h1>
+    <p class="egg-note">
+      Just a little hidden corner of the internet with your name on it.
+      Edit <code>src/pages/aoife.astro</code> to make it say whatever you
+      actually want it to say. &#10084;
+    </p>
+  </main>
+
+  <SiteFooter />
+</BaseLayout>
+
+<style>
+  .egg-main {
+    min-height: 100svh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-4);
+    padding: var(--space-16) var(--space-6);
+    text-align: center;
+  }
+
+  .egg-kicker {
+    font-size: var(--text-sm);
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-brand);
+    opacity: 0.85;
+  }
+
+  .egg-title {
+    font-family: 'Press Start 2P', cursive;
+    font-size: calc(var(--text-2xl) * 1.2);
+    font-weight: 400;
+    color: #f699cd;
+    line-height: 1.4;
+    -webkit-text-stroke: 2px #000000;
+    paint-order: stroke fill;
+  }
+
+  .egg-note {
+    max-width: 32rem;
+    margin-top: var(--space-2);
+    font-size: var(--text-base);
+    line-height: 1.7;
+    color: var(--color-text-secondary);
+  }
+
+  .egg-note code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
+    font-size: 0.9em;
+    color: var(--color-brand);
+  }
+
+  @media (min-width: 768px) {
+    .egg-title {
+      font-size: calc(var(--text-3xl) * 1.2);
+    }
+  }
+</style>
