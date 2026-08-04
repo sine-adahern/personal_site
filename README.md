@@ -17,7 +17,7 @@ Personal portfolio site for **Sinéad Ahern** (Me >_<).
  **Live:** [sineadahern.com](https://sineadahern.com)
 
 ---
-🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷
+
 
 ##  Stack
 
@@ -30,7 +30,7 @@ Personal portfolio site for **Sinéad Ahern** (Me >_<).
 | Typography | [Press Start 2P](https://fonts.google.com/specimen/Press+Start+2P) (retro headings) · [Lato](https://fonts.google.com/specimen/Lato) (body) |
 | Output | Fully static build (SSG) — deploys to any static host |
 
-🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷
+
 
 ## Palette
 
@@ -45,7 +45,7 @@ Design tokens live in `src/styles/tokens.css`:
 | Background (dark) | `#000000` |
 | Background (light) | `#FFFFFF` |
 
-🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷
+
 
 ## To use 
 
@@ -56,7 +56,7 @@ npm run build    # production build → ./dist
 npm run preview  # preview the built site locally
 ```
 
-🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷
+
 
 ## Structure
 
@@ -74,7 +74,6 @@ personal_site/
 └─ package.json
 ```
 
-🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷
 
 ## Pages
 
@@ -84,4 +83,4 @@ Ships with a light/dark theme and responsive layouts down to mobile.
 
 ---
 
-<p align="center"><sub>Built with Astro · 🩷 in pink · © Sinéad Ahern</sub></p>
+<p align="center"><sub>Built with Astro · © Sinéad Ahern</sub></p>
