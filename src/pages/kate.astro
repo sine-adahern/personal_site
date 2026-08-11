@@ -7,13 +7,53 @@ import SiteFooter from '../components/SiteFooter.astro';
 // r  = orbit radius (vmin), a = start angle, dur = seconds per lap,
 // dir = normal / reverse spin, sz = size (rem), op = opacity.
 const words = [
+  { text: 'strong',      r: 16, a: 10,  dur: 30, dir: 'normal',  sz: 1.5, op: 0.5  },
+  { text: 'brave',       r: 16, a: 130, dur: 34, dir: 'reverse', sz: 1.3, op: 0.45 },
+  { text: 'beautiful',   r: 16, a: 250, dur: 32, dir: 'normal',  sz: 1.4, op: 0.5  },
+  { text: 'kind',        r: 26, a: 40,  dur: 44, dir: 'reverse', sz: 1.2, op: 0.42 },
+  { text: 'clever',      r: 26, a: 100, dur: 40, dir: 'normal',  sz: 1.3, op: 0.42 },
+  { text: 'loved',       r: 26, a: 170, dur: 46, dir: 'reverse', sz: 1.5, op: 0.5  },
+  { text: 'radiant',     r: 26, a: 230, dur: 42, dir: 'normal',  sz: 1.2, op: 0.4  },
+  { text: 'fearless',    r: 26, a: 300, dur: 48, dir: 'reverse', sz: 1.3, op: 0.42 },
+  { text: 'brilliant',   r: 36, a: 20,  dur: 56, dir: 'normal',  sz: 1.1, op: 0.32 },
+  { text: 'wonderful',   r: 36, a: 80,  dur: 52, dir: 'reverse', sz: 1.2, op: 0.35 },
+  { text: 'magic',       r: 36, a: 150, dur: 58, dir: 'normal',  sz: 1.4, op: 0.4  },
+  { text: 'bright',      r: 36, a: 210, dur: 54, dir: 'reverse', sz: 1.2, op: 0.35 },
+  { text: 'cherished',   r: 36, a: 280, dur: 60, dir: 'normal',  sz: 1.1, op: 0.32 },
+  { text: 'unstoppable', r: 36, a: 340, dur: 50, dir: 'reverse', sz: 1.1, op: 0.3  },
 ];
+
+// Background slideshow photos (in /public/images/kate/). They slowly cross-fade
+// behind everything, kept faint so they never cover the name or message.
+// Add/remove freely — the timing below adapts to however many there are.
+const photos = [
+  '/images/kate/kate-01.jpg',
+  '/images/kate/kate-02.jpg',
+  '/images/kate/kate-03.jpg',
+  '/images/kate/kate-04.jpg',
+  '/images/kate/kate-05.jpg',
+  '/images/kate/kate-06.jpg',
+  '/images/kate/kate-07.jpg',
+  '/images/kate/kate-08.jpg',
+];
+const perPhoto = 5; // seconds each photo holds
+const showDur = photos.length * perPhoto; // full loop length
 ---
 
 <BaseLayout title="Kate">
   <SiteHeader />
 
   <main class="egg-main">
+    <!-- Faint cross-fading photo slideshow, sitting behind everything else. -->
+    <div class="bg-slideshow" aria-hidden="true">
+      {photos.map((src, i) => (
+        <div
+          class="bg-slide"
+          style={`background-image:url('${src}'); animation-duration:${showDur}s, ${showDur}s; animation-delay:${i * perPhoto}s, ${i * perPhoto}s;`}
+        ></div>
+      ))}
+    </div>
+
     <div class="swirl" aria-hidden="true">
       {words.map((w) => (
         <div class="swirl-orbit">
@@ -28,7 +68,7 @@ const words = [
     <div class="egg-content">
       <h1 class="egg-name">Kate</h1>
       <!-- ↓ EDIT THIS LINE — put your own message to Kate here ↓ -->
-    <p class="egg-sub">Kate - the first person I ever learned to argue with. It must be so hard loosing every debate to your younger sister. Sending prayers <3</p>
+    <p class="egg-sub">This one’s for Kate.</p>
     </div>
   </main>
 
@@ -45,6 +85,51 @@ const words = [
     padding: var(--space-16) var(--space-6);
     text-align: center;
     overflow: hidden;
+  }
+
+  /* ── Faint cross-fading photo slideshow ─────────────────────────────────
+     Sits at the very back (z-index 0), below the swirling words (1) and the
+     name/message (2). --bg-op controls how see-through the photos are: lower =
+     more transparent. The keyframe percentages below are tuned for 8 photos
+     (each visible for 1/8 = 12.5% of the loop); if you change the number of
+     photos, nudge the 12.5 / 10.5 stops to match 100 / N. */
+  .bg-slideshow {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
+    --bg-op: 0.16;
+  }
+  :global([data-theme="light"]) .bg-slideshow { --bg-op: 0.12; }
+
+  .bg-slide {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    opacity: 0;                       /* each fades up in turn */
+    will-change: opacity, transform;
+    animation-name: kfade, kdrift;
+    animation-timing-function: linear, ease-out;
+    animation-iteration-count: infinite, infinite;
+    animation-fill-mode: both, both;
+    /* animation-duration + animation-delay are set per-slide in the markup */
+  }
+
+  /* Fade up, hold, fade out — all within this photo's 12.5% slice of the loop. */
+  @keyframes kfade {
+    0%    { opacity: 0; }
+    2%    { opacity: var(--bg-op); }
+    10.5% { opacity: var(--bg-op); }
+    12.5% { opacity: 0; }
+    100%  { opacity: 0; }
+  }
+  /* Slow "Ken Burns" drift so the slideshow feels alive, not static. */
+  @keyframes kdrift {
+    0%    { transform: scale(1.12); }
+    12.5% { transform: scale(1.0); }
+    100%  { transform: scale(1.0); }
   }
 
   /* Layer that holds every orbiting word, sitting behind the name. */
@@ -121,8 +206,11 @@ const words = [
     color: var(--color-text-primary);
   }
 
-  /* Respect users who prefer less motion: words stay put, spread around. */
+  /* Respect users who prefer less motion: words stay put, spread around, and
+     the slideshow stops cycling — a single faint photo is shown instead. */
   @media (prefers-reduced-motion: reduce) {
     .swirl-word { animation: none; }
+    .bg-slide { animation: none; opacity: 0; transform: none; }
+    .bg-slide:first-child { opacity: var(--bg-op); }
   }
 </style>
