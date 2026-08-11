@@ -166,6 +166,12 @@ const bannerImagesRev = [...bannerImages].reverse();
         </article>
       ))}
     </section>
+
+    <!-- ── Small easter-egg icon → opens the Kate page ───────────────────── -->
+    <!-- Icon lives at /public/images/speaking/kate-icon.png (swap in your own). -->
+    <a href="/kate" class="kate-egg" aria-label="Kate">
+      <img src="/images/speaking/kate-icon.png" alt="Kate" width="44" height="44" loading="lazy" />
+    </a>
   </main>
   <SiteFooter />
 </BaseLayout>
@@ -590,6 +596,40 @@ const bannerImagesRev = [...bannerImages].reverse();
     aspect-ratio: auto;
     height: auto;
     object-fit: contain;
+  }
+
+  /* ── Small easter-egg icon at the very bottom of the page ──────────────── */
+  /* Sits below the timeline, above the footer; subtle until hovered/focused. */
+  .kate-egg {
+    display: block;
+    width: max-content;
+    margin: var(--space-16) auto var(--space-12);
+    line-height: 0;
+    border-radius: 50%;
+    opacity: 0.65;
+    transition: opacity 0.25s ease, transform 0.25s ease;
+  }
+  .kate-egg:hover,
+  .kate-egg:focus-visible {
+    opacity: 1;
+    transform: scale(1.12);
+  }
+  .kate-egg:focus-visible {
+    outline: 2px solid #FF69B4;
+    outline-offset: 4px;
+  }
+  .kate-egg img {
+    width: 44px;
+    height: 44px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 2px solid #FF69B4;
+    display: block;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .kate-egg { transition: opacity 0.25s ease; }
+    .kate-egg:hover,
+    .kate-egg:focus-visible { transform: none; }
   }
 
   @media (min-width: 768px) {
